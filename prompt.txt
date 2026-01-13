@@ -1,0 +1,156 @@
+Ты — Claude Code в роли команды опытных senior разработчиков и аналитиков. Твоя задача: реализовать веб-приложение “Lumixa Manufacturing System (LMS)” по ТЗ в файле Markdown (Lumixa_LMS_TZ.md). 
+
+ВАЖНО: в первой итерации код не заработал, поэтому ты обязан встроить в проект полноценный контур диагностики/отладки (Diagnostics Dashboard, health endpoints, self-tests, error handler, request-id, setup hardening). Твоя цель — не просто “написать код”, а сделать продуктовый, запускаемый проект, который можно залить на сервер поддоменом lumixa.io и сразу открыть в браузере.
+
+0) Входные данные
+- Используй ТЗ как единственный источник требований.
+- Нельзя “сокращать” функционал: если что-то кажется большим — делай MVP-реализацию, но оставляй архитектуру, чтобы расширять без переписывания.
+- Если есть неясности, не задавай вопросы в чат: вместо этого фиксируй “ASSUMPTION” в docs/ASSUMPTIONS.md и реализуй разумное по умолчанию решение.
+
+1) Ключевые ограничения и требования
+- Это не Docker/Compose. Запуск — классический: файлы проекта загружаются на web-server (Nginx/Apache), web root указывает на /public, открывается index.php.
+- Данные должны храниться только в MySQL. Никакого localStorage как источника истины.
+- Вся кастомизация (dynamic fields, UI templates, workflows, permissions) должна храниться в MySQL, а не в коде, чтобы обновления не ломали изменения.
+- Обязательная безопасность: RBAC, CSRF, подготовленные запросы, защита приватных папок, ограничение доступа к debug и backup/restore.
+- Резервные копии: DB + uploads/attachments, хранить на сервере, показывать список бэкапов (кто/когда/размер), дать скачать архив, дать восстановить из архива с подтверждением и аудитом.
+- Система должна иметь Setup Wizard (/setup) для первоначальной настройки БД и создания admin.
+- После инсталла проект должен работать на поддомене (например lms.lumixa.io) без дополнительных ручных операций, кроме настройки nginx и прав на папки.
+
+2) Технологический выбор
+Выбери самый стабильный и “серверный” стек. Предпочтительно PHP 8.2 (без обязательного composer на сервере).
+Разрешено:
+- Либо использовать Composer, но тогда проект должен поставляться так, чтобы он работал на сервере без установки composer (то есть vendor включён в репозиторий или есть сборка).
+- Либо сделать полностью без composer: свой минимальный router, view layer, CSRF, error handler.
+Главное — чтобы деплой был простым: “залил — открыл”.
+
+3) Архитектура: что должно быть в проекте
+Собери структуру репозитория и зафиксируй в docs/ARCHITECTURE.md:
+- public/ (web root)
+- app/ или src/ (ядро приложения)
+- storage/ (logs, backups, migrations)
+- public/uploads/ (загрузки)
+- docs/ (документация)
+Минимальные подсистемы:
+A) Auth + RBAC
+B) Warehouse/Accounting (Items, Lots, Stock, Documents + Posting engine)
+C) Catalog (Products, Variants)
+D) BOM revisions
+E) Routing revisions (operations, instructions, checklists)
+F) Production Orders + Tasks
+G) Print Queue (reservation → actual grams → issue/write-off)
+H) Costing (plan vs actual)
+I) Admin (users/roles/permissions, custom fields, UI templates, workflows, audit log, backups, diagnostics)
+J) Backup/Restore
+K) Diagnostics / Debug (must-have)
+
+4) Обязательный диагностический контур (это критично)
+Реализуй:
+- /health → 200 OK “OK” без деталей
+- /health/details → только admin + APP_DEBUG=true, выдаёт результаты проверок (DB, migrations, dirs, php extensions)
+- Admin → Diagnostics (/admin/diagnostics):
+  - env info (PHP version, app version, time, paths, APP_ENV/DEBUG)
+  - check writable dirs: storage/, storage/logs/, storage/backups/, public/uploads/
+  - check required php extensions: pdo_mysql, mbstring, openssl, json, zip (curl optional)
+  - db connectivity (SELECT 1), show host/db/user without password
+  - migrations status + pending + кнопка “Run pending migrations”
+  - routing check: /health request from server side or note about rewrite
+  - log viewer: last N lines of storage/logs/app.log with filters, download logs
+- Глобальный error handler:
+  - ловит exceptions и fatal errors
+  - пишет request_id
+  - prod: user-friendly page + “Error ID: …”
+  - dev: подробности только admin
+- Setup Wizard hardening:
+  - проверяет окружение ДО миграций (dirs, extensions, DB, timezone, public root)
+  - fail-fast с подсказками (какие команды/chmod/chown)
+  - dry-run режим проверок без создания таблиц
+
+5) Модель данных (MySQL) и миграции
+- Реализуй миграции (storage/migrations) и таблицу migrations/schema_version.
+- Сущности минимум:
+  - users, roles, permissions, role_permissions, user_roles
+  - audit_log
+  - items (SKU), lots/batches
+  - stock_balances (on_hand/reserved), stock_movements или postings
+  - partners
+  - documents (receipt/issue/transfer/stocktake), document_lines
+  - products, variants
+  - bom_revisions, bom_lines
+  - routing_revisions, routing_operations, operation_checklists
+  - production_orders, tasks
+  - print_jobs, reservations, issues (или связь на documents issue)
+  - costing_snapshots или tables для plan/actual расчетов
+  - custom_fields, custom_field_values
+  - ui_templates
+  - workflows, workflow_transitions
+  - backups (metadata, manifest path, created_by, size, status)
+- Индексы на частые запросы: items.sku, lots, document status, print_jobs status, stock balances.
+
+6) Бизнес-логика (обязательные правила)
+Warehouse:
+- Остатки: on_hand, reserved, available = on_hand - reserved.
+- Документы: Draft → Posted → Cancelled (по правилам).
+- Posting engine транзакционный, не допускает двойного постинга.
+Print Queue:
+- Create print job → проверка available по material+color → reserve grams → reserved++
+- Complete print job → ввод actual grams → issue/write-off → on_hand--, reserved-- (закрыть резерв)
+- Если actual > reserved: по умолчанию требует permission менеджера или делает доп. списание с warning (зафиксировать в audit).
+BOM + Routing:
+- Ревизии Draft/Active/Archived, активная одна.
+Costing:
+- Plan: из BOM + routing times + overhead (простая модель).
+- Actual: из фактических issues + фактическое время (если есть) + overhead.
+Admin no-code:
+- Custom fields, UI templates, workflows должны быть применимы на UI без изменения кода.
+
+7) UI/UX минимум (но продуктово)
+- Server-rendered страницы с формами.
+- Списки: поиск/фильтр/сортировка/пагинация.
+- Карточки сущностей: General / Custom fields / History / Related.
+- Меню: Dashboard, Warehouse, Catalog, Production, Costing, Admin.
+- Все ошибки — понятные, без белого экрана.
+
+8) Безопасность (must-have)
+- CSRF на POST формы.
+- Prepared statements для SQL.
+- RBAC проверки в контроллерах/сервисах.
+- Запрет доступа к приватным папкам (config/storage/docs/vendor) через web root (public).
+- Ограничить debug endpoints: только admin + APP_DEBUG.
+- Ограничить backup/restore: только admin + подтверждения.
+
+9) Деплой и документация
+В docs/:
+- DEPLOYMENT.md: шаги установки на Nginx/Apache, права на папки, php extensions.
+- CONFIG.md: как задаётся DB config, APP_ENV/DEBUG.
+- ARCHITECTURE.md: слои, модули, как расширять.
+- ASSUMPTIONS.md: все допущения.
+- SECURITY.md: меры безопасности.
+- TROUBLESHOOTING.md: что делать при 500, где логи, как пользоваться Diagnostics.
+
+10) Итерации реализации (обязательная стратегия)
+Сделай работу в этапах, и на каждом этапе проект должен запускаться:
+- Stage 1: Skeleton + routing + setup wizard + auth + diagnostics + migrations base
+- Stage 2: Warehouse (items/lots/documents/posting/stock)
+- Stage 3: Catalog + BOM + Routing revisions
+- Stage 4: Production orders + tasks + print queue + reservations/issues
+- Stage 5: Costing (plan/actual) + reports basic
+- Stage 6: Admin no-code (custom fields/templates/workflows) + backups/restore polish
+
+11) Критерии приемки (Acceptance)
+Проект считается успешным, если:
+- Загружаем на сервер, web root /public, открываем /setup — проходит проверки, создаёт admin, ставит таблицы.
+- После установки логин работает, RBAC работает.
+- Diagnostics показывает окружение/права/расширения/БД/миграции/логи.
+- /health отдаёт 200.
+- Склад работает: приход → постинг → остатки.
+- Print Queue: резерв → завершение → списание → отражение в остатках.
+- Backups: создать, показать в списке (кто/когда/размер), скачать, восстановить (с подтверждением), запись в audit.
+- Любая ошибка не даёт белый экран, а даёт request-id и пишет лог.
+
+12) Выходной результат (что ты должен сгенерировать как Claude Code)
+- Полный репозиторий кода с рабочим запуском.
+- Миграции + seed данных (минимум admin role, базовые permissions, workflows).
+- Документация в /docs (как указано выше).
+- Скриншоты не нужны, но нужны понятные инструкции.
+
+Начинай с анализа ТЗ и сразу создавай Stage 1 (skeleton) так, чтобы проект гарантированно открывался и отдавал страницы. Любые предположения фиксируй в docs/ASSUMPTIONS.md. Не пропускай диагностический контур.
