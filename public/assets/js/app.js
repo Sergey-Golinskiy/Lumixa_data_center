@@ -1,0 +1,137 @@
+/**
+ * Lumixa LMS - Main JavaScript
+ */
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Close alert buttons
+    document.querySelectorAll('.alert-close').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            this.closest('.alert').remove();
+        });
+    });
+
+    // Auto-hide alerts after 5 seconds
+    document.querySelectorAll('.alert-success, .alert-info').forEach(function(alert) {
+        setTimeout(function() {
+            alert.style.opacity = '0';
+            alert.style.transition = 'opacity 0.3s';
+            setTimeout(function() {
+                alert.remove();
+            }, 300);
+        }, 5000);
+    });
+
+    // Confirm dangerous actions
+    document.querySelectorAll('[data-confirm]').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            if (!confirm(this.dataset.confirm || 'Are you sure?')) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // Form submission loading state
+    document.querySelectorAll('form').forEach(function(form) {
+        form.addEventListener('submit', function() {
+            var btn = form.querySelector('button[type="submit"]');
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                var originalText = btn.innerHTML;
+                btn.innerHTML = 'Processing...';
+
+                // Reset after timeout (in case of error)
+                setTimeout(function() {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }, 10000);
+            }
+        });
+    });
+
+    // Sidebar active state
+    var currentPath = window.location.pathname;
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+        var href = link.getAttribute('href');
+        if (href === currentPath || (href !== '/' && currentPath.startsWith(href))) {
+            link.classList.add('active');
+        }
+    });
+
+    // Debug panel toggle (if exists)
+    var debugPanel = document.querySelector('.debug-panel');
+    if (debugPanel) {
+        var toggle = debugPanel.querySelector('.debug-toggle');
+        var content = debugPanel.querySelector('.debug-content');
+
+        toggle.addEventListener('click', function() {
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        });
+    }
+
+    // Table row click (for items with data-href)
+    document.querySelectorAll('tr[data-href]').forEach(function(row) {
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+                window.location.href = this.dataset.href;
+            }
+        });
+    });
+
+    // Search input debounce
+    var searchInputs = document.querySelectorAll('input[data-search]');
+    searchInputs.forEach(function(input) {
+        var timeout;
+        input.addEventListener('input', function() {
+            clearTimeout(timeout);
+            var form = this.closest('form');
+            timeout = setTimeout(function() {
+                if (form) form.submit();
+            }, 500);
+        });
+    });
+});
+
+// CSRF token for AJAX requests
+function getCsrfToken() {
+    var input = document.querySelector('input[name="_csrf_token"]');
+    return input ? input.value : '';
+}
+
+// Helper for AJAX POST
+function postData(url, data) {
+    data._csrf_token = getCsrfToken();
+
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRF-Token': getCsrfToken()
+        },
+        body: new URLSearchParams(data).toString()
+    }).then(function(response) {
+        return response.json();
+    });
+}
+
+// Flash message helper
+function showFlash(type, message) {
+    var container = document.querySelector('.content-body');
+    if (!container) return;
+
+    var alert = document.createElement('div');
+    alert.className = 'alert alert-' + type;
+    alert.innerHTML = message + '<button type="button" class="alert-close">&times;</button>';
+
+    container.insertBefore(alert, container.firstChild);
+
+    alert.querySelector('.alert-close').addEventListener('click', function() {
+        alert.remove();
+    });
+
+    if (type === 'success' || type === 'info') {
+        setTimeout(function() {
+            alert.remove();
+        }, 5000);
+    }
+}
