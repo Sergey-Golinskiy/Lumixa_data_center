@@ -148,36 +148,36 @@ return function (Router $router) {
         // Products
         $router->get('/products', 'Catalog\\ProductsController@index', 'catalog.products');
         $router->get('/products/create', 'Catalog\\ProductsController@create', 'catalog.products.create');
-        $router->post('/products/create', 'Catalog\\ProductsController@store');
+        $router->post('/products', 'Catalog\\ProductsController@store');
         $router->get('/products/{id}', 'Catalog\\ProductsController@show', 'catalog.products.show');
         $router->get('/products/{id}/edit', 'Catalog\\ProductsController@edit', 'catalog.products.edit');
-        $router->post('/products/{id}/edit', 'Catalog\\ProductsController@update');
+        $router->post('/products/{id}', 'Catalog\\ProductsController@update');
 
         // Variants
         $router->get('/variants', 'Catalog\\VariantsController@index', 'catalog.variants');
         $router->get('/variants/create', 'Catalog\\VariantsController@create', 'catalog.variants.create');
-        $router->post('/variants/create', 'Catalog\\VariantsController@store');
+        $router->post('/variants', 'Catalog\\VariantsController@store');
         $router->get('/variants/{id}', 'Catalog\\VariantsController@show', 'catalog.variants.show');
         $router->get('/variants/{id}/edit', 'Catalog\\VariantsController@edit', 'catalog.variants.edit');
-        $router->post('/variants/{id}/edit', 'Catalog\\VariantsController@update');
+        $router->post('/variants/{id}', 'Catalog\\VariantsController@update');
 
         // BOM
         $router->get('/bom', 'Catalog\\BOMController@index', 'catalog.bom');
         $router->get('/bom/create', 'Catalog\\BOMController@create', 'catalog.bom.create');
-        $router->post('/bom/create', 'Catalog\\BOMController@store');
+        $router->post('/bom', 'Catalog\\BOMController@store');
         $router->get('/bom/{id}', 'Catalog\\BOMController@show', 'catalog.bom.show');
         $router->get('/bom/{id}/edit', 'Catalog\\BOMController@edit', 'catalog.bom.edit');
-        $router->post('/bom/{id}/edit', 'Catalog\\BOMController@update');
+        $router->post('/bom/{id}', 'Catalog\\BOMController@update');
         $router->post('/bom/{id}/activate', 'Catalog\\BOMController@activate');
         $router->post('/bom/{id}/archive', 'Catalog\\BOMController@archive');
 
         // Routing
         $router->get('/routing', 'Catalog\\RoutingController@index', 'catalog.routing');
         $router->get('/routing/create', 'Catalog\\RoutingController@create', 'catalog.routing.create');
-        $router->post('/routing/create', 'Catalog\\RoutingController@store');
+        $router->post('/routing', 'Catalog\\RoutingController@store');
         $router->get('/routing/{id}', 'Catalog\\RoutingController@show', 'catalog.routing.show');
         $router->get('/routing/{id}/edit', 'Catalog\\RoutingController@edit', 'catalog.routing.edit');
-        $router->post('/routing/{id}/edit', 'Catalog\\RoutingController@update');
+        $router->post('/routing/{id}', 'Catalog\\RoutingController@update');
         $router->post('/routing/{id}/activate', 'Catalog\\RoutingController@activate');
         $router->post('/routing/{id}/archive', 'Catalog\\RoutingController@archive');
 
