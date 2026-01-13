@@ -97,35 +97,46 @@ return function (Router $router) {
         // Items (SKU)
         $router->get('/items', 'Warehouse\\ItemsController@index', 'warehouse.items');
         $router->get('/items/create', 'Warehouse\\ItemsController@create', 'warehouse.items.create');
-        $router->post('/items/create', 'Warehouse\\ItemsController@store');
+        $router->post('/items', 'Warehouse\\ItemsController@store');
         $router->get('/items/{id}', 'Warehouse\\ItemsController@show', 'warehouse.items.show');
         $router->get('/items/{id}/edit', 'Warehouse\\ItemsController@edit', 'warehouse.items.edit');
-        $router->post('/items/{id}/edit', 'Warehouse\\ItemsController@update');
+        $router->post('/items/{id}', 'Warehouse\\ItemsController@update');
 
         // Lots
         $router->get('/lots', 'Warehouse\\LotsController@index', 'warehouse.lots');
+        $router->get('/lots/expiring', 'Warehouse\\LotsController@expiring', 'warehouse.lots.expiring');
+        $router->get('/lots/create', 'Warehouse\\LotsController@create', 'warehouse.lots.create');
+        $router->post('/lots', 'Warehouse\\LotsController@store');
         $router->get('/lots/{id}', 'Warehouse\\LotsController@show', 'warehouse.lots.show');
+        $router->get('/lots/{id}/edit', 'Warehouse\\LotsController@edit', 'warehouse.lots.edit');
+        $router->post('/lots/{id}', 'Warehouse\\LotsController@update');
+        $router->post('/lots/{id}/status', 'Warehouse\\LotsController@changeStatus');
 
         // Stock
         $router->get('/stock', 'Warehouse\\StockController@index', 'warehouse.stock');
+        $router->get('/stock/movements', 'Warehouse\\StockController@movements', 'warehouse.stock.movements');
+        $router->get('/stock/low-stock', 'Warehouse\\StockController@lowStock', 'warehouse.stock.low');
+        $router->get('/stock/valuation', 'Warehouse\\StockController@valuation', 'warehouse.stock.valuation');
+        $router->get('/stock/{id}', 'Warehouse\\StockController@show', 'warehouse.stock.show');
 
         // Documents
         $router->get('/documents', 'Warehouse\\DocumentsController@index', 'warehouse.documents');
-        $router->get('/documents/create/{type}', 'Warehouse\\DocumentsController@create', 'warehouse.documents.create');
-        $router->post('/documents/create/{type}', 'Warehouse\\DocumentsController@store');
+        $router->get('/documents/create', 'Warehouse\\DocumentsController@create', 'warehouse.documents.create');
+        $router->post('/documents', 'Warehouse\\DocumentsController@store');
         $router->get('/documents/{id}', 'Warehouse\\DocumentsController@show', 'warehouse.documents.show');
         $router->get('/documents/{id}/edit', 'Warehouse\\DocumentsController@edit', 'warehouse.documents.edit');
-        $router->post('/documents/{id}/edit', 'Warehouse\\DocumentsController@update');
+        $router->post('/documents/{id}', 'Warehouse\\DocumentsController@update');
         $router->post('/documents/{id}/post', 'Warehouse\\DocumentsController@post');
         $router->post('/documents/{id}/cancel', 'Warehouse\\DocumentsController@cancel');
 
         // Partners
         $router->get('/partners', 'Warehouse\\PartnersController@index', 'warehouse.partners');
         $router->get('/partners/create', 'Warehouse\\PartnersController@create', 'warehouse.partners.create');
-        $router->post('/partners/create', 'Warehouse\\PartnersController@store');
+        $router->post('/partners', 'Warehouse\\PartnersController@store');
         $router->get('/partners/{id}', 'Warehouse\\PartnersController@show', 'warehouse.partners.show');
         $router->get('/partners/{id}/edit', 'Warehouse\\PartnersController@edit', 'warehouse.partners.edit');
-        $router->post('/partners/{id}/edit', 'Warehouse\\PartnersController@update');
+        $router->post('/partners/{id}', 'Warehouse\\PartnersController@update');
+        $router->post('/partners/{id}/delete', 'Warehouse\\PartnersController@delete');
 
     }, ['AuthMiddleware', 'CSRFMiddleware']);
 
