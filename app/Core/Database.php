@@ -325,12 +325,15 @@ class Database
 
     /**
      * Check if table exists
+     * Note: Uses information_schema for reliable parameter binding
      */
     public function tableExists(string $table): bool
     {
-        $sql = "SHOW TABLES LIKE ?";
-        $result = $this->fetchColumn($sql, [$table]);
-        return $result !== false;
+        $dbName = $this->config['db_name'] ?? '';
+        $sql = "SELECT COUNT(*) FROM information_schema.tables
+                WHERE table_schema = ? AND table_name = ?";
+        $result = $this->fetchColumn($sql, [$dbName, $table]);
+        return (int)$result > 0;
     }
 
     /**

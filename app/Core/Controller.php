@@ -39,6 +39,15 @@ abstract class Controller
     }
 
     /**
+     * Render view (alias for view() method)
+     * Some controllers use render() instead of view() - this provides compatibility
+     */
+    protected function render(string $template, array $data = []): void
+    {
+        $this->view($template, $data);
+    }
+
+    /**
      * Render JSON response
      */
     protected function json($data, int $status = 200): void
@@ -365,5 +374,58 @@ abstract class Controller
     protected function log(string $level, string $message, array $context = []): void
     {
         $this->app->getLogger()->log($level, $message, $context);
+    }
+
+    /**
+     * Show 404 Not Found page
+     */
+    protected function notFound(string $message = 'Resource not found'): void
+    {
+        http_response_code(404);
+        $this->view('errors/404', [
+            'title' => 'Not Found',
+            'message' => $message
+        ]);
+        exit;
+    }
+
+    /**
+     * Log audit trail entry
+     *
+     * @param string $action Action performed (e.g., 'user.created', 'order.updated')
+     * @param string $entityType Type of entity being modified
+     * @param int|string|null $entityId ID of the entity
+     * @param array|null $oldData Previous state of the entity
+     * @param array|null $newData New state of the entity
+     */
+    protected function audit(
+        string $action,
+        string $entityType,
+        $entityId = null,
+        ?array $oldData = null,
+        ?array $newData = null
+    ): void {
+        $user = $this->user();
+        $userId = $user['id'] ?? null;
+
+        try {
+            $this->db()->insert('audit_log', [
+                'user_id' => $userId,
+                'action' => $action,
+                'entity_type' => $entityType,
+                'entity_id' => (int)($entityId ?? 0),
+                'old_values' => $oldData ? json_encode($oldData) : null,
+                'new_values' => $newData ? json_encode($newData) : null,
+                'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null
+            ]);
+        } catch (\Exception $e) {
+            // Log error but don't fail the main operation
+            $this->log('error', 'Failed to create audit log entry: ' . $e->getMessage(), [
+                'action' => $action,
+                'entity_type' => $entityType,
+                'entity_id' => $entityId
+            ]);
+        }
     }
 }

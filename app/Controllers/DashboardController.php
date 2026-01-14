@@ -57,10 +57,10 @@ class DashboardController extends Controller
                 );
             }
 
-            // Pending print jobs
-            if ($db->tableExists('print_jobs')) {
+            // Pending print jobs (table is print_queue)
+            if ($db->tableExists('print_queue')) {
                 $stats['print_jobs_pending'] = (int)$db->fetchColumn(
-                    "SELECT COUNT(*) FROM print_jobs WHERE status IN ('pending', 'in_progress')"
+                    "SELECT COUNT(*) FROM print_queue WHERE status IN ('queued', 'printing')"
                 );
             }
 
