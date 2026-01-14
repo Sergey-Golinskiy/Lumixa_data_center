@@ -250,9 +250,9 @@ class DocumentsController extends Controller
     }
 
     /**
-     * Post document
+     * Post document (execute/apply to inventory)
      */
-    public function post(string $id): void
+    public function postDocument(string $id): void
     {
         $this->requireAuth();
         $this->authorize('warehouse.documents.post');

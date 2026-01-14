@@ -126,7 +126,7 @@ return function (Router $router) {
         $router->get('/documents/{id}', 'Warehouse\\DocumentsController@show', 'warehouse.documents.show');
         $router->get('/documents/{id}/edit', 'Warehouse\\DocumentsController@edit', 'warehouse.documents.edit');
         $router->post('/documents/{id}', 'Warehouse\\DocumentsController@update');
-        $router->post('/documents/{id}/post', 'Warehouse\\DocumentsController@post');
+        $router->post('/documents/{id}/post', 'Warehouse\\DocumentsController@postDocument');
         $router->post('/documents/{id}/cancel', 'Warehouse\\DocumentsController@cancel');
 
         // Partners

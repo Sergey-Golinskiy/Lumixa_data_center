@@ -13,6 +13,9 @@ ini_set('log_errors', '1');
 // Define base path
 define('BASE_PATH', dirname(__DIR__));
 
+// Load global helpers
+require_once BASE_PATH . '/app/helpers.php';
+
 // Autoloader
 spl_autoload_register(function ($class) {
     // Convert namespace to path
