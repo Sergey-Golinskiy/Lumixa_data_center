@@ -18,28 +18,25 @@ class CostingController extends Controller
 
         // Get summary stats
         $totalVariants = $this->db()->fetchColumn("SELECT COUNT(*) FROM variants WHERE is_active = 1");
-        $variantsWithCost = $this->db()->fetchColumn("SELECT COUNT(*) FROM variant_costs WHERE planned_cost > 0");
+        $variantsWithCost = $this->db()->fetchColumn("SELECT COUNT(*) FROM variant_costs WHERE total_cost > 0");
         $completedOrders = $this->db()->fetchColumn("SELECT COUNT(*) FROM production_orders WHERE status = 'completed'");
 
         // Get recent cost variances
+        // Note: actual_cost calculated from actual_quantity * unit_cost for materials
+        // Labor cost currently not tracked in production_tasks, using 0
         $recentVariances = $this->db()->fetchAll(
             "SELECT po.order_number, v.sku, v.name,
-                    vc.planned_cost,
-                    COALESCE(mc.actual_material_cost, 0) + COALESCE(pt.actual_labor_cost, 0) as actual_cost,
+                    vc.total_cost as planned_cost,
+                    COALESCE(mc.actual_material_cost, 0) as actual_cost,
                     po.quantity, po.completed_at
              FROM production_orders po
              JOIN variants v ON po.variant_id = v.id
              LEFT JOIN variant_costs vc ON v.id = vc.variant_id
              LEFT JOIN (
-                SELECT order_id, SUM(actual_cost) as actual_material_cost
+                SELECT order_id, SUM(actual_quantity * unit_cost) as actual_material_cost
                 FROM material_consumption
                 GROUP BY order_id
              ) mc ON po.id = mc.order_id
-             LEFT JOIN (
-                SELECT order_id, SUM(actual_cost) as actual_labor_cost
-                FROM production_tasks
-                GROUP BY order_id
-             ) pt ON po.id = pt.order_id
              WHERE po.status = 'completed'
              ORDER BY po.completed_at DESC
              LIMIT 10"
@@ -92,7 +89,7 @@ class CostingController extends Controller
         $offset = ($page - 1) * $perPage;
         $variants = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name, v.unit,
-                    vc.material_cost, vc.labor_cost, vc.overhead_cost, vc.planned_cost,
+                    vc.material_cost, vc.labor_cost, vc.overhead_cost, vc.total_cost,
                     vc.calculated_at,
                     b.id as bom_id, b.name as bom_name,
                     r.id as routing_id, r.name as routing_name
@@ -130,13 +127,15 @@ class CostingController extends Controller
 
         $offset = ($page - 1) * $perPage;
 
+        // Note: material cost = actual_quantity * unit_cost
+        // Labor time calculated from actual_start/actual_end, cost not tracked
         $orders = $this->db()->fetchAll(
             "SELECT po.id, po.order_number, po.quantity, po.completed_quantity, po.completed_at,
                     v.sku, v.name as variant_name,
-                    vc.planned_cost,
+                    vc.total_cost as planned_cost,
                     COALESCE(mc.material_cost, 0) as actual_material_cost,
                     COALESCE(mc.material_count, 0) as material_count,
-                    COALESCE(pt.labor_cost, 0) as actual_labor_cost,
+                    0 as actual_labor_cost,
                     COALESCE(pt.labor_minutes, 0) as labor_minutes,
                     COALESCE(pt.task_count, 0) as task_count
              FROM production_orders po
@@ -144,17 +143,17 @@ class CostingController extends Controller
              LEFT JOIN variant_costs vc ON v.id = vc.variant_id
              LEFT JOIN (
                 SELECT order_id,
-                       SUM(actual_cost) as material_cost,
+                       SUM(actual_quantity * unit_cost) as material_cost,
                        COUNT(*) as material_count
                 FROM material_consumption
                 GROUP BY order_id
              ) mc ON po.id = mc.order_id
              LEFT JOIN (
                 SELECT order_id,
-                       SUM(actual_cost) as labor_cost,
-                       SUM(actual_time_minutes) as labor_minutes,
+                       SUM(TIMESTAMPDIFF(MINUTE, actual_start, actual_end)) as labor_minutes,
                        COUNT(*) as task_count
                 FROM production_tasks
+                WHERE actual_start IS NOT NULL AND actual_end IS NOT NULL
                 GROUP BY order_id
              ) pt ON po.id = pt.order_id
              WHERE po.status = 'completed'
@@ -199,29 +198,25 @@ class CostingController extends Controller
         $dateTo = $_GET['to'] ?? date('Y-m-d');
 
         // Aggregate by variant
+        // Note: material cost = actual_quantity * unit_cost, labor cost not tracked
         $comparison = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name,
                     SUM(po.completed_quantity) as total_produced,
-                    vc.planned_cost as unit_planned_cost,
-                    SUM(po.completed_quantity) * COALESCE(vc.planned_cost, 0) as total_planned_cost,
+                    vc.total_cost as unit_planned_cost,
+                    SUM(po.completed_quantity) * COALESCE(vc.total_cost, 0) as total_planned_cost,
                     COALESCE(SUM(mc.material_cost), 0) as total_material_cost,
-                    COALESCE(SUM(pt.labor_cost), 0) as total_labor_cost
+                    0 as total_labor_cost
              FROM production_orders po
              JOIN variants v ON po.variant_id = v.id
              LEFT JOIN variant_costs vc ON v.id = vc.variant_id
              LEFT JOIN (
-                SELECT order_id, SUM(actual_cost) as material_cost
+                SELECT order_id, SUM(actual_quantity * unit_cost) as material_cost
                 FROM material_consumption
                 GROUP BY order_id
              ) mc ON po.id = mc.order_id
-             LEFT JOIN (
-                SELECT order_id, SUM(actual_cost) as labor_cost
-                FROM production_tasks
-                GROUP BY order_id
-             ) pt ON po.id = pt.order_id
              WHERE po.status = 'completed'
                AND DATE(po.completed_at) BETWEEN ? AND ?
-             GROUP BY v.id, v.sku, v.name, vc.planned_cost
+             GROUP BY v.id, v.sku, v.name, vc.total_cost
              ORDER BY SUM(po.completed_quantity) DESC",
             [$dateFrom, $dateTo]
         );
@@ -273,7 +268,7 @@ class CostingController extends Controller
         $this->requirePermission('costing.view');
 
         $variant = $this->db()->fetch(
-            "SELECT v.*, vc.material_cost, vc.labor_cost, vc.overhead_cost, vc.planned_cost, vc.calculated_at
+            "SELECT v.*, vc.material_cost, vc.labor_cost, vc.overhead_cost, vc.total_cost, vc.calculated_at
              FROM variants v
              LEFT JOIN variant_costs vc ON v.id = vc.variant_id
              WHERE v.id = ?",
@@ -329,21 +324,17 @@ class CostingController extends Controller
         }
 
         // Get production history
+        // Note: material cost = actual_quantity * unit_cost, labor cost not tracked
         $history = $this->db()->fetchAll(
             "SELECT po.id, po.order_number, po.completed_quantity, po.completed_at,
                     COALESCE(mc.material_cost, 0) as actual_material,
-                    COALESCE(pt.labor_cost, 0) as actual_labor
+                    0 as actual_labor
              FROM production_orders po
              LEFT JOIN (
-                SELECT order_id, SUM(actual_cost) as material_cost
+                SELECT order_id, SUM(actual_quantity * unit_cost) as material_cost
                 FROM material_consumption
                 GROUP BY order_id
              ) mc ON po.id = mc.order_id
-             LEFT JOIN (
-                SELECT order_id, SUM(actual_cost) as labor_cost
-                FROM production_tasks
-                GROUP BY order_id
-             ) pt ON po.id = pt.order_id
              WHERE po.variant_id = ? AND po.status = 'completed'
              ORDER BY po.completed_at DESC
              LIMIT 20",
