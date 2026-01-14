@@ -41,7 +41,7 @@ class AuditController extends Controller
         }
 
         if ($filters['table']) {
-            $where[] = "a.table_name = ?";
+            $where[] = "a.entity_type = ?";
             $params[] = $filters['table'];
         }
 
@@ -71,8 +71,8 @@ class AuditController extends Controller
         );
 
         // Get filter options
-        $users = $this->db()->fetchAll("SELECT id, username FROM users ORDER BY username");
-        $tables = $this->db()->fetchAll("SELECT DISTINCT table_name FROM audit_log ORDER BY table_name");
+        $users = $this->db()->fetchAll("SELECT id, name FROM users ORDER BY name");
+        $tables = $this->db()->fetchAll("SELECT DISTINCT entity_type FROM audit_log ORDER BY entity_type");
         $actions = $this->db()->fetchAll("SELECT DISTINCT action FROM audit_log ORDER BY action");
 
         $this->view('admin/audit/index', [
@@ -80,7 +80,7 @@ class AuditController extends Controller
             'entries' => $entries,
             'filters' => $filters,
             'users' => $users,
-            'tables' => array_column($tables, 'table_name'),
+            'tables' => array_column($tables, 'entity_type'),
             'actions' => array_column($actions, 'action'),
             'page' => $page,
             'total' => $total,
@@ -110,8 +110,8 @@ class AuditController extends Controller
         }
 
         // Decode JSON data
-        $entry['old_data_decoded'] = $entry['old_data'] ? json_decode($entry['old_data'], true) : null;
-        $entry['new_data_decoded'] = $entry['new_data'] ? json_decode($entry['new_data'], true) : null;
+        $entry['old_data_decoded'] = $entry['old_values'] ? json_decode($entry['old_values'], true) : null;
+        $entry['new_data_decoded'] = $entry['new_values'] ? json_decode($entry['new_values'], true) : null;
 
         $this->view('admin/audit/show', [
             'title' => 'Audit Entry #' . $id,
