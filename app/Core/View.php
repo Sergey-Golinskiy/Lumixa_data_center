@@ -54,7 +54,10 @@ class View
             $layoutFile = $this->layoutPath . '/' . $this->layout . '.php';
 
             if (file_exists($layoutFile)) {
-                $this->sections['content'] = $content;
+                // Only set content section if not already defined by section()/endSection()
+                if (!isset($this->sections['content'])) {
+                    $this->sections['content'] = $content;
+                }
                 ob_start();
                 include $layoutFile;
                 $content = ob_get_clean();
