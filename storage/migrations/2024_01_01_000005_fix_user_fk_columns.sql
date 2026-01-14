@@ -1,35 +1,57 @@
 -- =====================================================
--- Fix User FK Columns Migration
+-- Fix FK Column Types Migration
 -- =====================================================
 -- This migration fixes FK compatibility issues where columns
--- referencing users(id) were created as INT instead of INT UNSIGNED.
+-- referencing tables from other migrations have mismatched types.
 -- MySQL requires FK columns to have identical types including signedness.
 --
--- Note: These statements use DROP FOREIGN KEY IF EXISTS which requires
--- MySQL 8.0.16+ or MariaDB 10.0.2+. For older versions, errors on
--- non-existent FKs are safely ignored.
+-- Issues fixed:
+-- 1. Columns referencing users(id) INT UNSIGNED - user FK columns
+-- 2. Columns referencing items(id) INT UNSIGNED - warehouse FK columns
+-- 3. Columns referencing lots(id) INT UNSIGNED - warehouse FK columns
 -- =====================================================
 
 -- Disable FK checks during migration
 SET FOREIGN_KEY_CHECKS = 0;
 
--- Fix bom.created_by if table exists
+-- =====================================================
+-- Fix columns referencing users(id) INT UNSIGNED
+-- =====================================================
+
+-- Fix bom.created_by
 ALTER TABLE bom MODIFY COLUMN created_by INT UNSIGNED NULL;
 
--- Fix routing.created_by if table exists
+-- Fix routing.created_by
 ALTER TABLE routing MODIFY COLUMN created_by INT UNSIGNED NULL;
 
--- Fix production_orders.created_by if table exists
+-- Fix production_orders.created_by
 ALTER TABLE production_orders MODIFY COLUMN created_by INT UNSIGNED NULL;
 
--- Fix production_tasks.assigned_to if table exists
+-- Fix production_tasks.assigned_to
 ALTER TABLE production_tasks MODIFY COLUMN assigned_to INT UNSIGNED NULL;
 
--- Fix material_consumption.consumed_by if table exists
+-- Fix material_consumption.consumed_by
 ALTER TABLE material_consumption MODIFY COLUMN consumed_by INT UNSIGNED NULL;
 
--- Fix print_queue.created_by if table exists
+-- Fix print_queue.created_by
 ALTER TABLE print_queue MODIFY COLUMN created_by INT UNSIGNED NULL;
+
+-- =====================================================
+-- Fix columns referencing items(id) INT UNSIGNED
+-- =====================================================
+
+-- Fix bom_lines.item_id
+ALTER TABLE bom_lines MODIFY COLUMN item_id INT UNSIGNED NOT NULL;
+
+-- Fix material_consumption.item_id
+ALTER TABLE material_consumption MODIFY COLUMN item_id INT UNSIGNED NOT NULL;
+
+-- =====================================================
+-- Fix columns referencing lots(id) INT UNSIGNED
+-- =====================================================
+
+-- Fix material_consumption.lot_id
+ALTER TABLE material_consumption MODIFY COLUMN lot_id INT UNSIGNED NULL;
 
 -- Re-enable FK checks
 SET FOREIGN_KEY_CHECKS = 1;

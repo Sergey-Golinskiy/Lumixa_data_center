@@ -55,10 +55,11 @@ CREATE TABLE IF NOT EXISTS bom (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- BOM Lines (materials required)
+-- Note: item_id must be INT UNSIGNED to match items.id type from warehouse migration
 CREATE TABLE IF NOT EXISTS bom_lines (
     id INT PRIMARY KEY AUTO_INCREMENT,
     bom_id INT NOT NULL,
-    item_id INT NOT NULL,
+    item_id INT UNSIGNED NOT NULL,
     quantity DECIMAL(15,6) NOT NULL,
     unit_cost DECIMAL(15,4) DEFAULT 0,
     waste_percent DECIMAL(5,2) DEFAULT 0,
