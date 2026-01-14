@@ -96,6 +96,10 @@ class MigrationService
 
     /**
      * Run single migration
+     *
+     * Note: MySQL/MariaDB implicitly commits on DDL statements (CREATE, ALTER, DROP).
+     * Therefore, we don't wrap DDL in transactions - they auto-commit anyway.
+     * We only need to ensure the migration record is inserted after all statements succeed.
      */
     private function runMigration(string $migration): array
     {
@@ -115,8 +119,8 @@ class MigrationService
             // Split by statements (handle ; inside strings)
             $statements = $this->splitStatements($sql);
 
-            $this->db->beginTransaction();
-
+            // Execute DDL statements without transaction wrapper
+            // MySQL implicitly commits on DDL, so transactions are meaningless here
             foreach ($statements as $statement) {
                 $statement = trim($statement);
                 if (!empty($statement)) {
@@ -124,11 +128,9 @@ class MigrationService
                 }
             }
 
-            // Record migration
+            // Record migration (DML - could use transaction, but single INSERT is atomic)
             $stmt = $this->db->prepare("INSERT INTO migrations (migration, batch, created_at) VALUES (?, ?, NOW())");
             $stmt->execute([$migration, $this->getNextBatch()]);
-
-            $this->db->commit();
 
             return [
                 'migration' => $migration,
@@ -136,7 +138,10 @@ class MigrationService
             ];
 
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            // Rollback only if we're still in a transaction (shouldn't happen with DDL)
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
 
             return [
                 'migration' => $migration,

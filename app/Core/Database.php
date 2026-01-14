@@ -242,7 +242,40 @@ class Database
      */
     public function inTransaction(): bool
     {
-        return $this->inTransaction;
+        // Check both our flag and PDO's actual state (may differ due to implicit commits)
+        return $this->inTransaction && $this->getConnection()->inTransaction();
+    }
+
+    /**
+     * Safe commit - only commits if there's an active transaction
+     *
+     * MySQL/MariaDB implicitly commits on DDL statements (CREATE, ALTER, DROP),
+     * which can leave the transaction in an inconsistent state. This method
+     * safely handles that case by checking PDO's actual transaction state.
+     */
+    public function safeCommit(): bool
+    {
+        if ($this->getConnection()->inTransaction()) {
+            $this->inTransaction = false;
+            return $this->getConnection()->commit();
+        }
+        $this->inTransaction = false;
+        return true; // No active transaction, but not an error
+    }
+
+    /**
+     * Safe rollback - only rolls back if there's an active transaction
+     *
+     * Handles cases where MySQL implicitly committed due to DDL statements.
+     */
+    public function safeRollback(): bool
+    {
+        if ($this->getConnection()->inTransaction()) {
+            $this->inTransaction = false;
+            return $this->getConnection()->rollBack();
+        }
+        $this->inTransaction = false;
+        return true; // No active transaction, but not an error
     }
 
     /**
