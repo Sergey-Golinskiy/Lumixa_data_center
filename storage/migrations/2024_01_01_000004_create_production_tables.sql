@@ -1,5 +1,6 @@
 -- Production Tables Migration
 -- Orders, Tasks, Print Queue
+-- Note: All user FK columns must be INT UNSIGNED to match users.id type
 
 -- Production Orders
 CREATE TABLE IF NOT EXISTS production_orders (
@@ -17,7 +18,7 @@ CREATE TABLE IF NOT EXISTS production_orders (
     status ENUM('draft', 'planned', 'in_progress', 'completed', 'cancelled') DEFAULT 'draft',
     priority ENUM('low', 'normal', 'high', 'urgent') DEFAULT 'normal',
     notes TEXT,
-    created_by INT,
+    created_by INT UNSIGNED,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (variant_id) REFERENCES variants(id) ON DELETE RESTRICT,
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT EXISTS production_tasks (
     actual_start DATETIME,
     actual_end DATETIME,
     status ENUM('pending', 'in_progress', 'completed', 'skipped') DEFAULT 'pending',
-    assigned_to INT,
+    assigned_to INT UNSIGNED,
     notes TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS material_consumption (
     actual_quantity DECIMAL(15,6) DEFAULT 0,
     unit_cost DECIMAL(15,4) DEFAULT 0,
     consumed_at DATETIME,
-    consumed_by INT,
+    consumed_by INT UNSIGNED,
     notes VARCHAR(500),
     FOREIGN KEY (order_id) REFERENCES production_orders(id) ON DELETE CASCADE,
     FOREIGN KEY (task_id) REFERENCES production_tasks(id) ON DELETE SET NULL,
@@ -96,7 +97,7 @@ CREATE TABLE IF NOT EXISTS print_queue (
     started_at DATETIME,
     completed_at DATETIME,
     notes TEXT,
-    created_by INT,
+    created_by INT UNSIGNED,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES production_orders(id) ON DELETE SET NULL,

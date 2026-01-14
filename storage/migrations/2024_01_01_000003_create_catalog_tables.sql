@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS variants (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Bill of Materials (BOM)
+-- Note: created_by must be INT UNSIGNED to match users.id type for FK compatibility
 CREATE TABLE IF NOT EXISTS bom (
     id INT PRIMARY KEY AUTO_INCREMENT,
     variant_id INT NOT NULL,
@@ -43,7 +44,7 @@ CREATE TABLE IF NOT EXISTS bom (
     status ENUM('draft', 'active', 'archived') DEFAULT 'draft',
     effective_date DATE,
     notes TEXT,
-    created_by INT,
+    created_by INT UNSIGNED,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (variant_id) REFERENCES variants(id) ON DELETE RESTRICT,
@@ -70,6 +71,7 @@ CREATE TABLE IF NOT EXISTS bom_lines (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Routing (production operations sequence)
+-- Note: created_by must be INT UNSIGNED to match users.id type for FK compatibility
 CREATE TABLE IF NOT EXISTS routing (
     id INT PRIMARY KEY AUTO_INCREMENT,
     variant_id INT NOT NULL,
@@ -78,7 +80,7 @@ CREATE TABLE IF NOT EXISTS routing (
     status ENUM('draft', 'active', 'archived') DEFAULT 'draft',
     effective_date DATE,
     notes TEXT,
-    created_by INT,
+    created_by INT UNSIGNED,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (variant_id) REFERENCES variants(id) ON DELETE RESTRICT,
