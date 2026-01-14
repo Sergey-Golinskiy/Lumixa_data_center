@@ -88,7 +88,7 @@ class CostingController extends Controller
 
         $offset = ($page - 1) * $perPage;
         $variants = $this->db()->fetchAll(
-            "SELECT v.id, v.sku, v.name, v.unit,
+            "SELECT v.id, v.sku, v.name,
                     vc.material_cost, vc.labor_cost, vc.overhead_cost, vc.total_cost,
                     vc.calculated_at,
                     b.id as bom_id, b.name as bom_name,

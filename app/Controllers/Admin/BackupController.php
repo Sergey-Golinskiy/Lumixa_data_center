@@ -74,7 +74,7 @@ class BackupController extends Controller
         try {
             $result = $this->createBackup();
 
-            $this->audit('backup.created', 'backups', null, null, [
+            $this->logBackupAction('backup.created', 'backups', null, null, [
                 'filename' => $result['filename'],
                 'size' => $result['size']
             ]);
@@ -108,7 +108,7 @@ class BackupController extends Controller
             return;
         }
 
-        $this->audit('backup.downloaded', 'backups', $id, null, [
+        $this->logBackupAction('backup.downloaded', 'backups', $id, null, [
             'filename' => $backup['filename']
         ]);
 
@@ -148,7 +148,7 @@ class BackupController extends Controller
             // Perform restore
             $result = $this->restoreFromBackup($backup['path']);
 
-            $this->audit('backup.restored', 'backups', $id, null, [
+            $this->logBackupAction('backup.restored', 'backups', $id, null, [
                 'restored_from' => $backup['filename'],
                 'safety_backup' => $safetyBackup['filename']
             ]);
@@ -190,7 +190,7 @@ class BackupController extends Controller
         try {
             unlink($backup['path']);
 
-            $this->audit('backup.deleted', 'backups', $id, [
+            $this->logBackupAction('backup.deleted', 'backups', $id, [
                 'filename' => $backup['filename']
             ], null);
 
@@ -469,21 +469,20 @@ class BackupController extends Controller
     }
 
     /**
-     * Audit log helper
+     * Audit log helper for backup operations
      */
-    private function audit(string $action, string $table, ?string $recordId, ?array $oldData, ?array $newData): void
+    private function logBackupAction(string $action, string $table, ?string $recordId, ?array $oldData, ?array $newData): void
     {
         try {
             $this->db()->insert('audit_log', [
-                'user_id' => $this->userId(),
+                'user_id' => $this->user()['id'] ?? null,
                 'action' => $action,
-                'table_name' => $table,
-                'record_id' => $recordId,
-                'old_data' => $oldData ? json_encode($oldData) : null,
-                'new_data' => $newData ? json_encode($newData) : null,
+                'entity_type' => $table,
+                'entity_id' => (int)($recordId ?? 0),
+                'old_values' => $oldData ? json_encode($oldData) : null,
+                'new_values' => $newData ? json_encode($newData) : null,
                 'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
-                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
-                'created_at' => date('Y-m-d H:i:s')
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null
             ]);
         } catch (\Exception $e) {
             // Silent fail for audit

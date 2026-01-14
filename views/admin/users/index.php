@@ -20,9 +20,8 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Username</th>
+                    <th>Name</th>
                     <th>Email</th>
-                    <th>Full Name</th>
                     <th>Roles</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -31,9 +30,8 @@
             <tbody>
                 <?php foreach ($users as $user): ?>
                 <tr>
-                    <td><a href="/admin/users/<?= $user['id'] ?>"><?= h($user['username']) ?></a></td>
+                    <td><a href="/admin/users/<?= $user['id'] ?>"><?= h($user['name']) ?></a></td>
                     <td><?= h($user['email']) ?></td>
-                    <td><?= h($user['full_name']) ?></td>
                     <td><?= h($user['role_names'] ?? '-') ?></td>
                     <td>
                         <?php if ($user['is_active']): ?>

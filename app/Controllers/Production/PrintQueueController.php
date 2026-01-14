@@ -74,7 +74,7 @@ class PrintQueueController extends Controller
 
         $job = $this->db()->fetch(
             "SELECT pq.*, v.sku as variant_sku, v.name as variant_name,
-                    po.order_number, u.username as created_by_name
+                    po.order_number, u.name as created_by_name
              FROM print_queue pq
              LEFT JOIN variants v ON pq.variant_id = v.id
              LEFT JOIN production_orders po ON pq.order_id = po.id

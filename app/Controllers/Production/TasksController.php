@@ -54,7 +54,7 @@ class TasksController extends Controller
         $offset = ($page - 1) * $perPage;
         $tasks = $this->db()->fetchAll(
             "SELECT pt.*, po.order_number, po.status as order_status,
-                    v.sku as variant_sku, u.username as assigned_name
+                    v.sku as variant_sku, u.name as assigned_name
              FROM production_tasks pt
              JOIN production_orders po ON pt.order_id = po.id
              JOIN variants v ON po.variant_id = v.id
@@ -87,7 +87,7 @@ class TasksController extends Controller
         $task = $this->db()->fetch(
             "SELECT pt.*, po.order_number, po.status as order_status,
                     v.sku as variant_sku, v.name as variant_name,
-                    u.username as assigned_name
+                    u.name as assigned_name
              FROM production_tasks pt
              JOIN production_orders po ON pt.order_id = po.id
              JOIN variants v ON po.variant_id = v.id

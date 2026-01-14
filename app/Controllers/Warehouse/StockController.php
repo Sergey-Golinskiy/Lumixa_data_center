@@ -33,12 +33,12 @@ class StockController extends Controller
         }
 
         if ($category) {
-            $where[] = "i.category = ?";
+            $where[] = "i.type = ?";
             $params[] = $category;
         }
 
         if (!$showEmpty) {
-            $where[] = "sb.quantity > 0";
+            $where[] = "sb.on_hand > 0";
         }
 
         $whereClause = implode(' AND ', $where);
@@ -54,15 +54,15 @@ class StockController extends Controller
         // Get stock summary by item
         $offset = ($page - 1) * $perPage;
         $stocks = $this->db()->fetchAll(
-            "SELECT i.id, i.sku, i.name, i.unit, i.category, i.track_lots,
-                    COALESCE(SUM(sb.quantity), 0) as total_quantity,
-                    COALESCE(SUM(sb.reserved_quantity), 0) as total_reserved,
-                    COALESCE(SUM(sb.quantity * sb.unit_cost), 0) as total_value,
+            "SELECT i.id, i.sku, i.name, i.unit, i.type,
+                    COALESCE(SUM(sb.on_hand), 0) as total_quantity,
+                    COALESCE(SUM(sb.reserved), 0) as total_reserved,
+                    COALESCE(SUM(sb.on_hand * sb.avg_cost), 0) as total_value,
                     COUNT(DISTINCT sb.lot_id) as lot_count
              FROM items i
              LEFT JOIN stock_balances sb ON i.id = sb.item_id
              WHERE {$whereClause}
-             GROUP BY i.id, i.sku, i.name, i.unit, i.category, i.track_lots
+             GROUP BY i.id, i.sku, i.name, i.unit, i.type
              ORDER BY i.sku
              LIMIT {$perPage} OFFSET {$offset}",
             $params
@@ -70,17 +70,17 @@ class StockController extends Controller
 
         // Get categories for filter
         $categories = $this->db()->fetchAll(
-            "SELECT DISTINCT category FROM items WHERE category IS NOT NULL ORDER BY category"
+            "SELECT DISTINCT type FROM items WHERE type IS NOT NULL ORDER BY type"
         );
 
         // Summary totals
         $summary = $this->db()->fetch(
             "SELECT COUNT(DISTINCT i.id) as item_count,
-                    SUM(sb.quantity) as total_quantity,
-                    SUM(sb.quantity * sb.unit_cost) as total_value
+                    SUM(sb.on_hand) as total_quantity,
+                    SUM(sb.on_hand * sb.avg_cost) as total_value
              FROM items i
              LEFT JOIN stock_balances sb ON i.id = sb.item_id
-             WHERE sb.quantity > 0"
+             WHERE sb.on_hand > 0"
         );
 
         $this->render('warehouse/stock/index', [
@@ -120,7 +120,7 @@ class StockController extends Controller
              FROM stock_balances sb
              LEFT JOIN lots l ON sb.lot_id = l.id
              WHERE sb.item_id = ?
-             ORDER BY sb.quantity DESC",
+             ORDER BY sb.on_hand DESC",
             [$id]
         );
 
@@ -138,9 +138,9 @@ class StockController extends Controller
 
         // Calculate totals
         $totals = $this->db()->fetch(
-            "SELECT SUM(quantity) as total_quantity,
-                    SUM(reserved_quantity) as total_reserved,
-                    SUM(quantity * unit_cost) as total_value
+            "SELECT SUM(on_hand) as total_quantity,
+                    SUM(reserved) as total_reserved,
+                    SUM(on_hand * avg_cost) as total_value
              FROM stock_balances
              WHERE item_id = ?",
             [$id]
@@ -179,7 +179,7 @@ class StockController extends Controller
         }
 
         if ($direction) {
-            $where[] = "sm.direction = ?";
+            $where[] = "sm.movement_type = ?";
             $params[] = $direction;
         }
 
@@ -213,12 +213,12 @@ class StockController extends Controller
         // Summary
         $inTotal = $this->db()->fetch(
             "SELECT SUM(quantity) as qty, SUM(quantity * unit_cost) as value
-             FROM stock_movements sm WHERE {$whereClause} AND direction = 'in'",
+             FROM stock_movements sm WHERE {$whereClause} AND movement_type = 'in'",
             $params
         );
         $outTotal = $this->db()->fetch(
             "SELECT SUM(quantity) as qty, SUM(quantity * unit_cost) as value
-             FROM stock_movements sm WHERE {$whereClause} AND direction = 'out'",
+             FROM stock_movements sm WHERE {$whereClause} AND movement_type = 'out'",
             $params
         );
 
@@ -248,8 +248,8 @@ class StockController extends Controller
 
         $items = $this->db()->fetchAll(
             "SELECT i.*,
-                    COALESCE(SUM(sb.quantity), 0) as current_stock,
-                    COALESCE(SUM(sb.reserved_quantity), 0) as reserved
+                    COALESCE(SUM(sb.on_hand), 0) as current_stock,
+                    COALESCE(SUM(sb.reserved), 0) as reserved
              FROM items i
              LEFT JOIN stock_balances sb ON i.id = sb.item_id
              WHERE i.is_active = 1 AND i.min_stock > 0
@@ -274,11 +274,11 @@ class StockController extends Controller
         $category = $_GET['category'] ?? '';
 
         // Build query
-        $where = ['sb.quantity > 0'];
+        $where = ['sb.on_hand > 0'];
         $params = [];
 
         if ($category) {
-            $where[] = "i.category = ?";
+            $where[] = "i.type = ?";
             $params[] = $category;
         }
 
@@ -286,21 +286,21 @@ class StockController extends Controller
 
         // Get valuation by item
         $valuation = $this->db()->fetchAll(
-            "SELECT i.id, i.sku, i.name, i.unit, i.category,
-                    SUM(sb.quantity) as quantity,
-                    AVG(sb.unit_cost) as avg_cost,
-                    SUM(sb.quantity * sb.unit_cost) as total_value
+            "SELECT i.id, i.sku, i.name, i.unit, i.type,
+                    SUM(sb.on_hand) as quantity,
+                    AVG(sb.avg_cost) as avg_cost,
+                    SUM(sb.on_hand * sb.avg_cost) as total_value
              FROM items i
              JOIN stock_balances sb ON i.id = sb.item_id
              WHERE {$whereClause}
-             GROUP BY i.id, i.sku, i.name, i.unit, i.category
+             GROUP BY i.id, i.sku, i.name, i.unit, i.type
              ORDER BY total_value DESC",
             $params
         );
 
         // Get categories
         $categories = $this->db()->fetchAll(
-            "SELECT DISTINCT category FROM items WHERE category IS NOT NULL ORDER BY category"
+            "SELECT DISTINCT type FROM items WHERE type IS NOT NULL ORDER BY type"
         );
 
         // Grand total
@@ -309,7 +309,7 @@ class StockController extends Controller
         // Category breakdown
         $byCategory = [];
         foreach ($valuation as $item) {
-            $cat = $item['category'] ?: 'Uncategorized';
+            $cat = $item['type'] ?: 'Uncategorized';
             if (!isset($byCategory[$cat])) {
                 $byCategory[$cat] = ['count' => 0, 'value' => 0];
             }

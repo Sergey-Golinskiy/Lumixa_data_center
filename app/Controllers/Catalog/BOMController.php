@@ -86,7 +86,7 @@ class BOMController extends Controller
 
         $bom = $this->db()->fetch(
             "SELECT b.*, v.sku as variant_sku, v.name as variant_name, v.product_id,
-                    u.username as created_by_name
+                    u.name as created_by_name
              FROM bom b
              JOIN variants v ON b.variant_id = v.id
              LEFT JOIN users u ON b.created_by = u.id

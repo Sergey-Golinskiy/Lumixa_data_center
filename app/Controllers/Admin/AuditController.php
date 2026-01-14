@@ -61,7 +61,7 @@ class AuditController extends Controller
 
         $offset = ($page - 1) * $perPage;
         $entries = $this->db()->fetchAll(
-            "SELECT a.*, u.username
+            "SELECT a.*, u.name
              FROM audit_log a
              LEFT JOIN users u ON a.user_id = u.id
              WHERE {$whereClause}
@@ -96,7 +96,7 @@ class AuditController extends Controller
         $this->requirePermission('admin.audit.view');
 
         $entry = $this->db()->fetch(
-            "SELECT a.*, u.username
+            "SELECT a.*, u.name
              FROM audit_log a
              LEFT JOIN users u ON a.user_id = u.id
              WHERE a.id = ?",

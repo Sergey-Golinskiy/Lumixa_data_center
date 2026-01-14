@@ -24,8 +24,7 @@ class UsersController extends Controller
         $params = [];
 
         if ($search) {
-            $where[] = "(username LIKE ? OR email LIKE ? OR full_name LIKE ?)";
-            $params[] = "%{$search}%";
+            $where[] = "(name LIKE ? OR email LIKE ?)";
             $params[] = "%{$search}%";
             $params[] = "%{$search}%";
         }

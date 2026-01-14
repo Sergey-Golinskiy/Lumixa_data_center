@@ -80,7 +80,7 @@ class RoutingController extends Controller
 
         $routing = $this->db()->fetch(
             "SELECT r.*, v.sku as variant_sku, v.name as variant_name,
-                    u.username as created_by_name
+                    u.name as created_by_name
              FROM routing r
              JOIN variants v ON r.variant_id = v.id
              LEFT JOIN users u ON r.created_by = u.id

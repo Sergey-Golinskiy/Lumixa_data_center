@@ -76,7 +76,7 @@ class OrdersController extends Controller
         $order = $this->db()->fetch(
             "SELECT po.*, v.sku as variant_sku, v.name as variant_name, p.name as product_name,
                     b.version as bom_version, r.version as routing_version,
-                    u.username as created_by_name
+                    u.name as created_by_name
              FROM production_orders po
              JOIN variants v ON po.variant_id = v.id
              JOIN products p ON v.product_id = p.id
@@ -92,7 +92,7 @@ class OrdersController extends Controller
         }
 
         $tasks = $this->db()->fetchAll(
-            "SELECT pt.*, u.username as assigned_name
+            "SELECT pt.*, u.name as assigned_name
              FROM production_tasks pt
              LEFT JOIN users u ON pt.assigned_to = u.id
              WHERE pt.order_id = ?

@@ -88,7 +88,7 @@ class PartnersController extends Controller
 
         // Get recent documents
         $documents = $this->db()->fetchAll(
-            "SELECT d.*, u.username as created_by_name
+            "SELECT d.*, u.name as created_by_name
              FROM documents d
              LEFT JOIN users u ON d.created_by = u.id
              WHERE d.partner_id = ?
