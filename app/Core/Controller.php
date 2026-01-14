@@ -188,6 +188,18 @@ abstract class Controller
     }
 
     /**
+     * Require authentication and permission
+     *
+     * Convenience method that combines requireAuth() and authorize().
+     * Use this in controller methods that need both authentication and permission check.
+     */
+    protected function requirePermission(string $permission): void
+    {
+        $this->requireAuth();
+        $this->authorize($permission);
+    }
+
+    /**
      * Check if user can perform action
      */
     protected function can(string $permission): bool
