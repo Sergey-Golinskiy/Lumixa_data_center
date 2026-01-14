@@ -127,10 +127,10 @@ CREATE TABLE IF NOT EXISTS printers (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Order Sequences
-INSERT INTO document_sequences (type, prefix, next_number)
+INSERT INTO document_sequences (type, prefix, current_number)
 VALUES ('production_order', 'PO', 1)
 ON DUPLICATE KEY UPDATE type = type;
 
-INSERT INTO document_sequences (type, prefix, next_number)
+INSERT INTO document_sequences (type, prefix, current_number)
 VALUES ('print_job', 'PJ', 1)
 ON DUPLICATE KEY UPDATE type = type;
