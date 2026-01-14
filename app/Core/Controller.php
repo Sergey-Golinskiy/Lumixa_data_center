@@ -87,7 +87,7 @@ abstract class Controller
     /**
      * Get request input
      */
-    protected function input(string $key = null, $default = null)
+    protected function input(?string $key = null, $default = null)
     {
         $input = array_merge($_GET, $_POST);
 
@@ -101,7 +101,7 @@ abstract class Controller
     /**
      * Get POST data
      */
-    protected function post(string $key = null, $default = null)
+    protected function post(?string $key = null, $default = null)
     {
         if ($key === null) {
             return $_POST;
@@ -112,7 +112,7 @@ abstract class Controller
     /**
      * Get GET data
      */
-    protected function get(string $key = null, $default = null)
+    protected function get(?string $key = null, $default = null)
     {
         if ($key === null) {
             return $_GET;

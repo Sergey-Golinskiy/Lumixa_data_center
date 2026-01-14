@@ -190,7 +190,7 @@ class Session
     /**
      * Get old input
      */
-    public function getOldInput(string $key = null, $default = null)
+    public function getOldInput(?string $key = null, $default = null)
     {
         $old = $_SESSION['_old_input'] ?? [];
 
