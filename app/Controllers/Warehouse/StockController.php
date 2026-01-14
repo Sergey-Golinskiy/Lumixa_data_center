@@ -44,7 +44,7 @@ class StockController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Count total
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(DISTINCT i.id) FROM items i
              LEFT JOIN stock_balances sb ON i.id = sb.item_id
              WHERE {$whereClause}",
@@ -53,7 +53,7 @@ class StockController extends Controller
 
         // Get stock summary by item
         $offset = ($page - 1) * $perPage;
-        $stocks = $this->db->fetchAll(
+        $stocks = $this->db()->fetchAll(
             "SELECT i.id, i.sku, i.name, i.unit, i.category, i.track_lots,
                     COALESCE(SUM(sb.quantity), 0) as total_quantity,
                     COALESCE(SUM(sb.reserved_quantity), 0) as total_reserved,
@@ -69,12 +69,12 @@ class StockController extends Controller
         );
 
         // Get categories for filter
-        $categories = $this->db->fetchAll(
+        $categories = $this->db()->fetchAll(
             "SELECT DISTINCT category FROM items WHERE category IS NOT NULL ORDER BY category"
         );
 
         // Summary totals
-        $summary = $this->db->fetch(
+        $summary = $this->db()->fetch(
             "SELECT COUNT(DISTINCT i.id) as item_count,
                     SUM(sb.quantity) as total_quantity,
                     SUM(sb.quantity * sb.unit_cost) as total_value
@@ -105,7 +105,7 @@ class StockController extends Controller
     {
         $this->requirePermission('warehouse.stock.view');
 
-        $item = $this->db->fetch(
+        $item = $this->db()->fetch(
             "SELECT * FROM items WHERE id = ?",
             [$id]
         );
@@ -115,7 +115,7 @@ class StockController extends Controller
         }
 
         // Get stock by lot
-        $stockByLot = $this->db->fetchAll(
+        $stockByLot = $this->db()->fetchAll(
             "SELECT sb.*, l.lot_number, l.expiry_date, l.status as lot_status
              FROM stock_balances sb
              LEFT JOIN lots l ON sb.lot_id = l.id
@@ -125,7 +125,7 @@ class StockController extends Controller
         );
 
         // Get recent movements
-        $movements = $this->db->fetchAll(
+        $movements = $this->db()->fetchAll(
             "SELECT sm.*, d.document_number, d.type as document_type, l.lot_number
              FROM stock_movements sm
              JOIN documents d ON sm.document_id = d.id
@@ -137,7 +137,7 @@ class StockController extends Controller
         );
 
         // Calculate totals
-        $totals = $this->db->fetch(
+        $totals = $this->db()->fetch(
             "SELECT SUM(quantity) as total_quantity,
                     SUM(reserved_quantity) as total_reserved,
                     SUM(quantity * unit_cost) as total_value
@@ -186,14 +186,14 @@ class StockController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Count total
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM stock_movements sm WHERE {$whereClause}",
             $params
         );
 
         // Get movements
         $offset = ($page - 1) * $perPage;
-        $movements = $this->db->fetchAll(
+        $movements = $this->db()->fetchAll(
             "SELECT sm.*, i.sku, i.name as item_name, i.unit,
                     d.document_number, d.type as document_type,
                     l.lot_number
@@ -208,15 +208,15 @@ class StockController extends Controller
         );
 
         // Get items for filter
-        $items = $this->db->fetchAll("SELECT id, sku, name FROM items ORDER BY sku");
+        $items = $this->db()->fetchAll("SELECT id, sku, name FROM items ORDER BY sku");
 
         // Summary
-        $inTotal = $this->db->fetch(
+        $inTotal = $this->db()->fetch(
             "SELECT SUM(quantity) as qty, SUM(quantity * unit_cost) as value
              FROM stock_movements sm WHERE {$whereClause} AND direction = 'in'",
             $params
         );
-        $outTotal = $this->db->fetch(
+        $outTotal = $this->db()->fetch(
             "SELECT SUM(quantity) as qty, SUM(quantity * unit_cost) as value
              FROM stock_movements sm WHERE {$whereClause} AND direction = 'out'",
             $params
@@ -246,7 +246,7 @@ class StockController extends Controller
     {
         $this->requirePermission('warehouse.stock.view');
 
-        $items = $this->db->fetchAll(
+        $items = $this->db()->fetchAll(
             "SELECT i.*,
                     COALESCE(SUM(sb.quantity), 0) as current_stock,
                     COALESCE(SUM(sb.reserved_quantity), 0) as reserved
@@ -285,7 +285,7 @@ class StockController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Get valuation by item
-        $valuation = $this->db->fetchAll(
+        $valuation = $this->db()->fetchAll(
             "SELECT i.id, i.sku, i.name, i.unit, i.category,
                     SUM(sb.quantity) as quantity,
                     AVG(sb.unit_cost) as avg_cost,
@@ -299,7 +299,7 @@ class StockController extends Controller
         );
 
         // Get categories
-        $categories = $this->db->fetchAll(
+        $categories = $this->db()->fetchAll(
             "SELECT DISTINCT category FROM items WHERE category IS NOT NULL ORDER BY category"
         );
 

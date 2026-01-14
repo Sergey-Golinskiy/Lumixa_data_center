@@ -41,14 +41,14 @@ class PartnersController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Count total
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM partners WHERE {$whereClause}",
             $params
         );
 
         // Get partners
         $offset = ($page - 1) * $perPage;
-        $partners = $this->db->fetchAll(
+        $partners = $this->db()->fetchAll(
             "SELECT p.*,
                     (SELECT COUNT(*) FROM documents WHERE partner_id = p.id) as document_count
              FROM partners p
@@ -77,7 +77,7 @@ class PartnersController extends Controller
     {
         $this->requirePermission('warehouse.partners.view');
 
-        $partner = $this->db->fetch(
+        $partner = $this->db()->fetch(
             "SELECT * FROM partners WHERE id = ?",
             [$id]
         );
@@ -87,7 +87,7 @@ class PartnersController extends Controller
         }
 
         // Get recent documents
-        $documents = $this->db->fetchAll(
+        $documents = $this->db()->fetchAll(
             "SELECT d.*, u.username as created_by_name
              FROM documents d
              LEFT JOIN users u ON d.created_by = u.id
@@ -98,7 +98,7 @@ class PartnersController extends Controller
         );
 
         // Get statistics
-        $stats = $this->db->fetch(
+        $stats = $this->db()->fetch(
             "SELECT
                 COUNT(*) as total_documents,
                 SUM(CASE WHEN type = 'receipt' THEN total_amount ELSE 0 END) as total_receipts,
@@ -162,7 +162,7 @@ class PartnersController extends Controller
         }
 
         if ($data['code']) {
-            $exists = $this->db->fetch(
+            $exists = $this->db()->fetch(
                 "SELECT id FROM partners WHERE code = ?",
                 [$data['code']]
             );
@@ -185,12 +185,12 @@ class PartnersController extends Controller
         // Generate code if empty
         if (empty($data['code'])) {
             $prefix = strtoupper(substr($data['type'], 0, 1));
-            $count = $this->db->fetchColumn("SELECT COUNT(*) FROM partners WHERE type = ?", [$data['type']]);
+            $count = $this->db()->fetchColumn("SELECT COUNT(*) FROM partners WHERE type = ?", [$data['type']]);
             $data['code'] = $prefix . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
         }
 
         // Create partner
-        $id = $this->db->insert('partners', array_merge($data, [
+        $id = $this->db()->insert('partners', array_merge($data, [
             'created_at' => date('Y-m-d H:i:s')
         ]));
 
@@ -206,7 +206,7 @@ class PartnersController extends Controller
     {
         $this->requirePermission('warehouse.partners.edit');
 
-        $partner = $this->db->fetch(
+        $partner = $this->db()->fetch(
             "SELECT * FROM partners WHERE id = ?",
             [$id]
         );
@@ -229,7 +229,7 @@ class PartnersController extends Controller
         $this->requirePermission('warehouse.partners.edit');
         $this->validateCSRF();
 
-        $partner = $this->db->fetch("SELECT * FROM partners WHERE id = ?", [$id]);
+        $partner = $this->db()->fetch("SELECT * FROM partners WHERE id = ?", [$id]);
         if (!$partner) {
             $this->notFound();
         }
@@ -259,7 +259,7 @@ class PartnersController extends Controller
         }
 
         if ($data['code']) {
-            $exists = $this->db->fetch(
+            $exists = $this->db()->fetch(
                 "SELECT id FROM partners WHERE code = ? AND id != ?",
                 [$data['code'], $id]
             );
@@ -280,7 +280,7 @@ class PartnersController extends Controller
         }
 
         // Update
-        $this->db->update('partners', array_merge($data, [
+        $this->db()->update('partners', array_merge($data, [
             'updated_at' => date('Y-m-d H:i:s')
         ]), ['id' => $id]);
 
@@ -297,13 +297,13 @@ class PartnersController extends Controller
         $this->requirePermission('warehouse.partners.delete');
         $this->validateCSRF();
 
-        $partner = $this->db->fetch("SELECT * FROM partners WHERE id = ?", [$id]);
+        $partner = $this->db()->fetch("SELECT * FROM partners WHERE id = ?", [$id]);
         if (!$partner) {
             $this->notFound();
         }
 
         // Check if partner has documents
-        $docCount = $this->db->fetchColumn(
+        $docCount = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM documents WHERE partner_id = ?",
             [$id]
         );
@@ -314,7 +314,7 @@ class PartnersController extends Controller
             return;
         }
 
-        $this->db->delete('partners', ['id' => $id]);
+        $this->db()->delete('partners', ['id' => $id]);
         $this->audit('partner.deleted', 'partners', $id, $partner, null);
         $this->session->setFlash('success', 'Partner deleted successfully');
         $this->redirect('/warehouse/partners');

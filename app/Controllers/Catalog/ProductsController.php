@@ -46,14 +46,14 @@ class ProductsController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Count total
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM products p WHERE {$whereClause}",
             $params
         );
 
         // Get products with variant count
         $offset = ($page - 1) * $perPage;
-        $products = $this->db->fetchAll(
+        $products = $this->db()->fetchAll(
             "SELECT p.*,
                     (SELECT COUNT(*) FROM variants WHERE product_id = p.id) as variant_count
              FROM products p
@@ -64,7 +64,7 @@ class ProductsController extends Controller
         );
 
         // Get categories for filter
-        $categories = $this->db->fetchAll(
+        $categories = $this->db()->fetchAll(
             "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
         );
 
@@ -89,7 +89,7 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.view');
 
-        $product = $this->db->fetch(
+        $product = $this->db()->fetch(
             "SELECT * FROM products WHERE id = ?",
             [$id]
         );
@@ -99,7 +99,7 @@ class ProductsController extends Controller
         }
 
         // Get variants
-        $variants = $this->db->fetchAll(
+        $variants = $this->db()->fetchAll(
             "SELECT v.*,
                     (SELECT COUNT(*) FROM bom WHERE variant_id = v.id AND status = 'active') as has_bom,
                     (SELECT COUNT(*) FROM routing WHERE variant_id = v.id AND status = 'active') as has_routing
@@ -123,7 +123,7 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.create');
 
-        $categories = $this->db->fetchAll(
+        $categories = $this->db()->fetchAll(
             "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
         );
 
@@ -157,7 +157,7 @@ class ProductsController extends Controller
         if (empty($data['code'])) {
             $errors['code'] = 'Product code is required';
         } else {
-            $exists = $this->db->fetch("SELECT id FROM products WHERE code = ?", [$data['code']]);
+            $exists = $this->db()->fetch("SELECT id FROM products WHERE code = ?", [$data['code']]);
             if ($exists) {
                 $errors['code'] = 'Product code already exists';
             }
@@ -175,7 +175,7 @@ class ProductsController extends Controller
         }
 
         // Create product
-        $id = $this->db->insert('products', array_merge($data, [
+        $id = $this->db()->insert('products', array_merge($data, [
             'created_at' => date('Y-m-d H:i:s')
         ]));
 
@@ -191,13 +191,13 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.edit');
 
-        $product = $this->db->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
 
         if (!$product) {
             $this->notFound();
         }
 
-        $categories = $this->db->fetchAll(
+        $categories = $this->db()->fetchAll(
             "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
         );
 
@@ -216,7 +216,7 @@ class ProductsController extends Controller
         $this->requirePermission('catalog.products.edit');
         $this->validateCSRF();
 
-        $product = $this->db->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
             $this->notFound();
         }
@@ -236,7 +236,7 @@ class ProductsController extends Controller
         if (empty($data['code'])) {
             $errors['code'] = 'Product code is required';
         } else {
-            $exists = $this->db->fetch("SELECT id FROM products WHERE code = ? AND id != ?", [$data['code'], $id]);
+            $exists = $this->db()->fetch("SELECT id FROM products WHERE code = ? AND id != ?", [$data['code'], $id]);
             if ($exists) {
                 $errors['code'] = 'Product code already exists';
             }
@@ -254,7 +254,7 @@ class ProductsController extends Controller
         }
 
         // Update
-        $this->db->update('products', array_merge($data, [
+        $this->db()->update('products', array_merge($data, [
             'updated_at' => date('Y-m-d H:i:s')
         ]), ['id' => $id]);
 

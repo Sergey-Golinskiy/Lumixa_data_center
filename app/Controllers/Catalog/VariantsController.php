@@ -40,14 +40,14 @@ class VariantsController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Count total
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM variants v JOIN products p ON v.product_id = p.id WHERE {$whereClause}",
             $params
         );
 
         // Get variants
         $offset = ($page - 1) * $perPage;
-        $variants = $this->db->fetchAll(
+        $variants = $this->db()->fetchAll(
             "SELECT v.*, p.name as product_name, p.code as product_code,
                     (SELECT COUNT(*) FROM bom WHERE variant_id = v.id AND status = 'active') as has_bom,
                     (SELECT COUNT(*) FROM routing WHERE variant_id = v.id AND status = 'active') as has_routing
@@ -60,7 +60,7 @@ class VariantsController extends Controller
         );
 
         // Get products for filter
-        $products = $this->db->fetchAll("SELECT id, code, name FROM products ORDER BY code");
+        $products = $this->db()->fetchAll("SELECT id, code, name FROM products ORDER BY code");
 
         $this->render('catalog/variants/index', [
             'title' => 'Variants',
@@ -82,7 +82,7 @@ class VariantsController extends Controller
     {
         $this->requirePermission('catalog.variants.view');
 
-        $variant = $this->db->fetch(
+        $variant = $this->db()->fetch(
             "SELECT v.*, p.name as product_name, p.code as product_code
              FROM variants v
              JOIN products p ON v.product_id = p.id
@@ -95,14 +95,14 @@ class VariantsController extends Controller
         }
 
         // Get active BOM
-        $activeBom = $this->db->fetch(
+        $activeBom = $this->db()->fetch(
             "SELECT * FROM bom WHERE variant_id = ? AND status = 'active' LIMIT 1",
             [$id]
         );
 
         $bomLines = [];
         if ($activeBom) {
-            $bomLines = $this->db->fetchAll(
+            $bomLines = $this->db()->fetchAll(
                 "SELECT bl.*, i.sku, i.name as item_name, i.unit
                  FROM bom_lines bl
                  JOIN items i ON bl.item_id = i.id
@@ -113,21 +113,21 @@ class VariantsController extends Controller
         }
 
         // Get active routing
-        $activeRouting = $this->db->fetch(
+        $activeRouting = $this->db()->fetch(
             "SELECT * FROM routing WHERE variant_id = ? AND status = 'active' LIMIT 1",
             [$id]
         );
 
         $routingOperations = [];
         if ($activeRouting) {
-            $routingOperations = $this->db->fetchAll(
+            $routingOperations = $this->db()->fetchAll(
                 "SELECT * FROM routing_operations WHERE routing_id = ? ORDER BY sort_order",
                 [$activeRouting['id']]
             );
         }
 
         // Get costing
-        $costing = $this->db->fetch(
+        $costing = $this->db()->fetch(
             "SELECT * FROM variant_costs WHERE variant_id = ? ORDER BY calculated_at DESC LIMIT 1",
             [$id]
         );
@@ -151,7 +151,7 @@ class VariantsController extends Controller
         $this->requirePermission('catalog.variants.create');
 
         $productId = $_GET['product_id'] ?? '';
-        $products = $this->db->fetchAll("SELECT id, code, name FROM products WHERE is_active = 1 ORDER BY code");
+        $products = $this->db()->fetchAll("SELECT id, code, name FROM products WHERE is_active = 1 ORDER BY code");
 
         $this->render('catalog/variants/form', [
             'title' => 'Create Variant',
@@ -200,7 +200,7 @@ class VariantsController extends Controller
         if (empty($data['sku'])) {
             $errors['sku'] = 'SKU is required';
         } else {
-            $exists = $this->db->fetch("SELECT id FROM variants WHERE sku = ?", [$data['sku']]);
+            $exists = $this->db()->fetch("SELECT id FROM variants WHERE sku = ?", [$data['sku']]);
             if ($exists) {
                 $errors['sku'] = 'SKU already exists';
             }
@@ -218,7 +218,7 @@ class VariantsController extends Controller
         }
 
         // Create variant
-        $id = $this->db->insert('variants', array_merge($data, [
+        $id = $this->db()->insert('variants', array_merge($data, [
             'created_at' => date('Y-m-d H:i:s')
         ]));
 
@@ -234,7 +234,7 @@ class VariantsController extends Controller
     {
         $this->requirePermission('catalog.variants.edit');
 
-        $variant = $this->db->fetch(
+        $variant = $this->db()->fetch(
             "SELECT v.*, p.name as product_name
              FROM variants v
              JOIN products p ON v.product_id = p.id
@@ -246,7 +246,7 @@ class VariantsController extends Controller
             $this->notFound();
         }
 
-        $products = $this->db->fetchAll("SELECT id, code, name FROM products ORDER BY code");
+        $products = $this->db()->fetchAll("SELECT id, code, name FROM products ORDER BY code");
 
         $this->render('catalog/variants/form', [
             'title' => "Edit: {$variant['sku']}",
@@ -264,7 +264,7 @@ class VariantsController extends Controller
         $this->requirePermission('catalog.variants.edit');
         $this->validateCSRF();
 
-        $variant = $this->db->fetch("SELECT * FROM variants WHERE id = ?", [$id]);
+        $variant = $this->db()->fetch("SELECT * FROM variants WHERE id = ?", [$id]);
         if (!$variant) {
             $this->notFound();
         }
@@ -295,7 +295,7 @@ class VariantsController extends Controller
         if (empty($data['sku'])) {
             $errors['sku'] = 'SKU is required';
         } else {
-            $exists = $this->db->fetch("SELECT id FROM variants WHERE sku = ? AND id != ?", [$data['sku'], $id]);
+            $exists = $this->db()->fetch("SELECT id FROM variants WHERE sku = ? AND id != ?", [$data['sku'], $id]);
             if ($exists) {
                 $errors['sku'] = 'SKU already exists';
             }
@@ -313,7 +313,7 @@ class VariantsController extends Controller
         }
 
         // Update
-        $this->db->update('variants', array_merge($data, [
+        $this->db()->update('variants', array_merge($data, [
             'updated_at' => date('Y-m-d H:i:s')
         ]), ['id' => $id]);
 

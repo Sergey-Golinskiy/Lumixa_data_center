@@ -45,14 +45,14 @@ class BOMController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Count total
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM bom b JOIN variants v ON b.variant_id = v.id WHERE {$whereClause}",
             $params
         );
 
         // Get BOMs
         $offset = ($page - 1) * $perPage;
-        $boms = $this->db->fetchAll(
+        $boms = $this->db()->fetchAll(
             "SELECT b.*, v.sku as variant_sku, v.name as variant_name,
                     (SELECT COUNT(*) FROM bom_lines WHERE bom_id = b.id) as line_count,
                     (SELECT SUM(bl.quantity * bl.unit_cost) FROM bom_lines bl WHERE bl.bom_id = b.id) as total_cost
@@ -84,7 +84,7 @@ class BOMController extends Controller
     {
         $this->requirePermission('catalog.bom.view');
 
-        $bom = $this->db->fetch(
+        $bom = $this->db()->fetch(
             "SELECT b.*, v.sku as variant_sku, v.name as variant_name, v.product_id,
                     u.username as created_by_name
              FROM bom b
@@ -99,7 +99,7 @@ class BOMController extends Controller
         }
 
         // Get lines
-        $lines = $this->db->fetchAll(
+        $lines = $this->db()->fetchAll(
             "SELECT bl.*, i.sku, i.name as item_name, i.unit
              FROM bom_lines bl
              JOIN items i ON bl.item_id = i.id
@@ -124,7 +124,7 @@ class BOMController extends Controller
 
         $variantId = $_GET['variant_id'] ?? '';
 
-        $variants = $this->db->fetchAll(
+        $variants = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name, p.name as product_name
              FROM variants v
              JOIN products p ON v.product_id = p.id
@@ -132,7 +132,7 @@ class BOMController extends Controller
              ORDER BY v.sku"
         );
 
-        $items = $this->db->fetchAll(
+        $items = $this->db()->fetchAll(
             "SELECT id, sku, name, unit FROM items WHERE is_active = 1 ORDER BY sku"
         );
 
@@ -186,11 +186,11 @@ class BOMController extends Controller
             return;
         }
 
-        $this->db->beginTransaction();
+        $this->db()->beginTransaction();
 
         try {
             // Create BOM
-            $bomId = $this->db->insert('bom', array_merge($data, [
+            $bomId = $this->db()->insert('bom', array_merge($data, [
                 'status' => 'draft',
                 'created_by' => $this->user()['id'],
                 'created_at' => date('Y-m-d H:i:s')
@@ -198,7 +198,7 @@ class BOMController extends Controller
 
             // Create lines
             foreach ($lines as $i => $line) {
-                $this->db->insert('bom_lines', [
+                $this->db()->insert('bom_lines', [
                     'bom_id' => $bomId,
                     'item_id' => $line['item_id'],
                     'quantity' => $line['quantity'],
@@ -209,13 +209,13 @@ class BOMController extends Controller
                 ]);
             }
 
-            $this->db->commit();
+            $this->db()->commit();
             $this->audit('bom.created', 'bom', $bomId, null, $data);
             $this->session->setFlash('success', 'BOM created successfully');
             $this->redirect("/catalog/bom/{$bomId}");
 
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->db()->rollBack();
             $this->session->setFlash('error', 'Failed to create BOM: ' . $e->getMessage());
             $this->redirect('/catalog/bom/create?variant_id=' . $data['variant_id']);
         }
@@ -228,7 +228,7 @@ class BOMController extends Controller
     {
         $this->requirePermission('catalog.bom.edit');
 
-        $bom = $this->db->fetch(
+        $bom = $this->db()->fetch(
             "SELECT b.*, v.sku as variant_sku, v.name as variant_name
              FROM bom b
              JOIN variants v ON b.variant_id = v.id
@@ -246,7 +246,7 @@ class BOMController extends Controller
             return;
         }
 
-        $lines = $this->db->fetchAll(
+        $lines = $this->db()->fetchAll(
             "SELECT bl.*, i.sku, i.name as item_name
              FROM bom_lines bl
              JOIN items i ON bl.item_id = i.id
@@ -255,11 +255,11 @@ class BOMController extends Controller
             [$id]
         );
 
-        $variants = $this->db->fetchAll(
+        $variants = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name FROM variants v WHERE v.is_active = 1 ORDER BY v.sku"
         );
 
-        $items = $this->db->fetchAll(
+        $items = $this->db()->fetchAll(
             "SELECT id, sku, name, unit FROM items WHERE is_active = 1 ORDER BY sku"
         );
 
@@ -281,7 +281,7 @@ class BOMController extends Controller
         $this->requirePermission('catalog.bom.edit');
         $this->validateCSRF();
 
-        $bom = $this->db->fetch("SELECT * FROM bom WHERE id = ?", [$id]);
+        $bom = $this->db()->fetch("SELECT * FROM bom WHERE id = ?", [$id]);
         if (!$bom) {
             $this->notFound();
         }
@@ -306,19 +306,19 @@ class BOMController extends Controller
             return;
         }
 
-        $this->db->beginTransaction();
+        $this->db()->beginTransaction();
 
         try {
             // Update BOM
-            $this->db->update('bom', array_merge($data, [
+            $this->db()->update('bom', array_merge($data, [
                 'updated_at' => date('Y-m-d H:i:s')
             ]), ['id' => $id]);
 
             // Delete old lines and recreate
-            $this->db->delete('bom_lines', ['bom_id' => $id]);
+            $this->db()->delete('bom_lines', ['bom_id' => $id]);
 
             foreach ($lines as $i => $line) {
-                $this->db->insert('bom_lines', [
+                $this->db()->insert('bom_lines', [
                     'bom_id' => $id,
                     'item_id' => $line['item_id'],
                     'quantity' => $line['quantity'],
@@ -329,13 +329,13 @@ class BOMController extends Controller
                 ]);
             }
 
-            $this->db->commit();
+            $this->db()->commit();
             $this->audit('bom.updated', 'bom', $id, $bom, $data);
             $this->session->setFlash('success', 'BOM updated successfully');
             $this->redirect("/catalog/bom/{$id}");
 
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->db()->rollBack();
             $this->session->setFlash('error', 'Failed to update BOM: ' . $e->getMessage());
             $this->redirect("/catalog/bom/{$id}/edit");
         }
@@ -349,7 +349,7 @@ class BOMController extends Controller
         $this->requirePermission('catalog.bom.activate');
         $this->validateCSRF();
 
-        $bom = $this->db->fetch("SELECT * FROM bom WHERE id = ?", [$id]);
+        $bom = $this->db()->fetch("SELECT * FROM bom WHERE id = ?", [$id]);
         if (!$bom) {
             $this->notFound();
         }
@@ -360,17 +360,17 @@ class BOMController extends Controller
             return;
         }
 
-        $this->db->beginTransaction();
+        $this->db()->beginTransaction();
 
         try {
             // Deactivate other BOMs for same variant
-            $this->db->execute(
+            $this->db()->execute(
                 "UPDATE bom SET status = 'archived', updated_at = NOW() WHERE variant_id = ? AND status = 'active'",
                 [$bom['variant_id']]
             );
 
             // Activate this BOM
-            $this->db->update('bom', [
+            $this->db()->update('bom', [
                 'status' => 'active',
                 'updated_at' => date('Y-m-d H:i:s')
             ], ['id' => $id]);
@@ -378,12 +378,12 @@ class BOMController extends Controller
             // Recalculate variant costs
             $this->recalculateVariantCost($bom['variant_id']);
 
-            $this->db->commit();
+            $this->db()->commit();
             $this->audit('bom.activated', 'bom', $id, ['status' => $bom['status']], ['status' => 'active']);
             $this->session->setFlash('success', 'BOM activated successfully');
 
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->db()->rollBack();
             $this->session->setFlash('error', 'Failed to activate BOM: ' . $e->getMessage());
         }
 
@@ -398,12 +398,12 @@ class BOMController extends Controller
         $this->requirePermission('catalog.bom.edit');
         $this->validateCSRF();
 
-        $bom = $this->db->fetch("SELECT * FROM bom WHERE id = ?", [$id]);
+        $bom = $this->db()->fetch("SELECT * FROM bom WHERE id = ?", [$id]);
         if (!$bom) {
             $this->notFound();
         }
 
-        $this->db->update('bom', [
+        $this->db()->update('bom', [
             'status' => 'archived',
             'updated_at' => date('Y-m-d H:i:s')
         ], ['id' => $id]);
@@ -444,21 +444,21 @@ class BOMController extends Controller
     private function recalculateVariantCost(int $variantId): void
     {
         // Get active BOM
-        $bom = $this->db->fetch(
+        $bom = $this->db()->fetch(
             "SELECT id FROM bom WHERE variant_id = ? AND status = 'active' LIMIT 1",
             [$variantId]
         );
 
         $materialCost = 0;
         if ($bom) {
-            $materialCost = (float)$this->db->fetchColumn(
+            $materialCost = (float)$this->db()->fetchColumn(
                 "SELECT SUM(quantity * unit_cost * (1 + waste_percent/100)) FROM bom_lines WHERE bom_id = ?",
                 [$bom['id']]
             );
         }
 
         // Get active routing
-        $routing = $this->db->fetch(
+        $routing = $this->db()->fetch(
             "SELECT id FROM routing WHERE variant_id = ? AND status = 'active' LIMIT 1",
             [$variantId]
         );
@@ -466,7 +466,7 @@ class BOMController extends Controller
         $laborCost = 0;
         $overheadCost = 0;
         if ($routing) {
-            $costs = $this->db->fetch(
+            $costs = $this->db()->fetch(
                 "SELECT SUM(labor_cost) as labor, SUM(overhead_cost) as overhead FROM routing_operations WHERE routing_id = ?",
                 [$routing['id']]
             );
@@ -475,7 +475,7 @@ class BOMController extends Controller
         }
 
         // Update or insert variant cost
-        $existing = $this->db->fetch("SELECT id FROM variant_costs WHERE variant_id = ?", [$variantId]);
+        $existing = $this->db()->fetch("SELECT id FROM variant_costs WHERE variant_id = ?", [$variantId]);
 
         $costData = [
             'variant_id' => $variantId,
@@ -489,9 +489,9 @@ class BOMController extends Controller
         ];
 
         if ($existing) {
-            $this->db->update('variant_costs', $costData, ['id' => $existing['id']]);
+            $this->db()->update('variant_costs', $costData, ['id' => $existing['id']]);
         } else {
-            $this->db->insert('variant_costs', $costData);
+            $this->db()->insert('variant_costs', $costData);
         }
     }
 }

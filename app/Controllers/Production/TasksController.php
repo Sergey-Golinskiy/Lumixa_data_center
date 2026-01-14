@@ -44,7 +44,7 @@ class TasksController extends Controller
 
         $whereClause = implode(' AND ', $where);
 
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM production_tasks pt
              JOIN production_orders po ON pt.order_id = po.id
              WHERE {$whereClause}",
@@ -52,7 +52,7 @@ class TasksController extends Controller
         );
 
         $offset = ($page - 1) * $perPage;
-        $tasks = $this->db->fetchAll(
+        $tasks = $this->db()->fetchAll(
             "SELECT pt.*, po.order_number, po.status as order_status,
                     v.sku as variant_sku, u.username as assigned_name
              FROM production_tasks pt
@@ -84,7 +84,7 @@ class TasksController extends Controller
     {
         $this->requirePermission('production.tasks.view');
 
-        $task = $this->db->fetch(
+        $task = $this->db()->fetch(
             "SELECT pt.*, po.order_number, po.status as order_status,
                     v.sku as variant_sku, v.name as variant_name,
                     u.username as assigned_name
@@ -101,7 +101,7 @@ class TasksController extends Controller
         }
 
         // Get workers for assignment
-        $workers = $this->db->fetchAll(
+        $workers = $this->db()->fetchAll(
             "SELECT id, username FROM users WHERE is_active = 1 ORDER BY username"
         );
 
@@ -120,7 +120,7 @@ class TasksController extends Controller
         $this->requirePermission('production.tasks.edit');
         $this->validateCSRF();
 
-        $task = $this->db->fetch("SELECT * FROM production_tasks WHERE id = ?", [$id]);
+        $task = $this->db()->fetch("SELECT * FROM production_tasks WHERE id = ?", [$id]);
         if (!$task) {
             $this->notFound();
         }
@@ -131,7 +131,7 @@ class TasksController extends Controller
             return;
         }
 
-        $this->db->update('production_tasks', [
+        $this->db()->update('production_tasks', [
             'status' => 'in_progress',
             'actual_start' => date('Y-m-d H:i:s'),
             'assigned_to' => $_POST['assigned_to'] ?: $this->user()['id'],
@@ -151,7 +151,7 @@ class TasksController extends Controller
         $this->requirePermission('production.tasks.edit');
         $this->validateCSRF();
 
-        $task = $this->db->fetch("SELECT * FROM production_tasks WHERE id = ?", [$id]);
+        $task = $this->db()->fetch("SELECT * FROM production_tasks WHERE id = ?", [$id]);
         if (!$task) {
             $this->notFound();
         }
@@ -164,7 +164,7 @@ class TasksController extends Controller
 
         $completedQty = (float)($_POST['completed_quantity'] ?? $task['planned_quantity']);
 
-        $this->db->update('production_tasks', [
+        $this->db()->update('production_tasks', [
             'status' => 'completed',
             'completed_quantity' => $completedQty,
             'actual_end' => date('Y-m-d H:i:s'),

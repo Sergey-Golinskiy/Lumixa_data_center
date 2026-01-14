@@ -37,13 +37,13 @@ class OrdersController extends Controller
 
         $whereClause = implode(' AND ', $where);
 
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM production_orders po JOIN variants v ON po.variant_id = v.id WHERE {$whereClause}",
             $params
         );
 
         $offset = ($page - 1) * $perPage;
-        $orders = $this->db->fetchAll(
+        $orders = $this->db()->fetchAll(
             "SELECT po.*, v.sku as variant_sku, v.name as variant_name,
                     (SELECT COUNT(*) FROM production_tasks WHERE order_id = po.id) as task_count,
                     (SELECT COUNT(*) FROM production_tasks WHERE order_id = po.id AND status = 'completed') as completed_tasks
@@ -73,7 +73,7 @@ class OrdersController extends Controller
     {
         $this->requirePermission('production.orders.view');
 
-        $order = $this->db->fetch(
+        $order = $this->db()->fetch(
             "SELECT po.*, v.sku as variant_sku, v.name as variant_name, p.name as product_name,
                     b.version as bom_version, r.version as routing_version,
                     u.username as created_by_name
@@ -91,7 +91,7 @@ class OrdersController extends Controller
             $this->notFound();
         }
 
-        $tasks = $this->db->fetchAll(
+        $tasks = $this->db()->fetchAll(
             "SELECT pt.*, u.username as assigned_name
              FROM production_tasks pt
              LEFT JOIN users u ON pt.assigned_to = u.id
@@ -100,7 +100,7 @@ class OrdersController extends Controller
             [$id]
         );
 
-        $materials = $this->db->fetchAll(
+        $materials = $this->db()->fetchAll(
             "SELECT mc.*, i.sku, i.name as item_name, i.unit, l.lot_number
              FROM material_consumption mc
              JOIN items i ON mc.item_id = i.id
@@ -125,7 +125,7 @@ class OrdersController extends Controller
     {
         $this->requirePermission('production.orders.create');
 
-        $variants = $this->db->fetchAll(
+        $variants = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name, p.name as product_name,
                     (SELECT id FROM bom WHERE variant_id = v.id AND status = 'active' LIMIT 1) as bom_id,
                     (SELECT id FROM routing WHERE variant_id = v.id AND status = 'active' LIMIT 1) as routing_id
@@ -160,12 +160,12 @@ class OrdersController extends Controller
         }
 
         // Get active BOM and routing
-        $bom = $this->db->fetch(
+        $bom = $this->db()->fetch(
             "SELECT id FROM bom WHERE variant_id = ? AND status = 'active' LIMIT 1",
             [$variantId]
         );
 
-        $routing = $this->db->fetch(
+        $routing = $this->db()->fetch(
             "SELECT id FROM routing WHERE variant_id = ? AND status = 'active' LIMIT 1",
             [$variantId]
         );
@@ -173,11 +173,11 @@ class OrdersController extends Controller
         // Generate order number
         $orderNumber = $this->generateOrderNumber();
 
-        $this->db->beginTransaction();
+        $this->db()->beginTransaction();
 
         try {
             // Create order
-            $orderId = $this->db->insert('production_orders', [
+            $orderId = $this->db()->insert('production_orders', [
                 'order_number' => $orderNumber,
                 'variant_id' => $variantId,
                 'bom_id' => $bom['id'] ?? null,
@@ -194,13 +194,13 @@ class OrdersController extends Controller
 
             // Create tasks from routing
             if ($routing) {
-                $operations = $this->db->fetchAll(
+                $operations = $this->db()->fetchAll(
                     "SELECT * FROM routing_operations WHERE routing_id = ? ORDER BY sort_order",
                     [$routing['id']]
                 );
 
                 foreach ($operations as $op) {
-                    $this->db->insert('production_tasks', [
+                    $this->db()->insert('production_tasks', [
                         'order_id' => $orderId,
                         'routing_operation_id' => $op['id'],
                         'operation_number' => $op['operation_number'],
@@ -217,13 +217,13 @@ class OrdersController extends Controller
 
             // Create material consumption from BOM
             if ($bom) {
-                $bomLines = $this->db->fetchAll(
+                $bomLines = $this->db()->fetchAll(
                     "SELECT * FROM bom_lines WHERE bom_id = ?",
                     [$bom['id']]
                 );
 
                 foreach ($bomLines as $line) {
-                    $this->db->insert('material_consumption', [
+                    $this->db()->insert('material_consumption', [
                         'order_id' => $orderId,
                         'item_id' => $line['item_id'],
                         'planned_quantity' => $line['quantity'] * $quantity * (1 + $line['waste_percent']/100),
@@ -232,13 +232,13 @@ class OrdersController extends Controller
                 }
             }
 
-            $this->db->commit();
+            $this->db()->commit();
             $this->audit('production_order.created', 'production_orders', $orderId, null, ['order_number' => $orderNumber]);
             $this->session->setFlash('success', 'Production order created');
             $this->redirect("/production/orders/{$orderId}");
 
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->db()->rollBack();
             $this->session->setFlash('error', 'Failed to create order: ' . $e->getMessage());
             $this->redirect('/production/orders/create');
         }
@@ -252,7 +252,7 @@ class OrdersController extends Controller
         $this->requirePermission('production.orders.edit');
         $this->validateCSRF();
 
-        $order = $this->db->fetch("SELECT * FROM production_orders WHERE id = ?", [$id]);
+        $order = $this->db()->fetch("SELECT * FROM production_orders WHERE id = ?", [$id]);
         if (!$order) {
             $this->notFound();
         }
@@ -263,7 +263,7 @@ class OrdersController extends Controller
             return;
         }
 
-        $this->db->update('production_orders', [
+        $this->db()->update('production_orders', [
             'status' => 'in_progress',
             'actual_start' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
@@ -282,7 +282,7 @@ class OrdersController extends Controller
         $this->requirePermission('production.orders.edit');
         $this->validateCSRF();
 
-        $order = $this->db->fetch("SELECT * FROM production_orders WHERE id = ?", [$id]);
+        $order = $this->db()->fetch("SELECT * FROM production_orders WHERE id = ?", [$id]);
         if (!$order) {
             $this->notFound();
         }
@@ -295,7 +295,7 @@ class OrdersController extends Controller
 
         $completedQty = (float)($_POST['completed_quantity'] ?? $order['quantity']);
 
-        $this->db->update('production_orders', [
+        $this->db()->update('production_orders', [
             'status' => 'completed',
             'completed_quantity' => $completedQty,
             'actual_end' => date('Y-m-d H:i:s'),
@@ -303,7 +303,7 @@ class OrdersController extends Controller
         ], ['id' => $id]);
 
         // Mark all pending tasks as completed
-        $this->db->execute(
+        $this->db()->execute(
             "UPDATE production_tasks SET status = 'completed', actual_end = NOW() WHERE order_id = ? AND status IN ('pending', 'in_progress')",
             [$id]
         );
@@ -321,7 +321,7 @@ class OrdersController extends Controller
         $this->requirePermission('production.orders.edit');
         $this->validateCSRF();
 
-        $order = $this->db->fetch("SELECT * FROM production_orders WHERE id = ?", [$id]);
+        $order = $this->db()->fetch("SELECT * FROM production_orders WHERE id = ?", [$id]);
         if (!$order) {
             $this->notFound();
         }
@@ -334,7 +334,7 @@ class OrdersController extends Controller
 
         $reason = trim($_POST['reason'] ?? '');
 
-        $this->db->update('production_orders', [
+        $this->db()->update('production_orders', [
             'status' => 'cancelled',
             'notes' => $order['notes'] . "\n[Cancelled: {$reason}]",
             'updated_at' => date('Y-m-d H:i:s')
@@ -350,15 +350,15 @@ class OrdersController extends Controller
      */
     private function generateOrderNumber(): string
     {
-        $seq = $this->db->fetch("SELECT * FROM document_sequences WHERE type = 'production_order' FOR UPDATE");
+        $seq = $this->db()->fetch("SELECT * FROM document_sequences WHERE type = 'production_order' FOR UPDATE");
 
         if (!$seq) {
-            $this->db->insert('document_sequences', ['type' => 'production_order', 'prefix' => 'PO', 'next_number' => 1]);
+            $this->db()->insert('document_sequences', ['type' => 'production_order', 'prefix' => 'PO', 'next_number' => 1]);
             return 'PO-' . date('Ymd') . '-0001';
         }
 
         $number = $seq['prefix'] . '-' . date('Ymd') . '-' . str_pad($seq['next_number'], 4, '0', STR_PAD_LEFT);
-        $this->db->execute("UPDATE document_sequences SET next_number = next_number + 1 WHERE type = 'production_order'");
+        $this->db()->execute("UPDATE document_sequences SET next_number = next_number + 1 WHERE type = 'production_order'");
 
         return $number;
     }

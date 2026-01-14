@@ -17,12 +17,12 @@ class CostingController extends Controller
         $this->requirePermission('costing.view');
 
         // Get summary stats
-        $totalVariants = $this->db->fetchColumn("SELECT COUNT(*) FROM variants WHERE is_active = 1");
-        $variantsWithCost = $this->db->fetchColumn("SELECT COUNT(*) FROM variant_costs WHERE planned_cost > 0");
-        $completedOrders = $this->db->fetchColumn("SELECT COUNT(*) FROM production_orders WHERE status = 'completed'");
+        $totalVariants = $this->db()->fetchColumn("SELECT COUNT(*) FROM variants WHERE is_active = 1");
+        $variantsWithCost = $this->db()->fetchColumn("SELECT COUNT(*) FROM variant_costs WHERE planned_cost > 0");
+        $completedOrders = $this->db()->fetchColumn("SELECT COUNT(*) FROM production_orders WHERE status = 'completed'");
 
         // Get recent cost variances
-        $recentVariances = $this->db->fetchAll(
+        $recentVariances = $this->db()->fetchAll(
             "SELECT po.order_number, v.sku, v.name,
                     vc.planned_cost,
                     COALESCE(mc.actual_material_cost, 0) + COALESCE(pt.actual_labor_cost, 0) as actual_cost,
@@ -84,13 +84,13 @@ class CostingController extends Controller
 
         $whereClause = implode(' AND ', $where);
 
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM variants v WHERE {$whereClause}",
             $params
         );
 
         $offset = ($page - 1) * $perPage;
-        $variants = $this->db->fetchAll(
+        $variants = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name, v.unit,
                     vc.material_cost, vc.labor_cost, vc.overhead_cost, vc.planned_cost,
                     vc.calculated_at,
@@ -130,7 +130,7 @@ class CostingController extends Controller
 
         $offset = ($page - 1) * $perPage;
 
-        $orders = $this->db->fetchAll(
+        $orders = $this->db()->fetchAll(
             "SELECT po.id, po.order_number, po.quantity, po.completed_quantity, po.completed_at,
                     v.sku, v.name as variant_name,
                     vc.planned_cost,
@@ -164,7 +164,7 @@ class CostingController extends Controller
             [$dateFrom, $dateTo]
         );
 
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM production_orders po
              WHERE po.status = 'completed' AND DATE(po.completed_at) BETWEEN ? AND ?",
             [$dateFrom, $dateTo]
@@ -199,7 +199,7 @@ class CostingController extends Controller
         $dateTo = $_GET['to'] ?? date('Y-m-d');
 
         // Aggregate by variant
-        $comparison = $this->db->fetchAll(
+        $comparison = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name,
                     SUM(po.completed_quantity) as total_produced,
                     vc.planned_cost as unit_planned_cost,
@@ -272,7 +272,7 @@ class CostingController extends Controller
     {
         $this->requirePermission('costing.view');
 
-        $variant = $this->db->fetch(
+        $variant = $this->db()->fetch(
             "SELECT v.*, vc.material_cost, vc.labor_cost, vc.overhead_cost, vc.planned_cost, vc.calculated_at
              FROM variants v
              LEFT JOIN variant_costs vc ON v.id = vc.variant_id
@@ -285,14 +285,14 @@ class CostingController extends Controller
         }
 
         // Get active BOM with lines
-        $bom = $this->db->fetch(
+        $bom = $this->db()->fetch(
             "SELECT * FROM bom WHERE variant_id = ? AND status = 'active'",
             [$id]
         );
 
         $bomLines = [];
         if ($bom) {
-            $bomLines = $this->db->fetchAll(
+            $bomLines = $this->db()->fetchAll(
                 "SELECT bl.*, i.sku, i.name, i.unit, i.price
                  FROM bom_lines bl
                  JOIN items i ON bl.item_id = i.id
@@ -307,14 +307,14 @@ class CostingController extends Controller
         }
 
         // Get active routing with operations
-        $routing = $this->db->fetch(
+        $routing = $this->db()->fetch(
             "SELECT * FROM routing WHERE variant_id = ? AND status = 'active'",
             [$id]
         );
 
         $operations = [];
         if ($routing) {
-            $operations = $this->db->fetchAll(
+            $operations = $this->db()->fetchAll(
                 "SELECT ro.*, wc.name as work_center_name, wc.hour_rate
                  FROM routing_operations ro
                  LEFT JOIN work_centers wc ON ro.work_center_id = wc.id
@@ -329,7 +329,7 @@ class CostingController extends Controller
         }
 
         // Get production history
-        $history = $this->db->fetchAll(
+        $history = $this->db()->fetchAll(
             "SELECT po.id, po.order_number, po.completed_quantity, po.completed_at,
                     COALESCE(mc.material_cost, 0) as actual_material,
                     COALESCE(pt.labor_cost, 0) as actual_labor

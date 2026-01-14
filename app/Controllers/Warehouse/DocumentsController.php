@@ -63,12 +63,12 @@ class DocumentsController extends Controller
         $types = $this->documentService->getTypes();
 
         // Get items for dropdown
-        $items = $this->db->fetchAll(
+        $items = $this->db()->fetchAll(
             "SELECT id, sku, name, unit FROM items WHERE is_active = 1 ORDER BY sku"
         );
 
         // Get partners for dropdown
-        $partners = $this->db->fetchAll(
+        $partners = $this->db()->fetchAll(
             "SELECT id, name, type FROM partners WHERE is_active = 1 ORDER BY name"
         );
 
@@ -184,12 +184,12 @@ class DocumentsController extends Controller
         $lines = $this->documentService->getLines((int)$id);
 
         // Get items for dropdown
-        $items = $this->db->fetchAll(
+        $items = $this->db()->fetchAll(
             "SELECT id, sku, name, unit FROM items WHERE is_active = 1 ORDER BY sku"
         );
 
         // Get partners for dropdown
-        $partners = $this->db->fetchAll(
+        $partners = $this->db()->fetchAll(
             "SELECT id, name, type FROM partners WHERE is_active = 1 ORDER BY name"
         );
 

@@ -46,7 +46,7 @@ class LotsController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Count total
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM lots l
              JOIN items i ON l.item_id = i.id
              WHERE {$whereClause}",
@@ -55,7 +55,7 @@ class LotsController extends Controller
 
         // Get lots
         $offset = ($page - 1) * $perPage;
-        $lots = $this->db->fetchAll(
+        $lots = $this->db()->fetchAll(
             "SELECT l.*, i.sku, i.name as item_name, i.unit
              FROM lots l
              JOIN items i ON l.item_id = i.id
@@ -66,7 +66,7 @@ class LotsController extends Controller
         );
 
         // Get items for filter
-        $items = $this->db->fetchAll("SELECT id, sku, name FROM items WHERE is_active = 1 ORDER BY sku");
+        $items = $this->db()->fetchAll("SELECT id, sku, name FROM items WHERE is_active = 1 ORDER BY sku");
 
         $this->render('warehouse/lots/index', [
             'title' => 'Lots Management',
@@ -89,7 +89,7 @@ class LotsController extends Controller
     {
         $this->requirePermission('warehouse.lots.view');
 
-        $lot = $this->db->fetch(
+        $lot = $this->db()->fetch(
             "SELECT l.*, i.sku, i.name as item_name, i.unit, i.category
              FROM lots l
              JOIN items i ON l.item_id = i.id
@@ -102,7 +102,7 @@ class LotsController extends Controller
         }
 
         // Get stock movements for this lot
-        $movements = $this->db->fetchAll(
+        $movements = $this->db()->fetchAll(
             "SELECT sm.*, d.document_number, d.type as document_type
              FROM stock_movements sm
              JOIN documents d ON sm.document_id = d.id
@@ -113,7 +113,7 @@ class LotsController extends Controller
         );
 
         // Get current stock balance
-        $stockBalance = $this->db->fetch(
+        $stockBalance = $this->db()->fetch(
             "SELECT * FROM stock_balances WHERE lot_id = ?",
             [$id]
         );
@@ -133,7 +133,7 @@ class LotsController extends Controller
     {
         $this->requirePermission('warehouse.lots.create');
 
-        $items = $this->db->fetchAll(
+        $items = $this->db()->fetchAll(
             "SELECT id, sku, name, unit FROM items WHERE is_active = 1 AND track_lots = 1 ORDER BY sku"
         );
 
@@ -172,7 +172,7 @@ class LotsController extends Controller
             $errors['lot_number'] = 'Lot number is required';
         } else {
             // Check uniqueness per item
-            $exists = $this->db->fetch(
+            $exists = $this->db()->fetch(
                 "SELECT id FROM lots WHERE item_id = ? AND lot_number = ?",
                 [$data['item_id'], $data['lot_number']]
             );
@@ -195,7 +195,7 @@ class LotsController extends Controller
         }
 
         // Check if item tracks lots
-        $item = $this->db->fetch("SELECT track_lots FROM items WHERE id = ?", [$data['item_id']]);
+        $item = $this->db()->fetch("SELECT track_lots FROM items WHERE id = ?", [$data['item_id']]);
         if (!$item || !$item['track_lots']) {
             $this->session->setFlash('error', 'Selected item does not track lots');
             $this->redirect('/warehouse/lots/create');
@@ -203,7 +203,7 @@ class LotsController extends Controller
         }
 
         // Create lot
-        $id = $this->db->insert('lots', [
+        $id = $this->db()->insert('lots', [
             'item_id' => $data['item_id'],
             'lot_number' => $data['lot_number'],
             'manufacture_date' => $data['manufacture_date'],
@@ -226,7 +226,7 @@ class LotsController extends Controller
     {
         $this->requirePermission('warehouse.lots.edit');
 
-        $lot = $this->db->fetch(
+        $lot = $this->db()->fetch(
             "SELECT l.*, i.sku, i.name as item_name
              FROM lots l
              JOIN items i ON l.item_id = i.id
@@ -238,7 +238,7 @@ class LotsController extends Controller
             $this->notFound();
         }
 
-        $items = $this->db->fetchAll(
+        $items = $this->db()->fetchAll(
             "SELECT id, sku, name, unit FROM items WHERE is_active = 1 AND track_lots = 1 ORDER BY sku"
         );
 
@@ -257,7 +257,7 @@ class LotsController extends Controller
         $this->requirePermission('warehouse.lots.edit');
         $this->validateCSRF();
 
-        $lot = $this->db->fetch("SELECT * FROM lots WHERE id = ?", [$id]);
+        $lot = $this->db()->fetch("SELECT * FROM lots WHERE id = ?", [$id]);
         if (!$lot) {
             $this->notFound();
         }
@@ -278,7 +278,7 @@ class LotsController extends Controller
             $errors['lot_number'] = 'Lot number is required';
         } else {
             // Check uniqueness per item
-            $exists = $this->db->fetch(
+            $exists = $this->db()->fetch(
                 "SELECT id FROM lots WHERE item_id = ? AND lot_number = ? AND id != ?",
                 [$lot['item_id'], $data['lot_number'], $id]
             );
@@ -305,7 +305,7 @@ class LotsController extends Controller
         }
 
         // Update
-        $this->db->update('lots', [
+        $this->db()->update('lots', [
             'lot_number' => $data['lot_number'],
             'manufacture_date' => $data['manufacture_date'],
             'expiry_date' => $data['expiry_date'],
@@ -328,7 +328,7 @@ class LotsController extends Controller
         $this->requirePermission('warehouse.lots.edit');
         $this->validateCSRF();
 
-        $lot = $this->db->fetch("SELECT * FROM lots WHERE id = ?", [$id]);
+        $lot = $this->db()->fetch("SELECT * FROM lots WHERE id = ?", [$id]);
         if (!$lot) {
             $this->notFound();
         }
@@ -348,7 +348,7 @@ class LotsController extends Controller
             $notes .= "\n[" . date('Y-m-d H:i') . "] Status changed from {$oldStatus} to {$status}: {$reason}";
         }
 
-        $this->db->update('lots', [
+        $this->db()->update('lots', [
             'status' => $status,
             'notes' => trim($notes),
             'updated_at' => date('Y-m-d H:i:s')
@@ -368,7 +368,7 @@ class LotsController extends Controller
 
         $days = (int)($_GET['days'] ?? 30);
 
-        $lots = $this->db->fetchAll(
+        $lots = $this->db()->fetchAll(
             "SELECT l.*, i.sku, i.name as item_name, i.unit,
                     DATEDIFF(l.expiry_date, CURDATE()) as days_until_expiry,
                     sb.quantity as stock_quantity

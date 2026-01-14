@@ -39,14 +39,14 @@ class RoutingController extends Controller
         $whereClause = implode(' AND ', $where);
 
         // Count
-        $total = $this->db->fetchColumn(
+        $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM routing r JOIN variants v ON r.variant_id = v.id WHERE {$whereClause}",
             $params
         );
 
         // Get routings
         $offset = ($page - 1) * $perPage;
-        $routings = $this->db->fetchAll(
+        $routings = $this->db()->fetchAll(
             "SELECT r.*, v.sku as variant_sku, v.name as variant_name,
                     (SELECT COUNT(*) FROM routing_operations WHERE routing_id = r.id) as op_count,
                     (SELECT SUM(ro.setup_time_minutes + ro.run_time_minutes) FROM routing_operations ro WHERE ro.routing_id = r.id) as total_time,
@@ -78,7 +78,7 @@ class RoutingController extends Controller
     {
         $this->requirePermission('catalog.routing.view');
 
-        $routing = $this->db->fetch(
+        $routing = $this->db()->fetch(
             "SELECT r.*, v.sku as variant_sku, v.name as variant_name,
                     u.username as created_by_name
              FROM routing r
@@ -93,7 +93,7 @@ class RoutingController extends Controller
         }
 
         // Get operations
-        $operations = $this->db->fetchAll(
+        $operations = $this->db()->fetchAll(
             "SELECT * FROM routing_operations WHERE routing_id = ? ORDER BY sort_order",
             [$id]
         );
@@ -114,11 +114,11 @@ class RoutingController extends Controller
 
         $variantId = $_GET['variant_id'] ?? '';
 
-        $variants = $this->db->fetchAll(
+        $variants = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name FROM variants v WHERE v.is_active = 1 ORDER BY v.sku"
         );
 
-        $workCenters = $this->db->fetchAll(
+        $workCenters = $this->db()->fetchAll(
             "SELECT code, name FROM work_centers WHERE is_active = 1 ORDER BY code"
         );
 
@@ -171,17 +171,17 @@ class RoutingController extends Controller
             return;
         }
 
-        $this->db->beginTransaction();
+        $this->db()->beginTransaction();
 
         try {
-            $routingId = $this->db->insert('routing', array_merge($data, [
+            $routingId = $this->db()->insert('routing', array_merge($data, [
                 'status' => 'draft',
                 'created_by' => $this->user()['id'],
                 'created_at' => date('Y-m-d H:i:s')
             ]));
 
             foreach ($operations as $i => $op) {
-                $this->db->insert('routing_operations', [
+                $this->db()->insert('routing_operations', [
                     'routing_id' => $routingId,
                     'operation_number' => $op['operation_number'],
                     'name' => $op['name'],
@@ -195,13 +195,13 @@ class RoutingController extends Controller
                 ]);
             }
 
-            $this->db->commit();
+            $this->db()->commit();
             $this->audit('routing.created', 'routing', $routingId, null, $data);
             $this->session->setFlash('success', 'Routing created successfully');
             $this->redirect("/catalog/routing/{$routingId}");
 
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->db()->rollBack();
             $this->session->setFlash('error', 'Failed to create routing: ' . $e->getMessage());
             $this->redirect('/catalog/routing/create?variant_id=' . $data['variant_id']);
         }
@@ -214,7 +214,7 @@ class RoutingController extends Controller
     {
         $this->requirePermission('catalog.routing.edit');
 
-        $routing = $this->db->fetch(
+        $routing = $this->db()->fetch(
             "SELECT r.*, v.sku as variant_sku, v.name as variant_name
              FROM routing r
              JOIN variants v ON r.variant_id = v.id
@@ -232,16 +232,16 @@ class RoutingController extends Controller
             return;
         }
 
-        $operations = $this->db->fetchAll(
+        $operations = $this->db()->fetchAll(
             "SELECT * FROM routing_operations WHERE routing_id = ? ORDER BY sort_order",
             [$id]
         );
 
-        $variants = $this->db->fetchAll(
+        $variants = $this->db()->fetchAll(
             "SELECT v.id, v.sku, v.name FROM variants v WHERE v.is_active = 1 ORDER BY v.sku"
         );
 
-        $workCenters = $this->db->fetchAll(
+        $workCenters = $this->db()->fetchAll(
             "SELECT code, name FROM work_centers WHERE is_active = 1 ORDER BY code"
         );
 
@@ -263,7 +263,7 @@ class RoutingController extends Controller
         $this->requirePermission('catalog.routing.edit');
         $this->validateCSRF();
 
-        $routing = $this->db->fetch("SELECT * FROM routing WHERE id = ?", [$id]);
+        $routing = $this->db()->fetch("SELECT * FROM routing WHERE id = ?", [$id]);
         if (!$routing) {
             $this->notFound();
         }
@@ -288,18 +288,18 @@ class RoutingController extends Controller
             return;
         }
 
-        $this->db->beginTransaction();
+        $this->db()->beginTransaction();
 
         try {
-            $this->db->update('routing', array_merge($data, [
+            $this->db()->update('routing', array_merge($data, [
                 'updated_at' => date('Y-m-d H:i:s')
             ]), ['id' => $id]);
 
             // Delete and recreate operations
-            $this->db->delete('routing_operations', ['routing_id' => $id]);
+            $this->db()->delete('routing_operations', ['routing_id' => $id]);
 
             foreach ($operations as $i => $op) {
-                $this->db->insert('routing_operations', [
+                $this->db()->insert('routing_operations', [
                     'routing_id' => $id,
                     'operation_number' => $op['operation_number'],
                     'name' => $op['name'],
@@ -313,13 +313,13 @@ class RoutingController extends Controller
                 ]);
             }
 
-            $this->db->commit();
+            $this->db()->commit();
             $this->audit('routing.updated', 'routing', $id, $routing, $data);
             $this->session->setFlash('success', 'Routing updated');
             $this->redirect("/catalog/routing/{$id}");
 
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->db()->rollBack();
             $this->session->setFlash('error', 'Failed to update routing: ' . $e->getMessage());
             $this->redirect("/catalog/routing/{$id}/edit");
         }
@@ -333,22 +333,22 @@ class RoutingController extends Controller
         $this->requirePermission('catalog.routing.activate');
         $this->validateCSRF();
 
-        $routing = $this->db->fetch("SELECT * FROM routing WHERE id = ?", [$id]);
+        $routing = $this->db()->fetch("SELECT * FROM routing WHERE id = ?", [$id]);
         if (!$routing) {
             $this->notFound();
         }
 
-        $this->db->beginTransaction();
+        $this->db()->beginTransaction();
 
         try {
             // Deactivate other routings for same variant
-            $this->db->execute(
+            $this->db()->execute(
                 "UPDATE routing SET status = 'archived', updated_at = NOW() WHERE variant_id = ? AND status = 'active'",
                 [$routing['variant_id']]
             );
 
             // Activate this one
-            $this->db->update('routing', [
+            $this->db()->update('routing', [
                 'status' => 'active',
                 'updated_at' => date('Y-m-d H:i:s')
             ], ['id' => $id]);
@@ -356,12 +356,12 @@ class RoutingController extends Controller
             // Recalculate variant costs
             $this->recalculateVariantCost($routing['variant_id']);
 
-            $this->db->commit();
+            $this->db()->commit();
             $this->audit('routing.activated', 'routing', $id, ['status' => $routing['status']], ['status' => 'active']);
             $this->session->setFlash('success', 'Routing activated');
 
         } catch (\Exception $e) {
-            $this->db->rollBack();
+            $this->db()->rollBack();
             $this->session->setFlash('error', 'Failed to activate routing: ' . $e->getMessage());
         }
 
@@ -376,12 +376,12 @@ class RoutingController extends Controller
         $this->requirePermission('catalog.routing.edit');
         $this->validateCSRF();
 
-        $routing = $this->db->fetch("SELECT * FROM routing WHERE id = ?", [$id]);
+        $routing = $this->db()->fetch("SELECT * FROM routing WHERE id = ?", [$id]);
         if (!$routing) {
             $this->notFound();
         }
 
-        $this->db->update('routing', [
+        $this->db()->update('routing', [
             'status' => 'archived',
             'updated_at' => date('Y-m-d H:i:s')
         ], ['id' => $id]);
@@ -425,21 +425,21 @@ class RoutingController extends Controller
     private function recalculateVariantCost(int $variantId): void
     {
         // Get active BOM material cost
-        $bom = $this->db->fetch(
+        $bom = $this->db()->fetch(
             "SELECT id FROM bom WHERE variant_id = ? AND status = 'active' LIMIT 1",
             [$variantId]
         );
 
         $materialCost = 0;
         if ($bom) {
-            $materialCost = (float)$this->db->fetchColumn(
+            $materialCost = (float)$this->db()->fetchColumn(
                 "SELECT SUM(quantity * unit_cost * (1 + waste_percent/100)) FROM bom_lines WHERE bom_id = ?",
                 [$bom['id']]
             );
         }
 
         // Get active routing costs
-        $routing = $this->db->fetch(
+        $routing = $this->db()->fetch(
             "SELECT id FROM routing WHERE variant_id = ? AND status = 'active' LIMIT 1",
             [$variantId]
         );
@@ -447,7 +447,7 @@ class RoutingController extends Controller
         $laborCost = 0;
         $overheadCost = 0;
         if ($routing) {
-            $costs = $this->db->fetch(
+            $costs = $this->db()->fetch(
                 "SELECT SUM(labor_cost) as labor, SUM(overhead_cost) as overhead FROM routing_operations WHERE routing_id = ?",
                 [$routing['id']]
             );
@@ -456,7 +456,7 @@ class RoutingController extends Controller
         }
 
         // Update variant cost
-        $existing = $this->db->fetch("SELECT id FROM variant_costs WHERE variant_id = ?", [$variantId]);
+        $existing = $this->db()->fetch("SELECT id FROM variant_costs WHERE variant_id = ?", [$variantId]);
 
         $costData = [
             'variant_id' => $variantId,
@@ -470,9 +470,9 @@ class RoutingController extends Controller
         ];
 
         if ($existing) {
-            $this->db->update('variant_costs', $costData, ['id' => $existing['id']]);
+            $this->db()->update('variant_costs', $costData, ['id' => $existing['id']]);
         } else {
-            $this->db->insert('variant_costs', $costData);
+            $this->db()->insert('variant_costs', $costData);
         }
     }
 }
