@@ -28,7 +28,7 @@ class CostingController extends Controller
             "SELECT po.order_number, v.sku, v.name,
                     vc.total_cost as planned_cost,
                     COALESCE(mc.actual_material_cost, 0) as actual_cost,
-                    po.quantity, po.completed_at
+                    po.quantity, po.actual_end
              FROM production_orders po
              JOIN variants v ON po.variant_id = v.id
              LEFT JOIN variant_costs vc ON v.id = vc.variant_id
@@ -38,7 +38,7 @@ class CostingController extends Controller
                 GROUP BY order_id
              ) mc ON po.id = mc.order_id
              WHERE po.status = 'completed'
-             ORDER BY po.completed_at DESC
+             ORDER BY po.actual_end DESC
              LIMIT 10"
         );
 
@@ -130,7 +130,7 @@ class CostingController extends Controller
         // Note: material cost = actual_quantity * unit_cost
         // Labor time calculated from actual_start/actual_end, cost not tracked
         $orders = $this->db()->fetchAll(
-            "SELECT po.id, po.order_number, po.quantity, po.completed_quantity, po.completed_at,
+            "SELECT po.id, po.order_number, po.quantity, po.completed_quantity, po.actual_end,
                     v.sku, v.name as variant_name,
                     vc.total_cost as planned_cost,
                     COALESCE(mc.material_cost, 0) as actual_material_cost,
@@ -157,15 +157,15 @@ class CostingController extends Controller
                 GROUP BY order_id
              ) pt ON po.id = pt.order_id
              WHERE po.status = 'completed'
-               AND DATE(po.completed_at) BETWEEN ? AND ?
-             ORDER BY po.completed_at DESC
+               AND DATE(po.actual_end) BETWEEN ? AND ?
+             ORDER BY po.actual_end DESC
              LIMIT {$perPage} OFFSET {$offset}",
             [$dateFrom, $dateTo]
         );
 
         $total = $this->db()->fetchColumn(
             "SELECT COUNT(*) FROM production_orders po
-             WHERE po.status = 'completed' AND DATE(po.completed_at) BETWEEN ? AND ?",
+             WHERE po.status = 'completed' AND DATE(po.actual_end) BETWEEN ? AND ?",
             [$dateFrom, $dateTo]
         );
 
@@ -215,7 +215,7 @@ class CostingController extends Controller
                 GROUP BY order_id
              ) mc ON po.id = mc.order_id
              WHERE po.status = 'completed'
-               AND DATE(po.completed_at) BETWEEN ? AND ?
+               AND DATE(po.actual_end) BETWEEN ? AND ?
              GROUP BY v.id, v.sku, v.name, vc.total_cost
              ORDER BY SUM(po.completed_quantity) DESC",
             [$dateFrom, $dateTo]
@@ -326,7 +326,7 @@ class CostingController extends Controller
         // Get production history
         // Note: material cost = actual_quantity * unit_cost, labor cost not tracked
         $history = $this->db()->fetchAll(
-            "SELECT po.id, po.order_number, po.completed_quantity, po.completed_at,
+            "SELECT po.id, po.order_number, po.completed_quantity, po.actual_end,
                     COALESCE(mc.material_cost, 0) as actual_material,
                     0 as actual_labor
              FROM production_orders po
@@ -336,7 +336,7 @@ class CostingController extends Controller
                 GROUP BY order_id
              ) mc ON po.id = mc.order_id
              WHERE po.variant_id = ? AND po.status = 'completed'
-             ORDER BY po.completed_at DESC
+             ORDER BY po.actual_end DESC
              LIMIT 20",
             [$id]
         );
