@@ -288,16 +288,16 @@ class CostingController extends Controller
         $bomLines = [];
         if ($bom) {
             $bomLines = $this->db()->fetchAll(
-                "SELECT bl.*, i.sku, i.name, i.unit, i.price
+                "SELECT bl.*, i.sku, i.name, i.unit
                  FROM bom_lines bl
                  JOIN items i ON bl.item_id = i.id
                  WHERE bl.bom_id = ?
-                 ORDER BY bl.sequence",
+                 ORDER BY bl.sort_order",
                 [$bom['id']]
             );
 
             foreach ($bomLines as &$line) {
-                $line['line_cost'] = $line['quantity'] * ($line['price'] ?? 0);
+                $line['line_cost'] = $line['quantity'] * ($line['unit_cost'] ?? 0);
             }
         }
 
@@ -310,16 +310,16 @@ class CostingController extends Controller
         $operations = [];
         if ($routing) {
             $operations = $this->db()->fetchAll(
-                "SELECT ro.*, wc.name as work_center_name, wc.hour_rate
+                "SELECT ro.*, wc.name as work_center_name, wc.hourly_rate
                  FROM routing_operations ro
-                 LEFT JOIN work_centers wc ON ro.work_center_id = wc.id
+                 LEFT JOIN work_centers wc ON ro.work_center = wc.code
                  WHERE ro.routing_id = ?
-                 ORDER BY ro.sequence",
+                 ORDER BY ro.sort_order",
                 [$routing['id']]
             );
 
             foreach ($operations as &$op) {
-                $op['operation_cost'] = ($op['setup_time'] + $op['run_time']) / 60 * ($op['hour_rate'] ?? 0);
+                $op['operation_cost'] = ($op['setup_time_minutes'] + $op['run_time_minutes']) / 60 * ($op['hourly_rate'] ?? 0);
             }
         }
 
