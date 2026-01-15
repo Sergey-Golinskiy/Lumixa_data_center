@@ -27,7 +27,7 @@ class LanguageController extends Controller
         $user = $this->user();
         if ($user) {
             try {
-                $this->db()->update('users', ['locale' => $locale], 'id = ?', [$user['id']]);
+                $this->db()->update('users', ['locale' => $locale], ['id' => $user['id']]);
                 // Update session user data
                 $user['locale'] = $locale;
                 $this->session->set('user', $user);
