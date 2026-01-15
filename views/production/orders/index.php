@@ -1,10 +1,10 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Production Orders</h1>
+    <h1><?= $this->__('production_orders') ?></h1>
     <div class="page-actions">
         <?php if ($this->can('production.orders.create')): ?>
-        <a href="/production/orders/create" class="btn btn-primary">+ New Order</a>
+        <a href="/production/orders/create" class="btn btn-primary">+ <?= $this->__('new_order') ?></a>
         <?php endif; ?>
     </div>
 </div>
@@ -15,21 +15,21 @@
         <form method="GET" class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
-                    <input type="text" name="search" placeholder="Search order # or SKU..."
+                    <input type="text" name="search" placeholder="<?= $this->__('search_order_sku') ?>"
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
                     <select name="status">
-                        <option value="">All Statuses</option>
-                        <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>>Draft</option>
-                        <option value="planned" <?= $status === 'planned' ? 'selected' : '' ?>>Planned</option>
-                        <option value="in_progress" <?= $status === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                        <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>>Completed</option>
-                        <option value="cancelled" <?= $status === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                        <option value=""><?= $this->__('all_statuses') ?></option>
+                        <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
+                        <option value="planned" <?= $status === 'planned' ? 'selected' : '' ?>><?= $this->__('planned') ?></option>
+                        <option value="in_progress" <?= $status === 'in_progress' ? 'selected' : '' ?>><?= $this->__('in_progress') ?></option>
+                        <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>><?= $this->__('completed') ?></option>
+                        <option value="cancelled" <?= $status === 'cancelled' ? 'selected' : '' ?>><?= $this->__('cancelled') ?></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/production/orders" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/production/orders" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -42,20 +42,20 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Order #</th>
-                        <th>Variant</th>
-                        <th class="text-right">Quantity</th>
-                        <th class="text-center">Progress</th>
-                        <th>Status</th>
-                        <th>Priority</th>
-                        <th>Planned</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('order_number') ?></th>
+                        <th><?= $this->__('variant') ?></th>
+                        <th class="text-right"><?= $this->__('quantity') ?></th>
+                        <th class="text-center"><?= $this->__('progress') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('priority') ?></th>
+                        <th><?= $this->__('planned') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($orders)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No orders found</td>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_orders_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($orders as $order): ?>
@@ -94,10 +94,10 @@
                             <div class="progress-bar" style="width: 80px; margin: 0 auto;">
                                 <div class="progress-fill" style="width: <?= $progress ?>%"></div>
                             </div>
-                            <small><?= $order['completed_tasks'] ?>/<?= $order['task_count'] ?> tasks</small>
+                            <small><?= $order['completed_tasks'] ?>/<?= $order['task_count'] ?> <?= $this->__('tasks') ?></small>
                         </td>
-                        <td><span class="badge badge-<?= $statusClass ?>"><?= ucfirst(str_replace('_', ' ', $order['status'])) ?></span></td>
-                        <td><span class="badge badge-<?= $priorityClass ?>"><?= ucfirst($order['priority']) ?></span></td>
+                        <td><span class="badge badge-<?= $statusClass ?>"><?= $this->__(strtolower(str_replace('_', '_', $order['status']))) ?></span></td>
+                        <td><span class="badge badge-<?= $priorityClass ?>"><?= $this->__($order['priority']) ?></span></td>
                         <td>
                             <?php if ($order['planned_start']): ?>
                             <?= $this->date($order['planned_start'], 'Y-m-d') ?>
@@ -106,7 +106,7 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="/production/orders/<?= $order['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/production/orders/<?= $order['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -118,11 +118,11 @@
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; Prev</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; <?= $this->__('prev') ?></a>
             <?php endif; ?>
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?></span>
+            <span class="pagination-info"><?= $this->__('page') ?> <?= $page ?> <?= $this->__('of') ?> <?= $totalPages ?></span>
             <?php if ($page < $totalPages): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline">Next &raquo;</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline"><?= $this->__('next') ?> &raquo;</a>
             <?php endif; ?>
         </div>
         <?php endif; ?>

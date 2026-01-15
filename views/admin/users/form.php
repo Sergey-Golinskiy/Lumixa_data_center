@@ -1,7 +1,7 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/admin/users" class="btn btn-secondary">&laquo; Back to Users</a>
+    <a href="/admin/users" class="btn btn-secondary">&laquo; <?= $this->__('back_to_users') ?></a>
 </div>
 
 <div class="card">
@@ -13,19 +13,19 @@
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
             <div class="form-group">
-                <label for="name">Name <span class="required">*</span></label>
+                <label for="name"><?= $this->__('name') ?> <span class="required">*</span></label>
                 <input type="text" name="name" id="name" class="form-control"
                        value="<?= $this->e($user['name'] ?? '') ?>" required>
             </div>
 
             <div class="form-group">
-                <label for="email">Email <span class="required">*</span></label>
+                <label for="email"><?= $this->__('email') ?> <span class="required">*</span></label>
                 <input type="email" name="email" id="email" class="form-control"
                        value="<?= $this->e($user['email'] ?? '') ?>" required>
             </div>
 
             <div class="form-group">
-                <label for="password">Password <?= $user ? '(leave blank to keep current)' : '<span class="required">*</span>' ?></label>
+                <label for="password"><?= $this->__('password') ?> <?= $user ? $this->__('password_leave_blank') : '<span class="required">*</span>' ?></label>
                 <input type="password" name="password" id="password" class="form-control"
                        <?= $user ? '' : 'required' ?>>
             </div>
@@ -42,7 +42,7 @@
             </div>
 
             <div class="form-group">
-                <label>Roles</label>
+                <label><?= $this->__('roles') ?></label>
                 <?php foreach ($roles as $role): ?>
                 <div class="checkbox">
                     <label>
@@ -58,13 +58,13 @@
                 <label>
                     <input type="checkbox" name="is_active" value="1"
                            <?= ($user['is_active'] ?? 1) ? 'checked' : '' ?>>
-                    Active
+                    <?= $this->__('active') ?>
                 </label>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary"><?= $user ? 'Update' : 'Create' ?> User</button>
-                <a href="/admin/users" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary"><?= $user ? $this->__('update_user') : $this->__('create_user') ?></button>
+                <a href="/admin/users" class="btn btn-secondary"><?= $this->__('cancel') ?></a>
             </div>
         </form>
     </div>

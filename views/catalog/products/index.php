@@ -1,10 +1,10 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Products</h1>
+    <h1><?= $this->__('products') ?></h1>
     <div class="page-actions">
         <?php if ($this->can('catalog.products.create')): ?>
-        <a href="/catalog/products/create" class="btn btn-primary">+ New Product</a>
+        <a href="/catalog/products/create" class="btn btn-primary">+ <?= $this->__('new_product') ?></a>
         <?php endif; ?>
     </div>
 </div>
@@ -15,12 +15,12 @@
         <form method="GET" class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
-                    <input type="text" name="search" placeholder="Search code or name..."
+                    <input type="text" name="search" placeholder="<?= $this->__('search_code_name') ?>"
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
                     <select name="category">
-                        <option value="">All Categories</option>
+                        <option value=""><?= $this->__('all_categories') ?></option>
                         <?php foreach ($categories as $cat): ?>
                         <option value="<?= $this->e($cat['category']) ?>" <?= $category === $cat['category'] ? 'selected' : '' ?>>
                             <?= $this->e($cat['category']) ?>
@@ -30,13 +30,13 @@
                 </div>
                 <div class="filter-group">
                     <select name="status">
-                        <option value="">All Statuses</option>
-                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
-                        <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                        <option value=""><?= $this->__('all_statuses') ?></option>
+                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>><?= $this->__('active') ?></option>
+                        <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>><?= $this->__('inactive') ?></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/catalog/products" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/catalog/products" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -49,19 +49,19 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Code</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th class="text-right">Base Price</th>
-                        <th class="text-center">Variants</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('code') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('category') ?></th>
+                        <th class="text-right"><?= $this->__('base_price') ?></th>
+                        <th class="text-center"><?= $this->__('variants') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($products)): ?>
                     <tr>
-                        <td colspan="7" class="text-center text-muted">No products found</td>
+                        <td colspan="7" class="text-center text-muted"><?= $this->__('no_products_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($products as $product): ?>
@@ -83,15 +83,15 @@
                         </td>
                         <td>
                             <?php if ($product['is_active']): ?>
-                            <span class="badge badge-success">Active</span>
+                            <span class="badge badge-success"><?= $this->__('active') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-secondary">Inactive</span>
+                            <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="/catalog/products/<?= $product['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/catalog/products/<?= $product['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                             <?php if ($this->can('catalog.products.edit')): ?>
-                            <a href="/catalog/products/<?= $product['id'] ?>/edit" class="btn btn-sm btn-outline">Edit</a>
+                            <a href="/catalog/products/<?= $product['id'] ?>/edit" class="btn btn-sm btn-outline"><?= $this->__('edit') ?></a>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -105,11 +105,11 @@
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; Previous</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; <?= $this->__('previous') ?></a>
             <?php endif; ?>
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?> (<?= $total ?> products)</span>
+            <span class="pagination-info"><?= $this->__('page') ?> <?= $page ?> <?= $this->__('of') ?> <?= $totalPages ?> (<?= $total ?> <?= $this->__('products') ?>)</span>
             <?php if ($page < $totalPages): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline">Next &raquo;</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline"><?= $this->__('next') ?> &raquo;</a>
             <?php endif; ?>
         </div>
         <?php endif; ?>

@@ -3,28 +3,28 @@
 <div class="page-header">
     <h2><?= h($title) ?></h2>
     <?php if ($this->can('admin.users.create')): ?>
-    <a href="/admin/users/create" class="btn btn-primary">Create User</a>
+    <a href="/admin/users/create" class="btn btn-primary"><?= $this->__('create_user') ?></a>
     <?php endif; ?>
 </div>
 
 <div class="card">
     <div class="card-body">
         <form method="get" class="filter-form" style="margin-bottom: 20px;">
-            <input type="text" name="search" value="<?= h($search) ?>" placeholder="Search users..." class="form-control" style="max-width: 300px; display: inline-block;">
-            <button type="submit" class="btn btn-secondary">Search</button>
+            <input type="text" name="search" value="<?= h($search) ?>" placeholder="<?= $this->__('search_users') ?>" class="form-control" style="max-width: 300px; display: inline-block;">
+            <button type="submit" class="btn btn-secondary"><?= $this->__('search') ?></button>
         </form>
 
         <?php if (empty($users)): ?>
-        <p class="text-muted">No users found.</p>
+        <p class="text-muted"><?= $this->__('no_users_found') ?></p>
         <?php else: ?>
         <table class="table">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Roles</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th><?= $this->__('name') ?></th>
+                    <th><?= $this->__('email') ?></th>
+                    <th><?= $this->__('roles') ?></th>
+                    <th><?= $this->__('status') ?></th>
+                    <th><?= $this->__('actions') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -35,13 +35,13 @@
                     <td><?= h($user['role_names'] ?? '-') ?></td>
                     <td>
                         <?php if ($user['is_active']): ?>
-                        <span class="badge badge-success">Active</span>
+                        <span class="badge badge-success"><?= $this->__('active') ?></span>
                         <?php else: ?>
-                        <span class="badge badge-secondary">Inactive</span>
+                        <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
                         <?php endif; ?>
                     </td>
                     <td>
-                        <a href="/admin/users/<?= $user['id'] ?>/edit" class="btn btn-sm btn-outline">Edit</a>
+                        <a href="/admin/users/<?= $user['id'] ?>/edit" class="btn btn-sm btn-outline"><?= $this->__('edit') ?></a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
