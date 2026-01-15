@@ -57,6 +57,46 @@ return [
     'optional' => 'Необязательно',
     'language' => 'Язык',
     'change_language' => 'Сменить язык',
+    'name' => 'Имя',
+    'roles' => 'Роли',
+    'save_changes' => 'Сохранить изменения',
+    'change_password' => 'Сменить пароль',
+    'my_profile' => 'Мой профиль',
+
+    // Navigation - Warehouse
+    'nav_warehouse' => 'Склад',
+    'nav_items' => 'Товары (SKU)',
+    'nav_lots' => 'Партии',
+    'nav_stock' => 'Остатки',
+    'nav_documents' => 'Документы',
+    'nav_partners' => 'Партнёры',
+
+    // Navigation - Catalog
+    'nav_catalog' => 'Каталог',
+    'nav_products' => 'Продукты',
+    'nav_variants' => 'Варианты',
+    'nav_bom' => 'Спецификации',
+    'nav_routing' => 'Маршруты',
+
+    // Navigation - Production
+    'nav_production' => 'Производство',
+    'nav_orders' => 'Заказы',
+    'nav_tasks' => 'Задачи',
+    'nav_print_queue' => 'Очередь печати',
+
+    // Navigation - Costing
+    'nav_costing' => 'Калькуляция',
+    'nav_plan_cost' => 'Плановая себестоимость',
+    'nav_actual_cost' => 'Фактическая себестоимость',
+    'nav_compare' => 'Сравнение',
+
+    // Navigation - Admin
+    'nav_admin' => 'Администрирование',
+    'nav_users' => 'Пользователи',
+    'nav_roles' => 'Роли',
+    'nav_audit' => 'Журнал аудита',
+    'nav_backups' => 'Резервные копии',
+    'nav_diagnostics' => 'Диагностика',
 
     // Time
     'today' => 'Сегодня',

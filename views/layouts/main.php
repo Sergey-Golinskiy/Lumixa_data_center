@@ -23,66 +23,66 @@
                     <li class="nav-item">
                         <a href="/" class="nav-link <?= ($_SERVER['REQUEST_URI'] ?? '') === '/' ? 'active' : '' ?>">
                             <span class="nav-icon">&#9632;</span>
-                            <span>Dashboard</span>
+                            <span><?= $this->__('dashboard') ?></span>
                         </a>
                     </li>
 
                     <?php if ($this->can('warehouse.items.view')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title">Warehouse</span>
+                        <span class="nav-group-title"><?= $this->__('nav_warehouse') ?></span>
                         <ul class="nav-submenu">
-                            <li><a href="/warehouse/items" class="nav-link">Items (SKU)</a></li>
-                            <li><a href="/warehouse/lots" class="nav-link">Lots</a></li>
-                            <li><a href="/warehouse/stock" class="nav-link">Stock</a></li>
-                            <li><a href="/warehouse/documents" class="nav-link">Documents</a></li>
-                            <li><a href="/warehouse/partners" class="nav-link">Partners</a></li>
+                            <li><a href="/warehouse/items" class="nav-link"><?= $this->__('nav_items') ?></a></li>
+                            <li><a href="/warehouse/lots" class="nav-link"><?= $this->__('nav_lots') ?></a></li>
+                            <li><a href="/warehouse/stock" class="nav-link"><?= $this->__('nav_stock') ?></a></li>
+                            <li><a href="/warehouse/documents" class="nav-link"><?= $this->__('nav_documents') ?></a></li>
+                            <li><a href="/warehouse/partners" class="nav-link"><?= $this->__('nav_partners') ?></a></li>
                         </ul>
                     </li>
                     <?php endif; ?>
 
                     <?php if ($this->can('catalog.products.view')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title">Catalog</span>
+                        <span class="nav-group-title"><?= $this->__('nav_catalog') ?></span>
                         <ul class="nav-submenu">
-                            <li><a href="/catalog/products" class="nav-link">Products</a></li>
-                            <li><a href="/catalog/variants" class="nav-link">Variants</a></li>
-                            <li><a href="/catalog/bom" class="nav-link">BOM</a></li>
-                            <li><a href="/catalog/routing" class="nav-link">Routing</a></li>
+                            <li><a href="/catalog/products" class="nav-link"><?= $this->__('nav_products') ?></a></li>
+                            <li><a href="/catalog/variants" class="nav-link"><?= $this->__('nav_variants') ?></a></li>
+                            <li><a href="/catalog/bom" class="nav-link"><?= $this->__('nav_bom') ?></a></li>
+                            <li><a href="/catalog/routing" class="nav-link"><?= $this->__('nav_routing') ?></a></li>
                         </ul>
                     </li>
                     <?php endif; ?>
 
                     <?php if ($this->can('production.orders.view')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title">Production</span>
+                        <span class="nav-group-title"><?= $this->__('nav_production') ?></span>
                         <ul class="nav-submenu">
-                            <li><a href="/production/orders" class="nav-link">Orders</a></li>
-                            <li><a href="/production/tasks" class="nav-link">Tasks</a></li>
-                            <li><a href="/production/print-queue" class="nav-link">Print Queue</a></li>
+                            <li><a href="/production/orders" class="nav-link"><?= $this->__('nav_orders') ?></a></li>
+                            <li><a href="/production/tasks" class="nav-link"><?= $this->__('nav_tasks') ?></a></li>
+                            <li><a href="/production/print-queue" class="nav-link"><?= $this->__('nav_print_queue') ?></a></li>
                         </ul>
                     </li>
                     <?php endif; ?>
 
                     <?php if ($this->can('costing.view')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title">Costing</span>
+                        <span class="nav-group-title"><?= $this->__('nav_costing') ?></span>
                         <ul class="nav-submenu">
-                            <li><a href="/costing/plan" class="nav-link">Plan Cost</a></li>
-                            <li><a href="/costing/actual" class="nav-link">Actual Cost</a></li>
-                            <li><a href="/costing/compare" class="nav-link">Compare</a></li>
+                            <li><a href="/costing/plan" class="nav-link"><?= $this->__('nav_plan_cost') ?></a></li>
+                            <li><a href="/costing/actual" class="nav-link"><?= $this->__('nav_actual_cost') ?></a></li>
+                            <li><a href="/costing/compare" class="nav-link"><?= $this->__('nav_compare') ?></a></li>
                         </ul>
                     </li>
                     <?php endif; ?>
 
                     <?php if ($this->can('admin.access')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title">Admin</span>
+                        <span class="nav-group-title"><?= $this->__('nav_admin') ?></span>
                         <ul class="nav-submenu">
-                            <li><a href="/admin/users" class="nav-link">Users</a></li>
-                            <li><a href="/admin/roles" class="nav-link">Roles</a></li>
-                            <li><a href="/admin/audit" class="nav-link">Audit Log</a></li>
-                            <li><a href="/admin/backups" class="nav-link">Backups</a></li>
-                            <li><a href="/admin/diagnostics" class="nav-link">Diagnostics</a></li>
+                            <li><a href="/admin/users" class="nav-link"><?= $this->__('nav_users') ?></a></li>
+                            <li><a href="/admin/roles" class="nav-link"><?= $this->__('nav_roles') ?></a></li>
+                            <li><a href="/admin/audit" class="nav-link"><?= $this->__('nav_audit') ?></a></li>
+                            <li><a href="/admin/backups" class="nav-link"><?= $this->__('nav_backups') ?></a></li>
+                            <li><a href="/admin/diagnostics" class="nav-link"><?= $this->__('nav_diagnostics') ?></a></li>
                         </ul>
                     </li>
                     <?php endif; ?>

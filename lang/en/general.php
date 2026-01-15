@@ -57,6 +57,46 @@ return [
     'optional' => 'Optional',
     'language' => 'Language',
     'change_language' => 'Change Language',
+    'name' => 'Name',
+    'roles' => 'Roles',
+    'save_changes' => 'Save Changes',
+    'change_password' => 'Change Password',
+    'my_profile' => 'My Profile',
+
+    // Navigation - Warehouse
+    'nav_warehouse' => 'Warehouse',
+    'nav_items' => 'Items (SKU)',
+    'nav_lots' => 'Lots',
+    'nav_stock' => 'Stock',
+    'nav_documents' => 'Documents',
+    'nav_partners' => 'Partners',
+
+    // Navigation - Catalog
+    'nav_catalog' => 'Catalog',
+    'nav_products' => 'Products',
+    'nav_variants' => 'Variants',
+    'nav_bom' => 'BOM',
+    'nav_routing' => 'Routing',
+
+    // Navigation - Production
+    'nav_production' => 'Production',
+    'nav_orders' => 'Orders',
+    'nav_tasks' => 'Tasks',
+    'nav_print_queue' => 'Print Queue',
+
+    // Navigation - Costing
+    'nav_costing' => 'Costing',
+    'nav_plan_cost' => 'Plan Cost',
+    'nav_actual_cost' => 'Actual Cost',
+    'nav_compare' => 'Compare',
+
+    // Navigation - Admin
+    'nav_admin' => 'Admin',
+    'nav_users' => 'Users',
+    'nav_roles' => 'Roles',
+    'nav_audit' => 'Audit Log',
+    'nav_backups' => 'Backups',
+    'nav_diagnostics' => 'Diagnostics',
 
     // Time
     'today' => 'Today',

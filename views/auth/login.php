@@ -4,7 +4,7 @@
     <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
     <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email"><?= $this->__('email') ?></label>
         <input type="email" id="email" name="email"
                value="<?= $this->e($this->old('email')) ?>"
                placeholder="your@email.com"
@@ -15,9 +15,8 @@
     </div>
 
     <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password"><?= $this->__('password') ?></label>
         <input type="password" id="password" name="password"
-               placeholder="Enter your password"
                required>
         <?php if ($this->hasError('password')): ?>
         <span class="error"><?= $this->e($this->error('password')) ?></span>
@@ -27,12 +26,12 @@
     <div class="form-group form-checkbox">
         <label>
             <input type="checkbox" name="remember" value="1">
-            <span>Remember me</span>
+            <span><?= $this->__('remember_me') ?></span>
         </label>
     </div>
 
     <button type="submit" class="btn btn-primary btn-block">
-        Sign In
+        <?= $this->__('sign_in') ?>
     </button>
 </form>
 

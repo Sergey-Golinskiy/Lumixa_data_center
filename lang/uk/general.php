@@ -57,6 +57,46 @@ return [
     'optional' => "Необов'язково",
     'language' => 'Мова',
     'change_language' => 'Змінити мову',
+    'name' => "Ім'я",
+    'roles' => 'Ролі',
+    'save_changes' => 'Зберегти зміни',
+    'change_password' => 'Змінити пароль',
+    'my_profile' => 'Мій профіль',
+
+    // Navigation - Warehouse
+    'nav_warehouse' => 'Склад',
+    'nav_items' => 'Товари (SKU)',
+    'nav_lots' => 'Партії',
+    'nav_stock' => 'Залишки',
+    'nav_documents' => 'Документи',
+    'nav_partners' => 'Партнери',
+
+    // Navigation - Catalog
+    'nav_catalog' => 'Каталог',
+    'nav_products' => 'Продукти',
+    'nav_variants' => 'Варіанти',
+    'nav_bom' => 'Специфікації',
+    'nav_routing' => 'Маршрути',
+
+    // Navigation - Production
+    'nav_production' => 'Виробництво',
+    'nav_orders' => 'Замовлення',
+    'nav_tasks' => 'Завдання',
+    'nav_print_queue' => 'Черга друку',
+
+    // Navigation - Costing
+    'nav_costing' => 'Калькуляція',
+    'nav_plan_cost' => 'Планова собівартість',
+    'nav_actual_cost' => 'Фактична собівартість',
+    'nav_compare' => 'Порівняння',
+
+    // Navigation - Admin
+    'nav_admin' => 'Адміністрування',
+    'nav_users' => 'Користувачі',
+    'nav_roles' => 'Ролі',
+    'nav_audit' => 'Журнал аудиту',
+    'nav_backups' => 'Резервні копії',
+    'nav_diagnostics' => 'Діагностика',
 
     // Time
     'today' => 'Сьогодні',
