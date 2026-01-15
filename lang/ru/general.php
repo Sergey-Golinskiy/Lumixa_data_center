@@ -316,8 +316,12 @@ return [
     'table' => 'Таблица',
     'record' => 'Запись',
     'ip_address' => 'IP',
+    'user_agent' => 'User Agent',
     'old_values' => 'Старые значения',
     'new_values' => 'Новые значения',
+    'old_data' => 'Старые данные',
+    'new_data' => 'Новые данные',
+    'back_to_list' => 'Назад к списку',
 
     // Backups
     'backups' => 'Резервные копии',

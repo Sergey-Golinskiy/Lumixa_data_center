@@ -11,7 +11,7 @@
                 <option value=""><?= $this->__('all_users') ?></option>
                 <?php foreach ($users as $user): ?>
                 <option value="<?= $user['id'] ?>" <?= $filters['user_id'] == $user['id'] ? 'selected' : '' ?>>
-                    <?= h($user['username']) ?>
+                    <?= h($user['name']) ?>
                 </option>
                 <?php endforeach; ?>
             </select>
@@ -58,9 +58,9 @@
                             <?= h($entry['created_at']) ?>
                         </a>
                     </td>
-                    <td><?= h($entry['username'] ?? $this->__('system')) ?></td>
+                    <td><?= h($entry['name'] ?? $this->__('system')) ?></td>
                     <td><code><?= h($entry['action']) ?></code></td>
-                    <td><?= h($entry['table_name']) ?></td>
+                    <td><?= h($entry['entity_type']) ?></td>
                     <td><?= h($entry['record_id'] ?? '-') ?></td>
                     <td><?= h($entry['ip_address'] ?? '-') ?></td>
                 </tr>

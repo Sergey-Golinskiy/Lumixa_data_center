@@ -317,8 +317,12 @@ return [
     'table' => 'Table',
     'record' => 'Record',
     'ip_address' => 'IP',
+    'user_agent' => 'User Agent',
     'old_values' => 'Old Values',
     'new_values' => 'New Values',
+    'old_data' => 'Old Data',
+    'new_data' => 'New Data',
+    'back_to_list' => 'Back to List',
 
     // Backups
     'backups' => 'Backups',
