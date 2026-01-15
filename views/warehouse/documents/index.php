@@ -2,25 +2,25 @@
 
 <div class="page-actions">
     <form method="GET" class="search-form">
-        <input type="text" name="search" value="<?= $this->e($filters['search']) ?>" placeholder="Document number...">
+        <input type="text" name="search" value="<?= $this->e($filters['search']) ?>" placeholder="<?= $this->__('document_number_search') ?>">
         <select name="type">
-            <option value="">All Types</option>
+            <option value=""><?= $this->__('all_types') ?></option>
             <?php foreach ($types as $value => $label): ?>
             <option value="<?= $this->e($value) ?>" <?= $filters['type'] === $value ? 'selected' : '' ?>><?= $this->e($label) ?></option>
             <?php endforeach; ?>
         </select>
         <select name="status">
-            <option value="">All Status</option>
-            <option value="draft" <?= $filters['status'] === 'draft' ? 'selected' : '' ?>>Draft</option>
-            <option value="posted" <?= $filters['status'] === 'posted' ? 'selected' : '' ?>>Posted</option>
-            <option value="cancelled" <?= $filters['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+            <option value=""><?= $this->__('all_status') ?></option>
+            <option value="draft" <?= $filters['status'] === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
+            <option value="posted" <?= $filters['status'] === 'posted' ? 'selected' : '' ?>><?= $this->__('posted') ?></option>
+            <option value="cancelled" <?= $filters['status'] === 'cancelled' ? 'selected' : '' ?>><?= $this->__('cancelled') ?></option>
         </select>
-        <button type="submit" class="btn btn-secondary">Filter</button>
+        <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
     </form>
 
     <?php if ($this->can('warehouse.documents.create')): ?>
     <div class="dropdown">
-        <button class="btn btn-primary dropdown-toggle">+ New Document</button>
+        <button class="btn btn-primary dropdown-toggle">+ <?= $this->__('new_document') ?></button>
         <div class="dropdown-menu">
             <?php foreach ($types as $value => $label): ?>
             <a href="/warehouse/documents/create/<?= $value ?>" class="dropdown-item"><?= $this->e($label) ?></a>
@@ -35,21 +35,21 @@
         <table>
             <thead>
                 <tr>
-                    <th>Document #</th>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>Partner</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Created By</th>
-                    <th>Actions</th>
+                    <th><?= $this->__('document_num') ?></th>
+                    <th><?= $this->__('type') ?></th>
+                    <th><?= $this->__('date') ?></th>
+                    <th><?= $this->__('partner') ?></th>
+                    <th><?= $this->__('total') ?></th>
+                    <th><?= $this->__('status') ?></th>
+                    <th><?= $this->__('created_by') ?></th>
+                    <th><?= $this->__('actions') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($documents)): ?>
                 <tr>
                     <td colspan="8" class="text-muted" style="text-align: center; padding: 40px;">
-                        No documents found
+                        <?= $this->__('no_documents_found') ?>
                     </td>
                 </tr>
                 <?php else: ?>
@@ -69,11 +69,11 @@
                                 default => 'secondary'
                             };
                             ?>
-                            <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($doc['status']) ?></span>
+                            <span class="badge badge-<?= $statusClass ?>"><?= $this->__($doc['status']) ?></span>
                         </td>
                         <td><?= $this->e($doc['created_by_name'] ?? '-') ?></td>
                         <td>
-                            <a href="/warehouse/documents/<?= $doc['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/warehouse/documents/<?= $doc['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -85,11 +85,11 @@
     <?php if ($pagination['total_pages'] > 1): ?>
     <div class="pagination">
         <?php if ($pagination['has_prev']): ?>
-        <a href="?page=<?= $pagination['current_page'] - 1 ?>&<?= http_build_query($filters) ?>" class="btn btn-sm">&laquo; Prev</a>
+        <a href="?page=<?= $pagination['current_page'] - 1 ?>&<?= http_build_query($filters) ?>" class="btn btn-sm">&laquo; <?= $this->__('prev') ?></a>
         <?php endif; ?>
-        <span class="pagination-info">Page <?= $pagination['current_page'] ?> of <?= $pagination['total_pages'] ?></span>
+        <span class="pagination-info"><?= $this->__('page') ?> <?= $pagination['current_page'] ?> <?= $this->__('of') ?> <?= $pagination['total_pages'] ?></span>
         <?php if ($pagination['has_next']): ?>
-        <a href="?page=<?= $pagination['current_page'] + 1 ?>&<?= http_build_query($filters) ?>" class="btn btn-sm">Next &raquo;</a>
+        <a href="?page=<?= $pagination['current_page'] + 1 ?>&<?= http_build_query($filters) ?>" class="btn btn-sm"><?= $this->__('next') ?> &raquo;</a>
         <?php endif; ?>
     </div>
     <?php endif; ?>

@@ -368,4 +368,34 @@ return [
     // Misc
     'back_to' => 'Назад к :name',
     'leave_blank_keep' => 'оставьте пустым, чтобы сохранить текущий',
+
+    // Documents
+    'new_document' => 'Новый документ',
+    'document_num' => 'Документ №',
+    'document_number_search' => 'Номер документа...',
+    'all_status' => 'Все статусы',
+    'posted' => 'Проведён',
+    'created_by' => 'Создал',
+    'no_documents_found' => 'Документы не найдены',
+
+    // Partners
+    'new_partner' => 'Новый партнёр',
+    'suppliers' => 'Поставщики',
+    'customers' => 'Покупатели',
+    'both' => 'Оба',
+    'contact' => 'Контакт',
+    'no_partners_found' => 'Партнёры не найдены',
+    'search_partner' => 'Поиск по имени, коду, email...',
+
+    // Stock
+    'stock_balances' => 'Остатки на складе',
+    'movements' => 'Движения',
+    'valuation' => 'Оценка',
+    'items_in_stock' => 'Товаров на складе',
+    'total_units' => 'Всего единиц',
+    'total_value' => 'Общая стоимость',
+    'show_zero_stock' => 'Показать нулевые остатки',
+    'search_sku_name' => 'Поиск по SKU или названию...',
+    'value' => 'Стоимость',
+    'no_stock_found' => 'Остатки не найдены',
 ];

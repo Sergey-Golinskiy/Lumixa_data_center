@@ -369,4 +369,34 @@ return [
     // Misc
     'back_to' => 'Back to :name',
     'leave_blank_keep' => 'leave blank to keep current',
+
+    // Documents
+    'new_document' => 'New Document',
+    'document_num' => 'Document #',
+    'document_number_search' => 'Document number...',
+    'all_status' => 'All Status',
+    'posted' => 'Posted',
+    'created_by' => 'Created By',
+    'no_documents_found' => 'No documents found',
+
+    // Partners
+    'new_partner' => 'New Partner',
+    'suppliers' => 'Suppliers',
+    'customers' => 'Customers',
+    'both' => 'Both',
+    'contact' => 'Contact',
+    'no_partners_found' => 'No partners found',
+    'search_partner' => 'Search name, code, email...',
+
+    // Stock
+    'stock_balances' => 'Stock Balances',
+    'movements' => 'Movements',
+    'valuation' => 'Valuation',
+    'items_in_stock' => 'Items in Stock',
+    'total_units' => 'Total Units',
+    'total_value' => 'Total Value',
+    'show_zero_stock' => 'Show zero stock',
+    'search_sku_name' => 'Search SKU or name...',
+    'value' => 'Value',
+    'no_stock_found' => 'No stock found',
 ];

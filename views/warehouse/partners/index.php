@@ -1,10 +1,10 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Partners</h1>
+    <h1><?= $this->__('partners') ?></h1>
     <div class="page-actions">
         <?php if ($this->can('warehouse.partners.create')): ?>
-        <a href="/warehouse/partners/create" class="btn btn-primary">+ New Partner</a>
+        <a href="/warehouse/partners/create" class="btn btn-primary">+ <?= $this->__('new_partner') ?></a>
         <?php endif; ?>
     </div>
 </div>
@@ -15,19 +15,19 @@
         <form method="GET" class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
-                    <input type="text" name="search" placeholder="Search name, code, email..."
+                    <input type="text" name="search" placeholder="<?= $this->__('search_partner') ?>"
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
                     <select name="type">
-                        <option value="">All Types</option>
-                        <option value="supplier" <?= $type === 'supplier' ? 'selected' : '' ?>>Suppliers</option>
-                        <option value="customer" <?= $type === 'customer' ? 'selected' : '' ?>>Customers</option>
-                        <option value="both" <?= $type === 'both' ? 'selected' : '' ?>>Both</option>
+                        <option value=""><?= $this->__('all_types') ?></option>
+                        <option value="supplier" <?= $type === 'supplier' ? 'selected' : '' ?>><?= $this->__('suppliers') ?></option>
+                        <option value="customer" <?= $type === 'customer' ? 'selected' : '' ?>><?= $this->__('customers') ?></option>
+                        <option value="both" <?= $type === 'both' ? 'selected' : '' ?>><?= $this->__('both') ?></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/warehouse/partners" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/warehouse/partners" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -40,20 +40,20 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Code</th>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Contact</th>
-                        <th>Phone</th>
-                        <th>Documents</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('code') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('type') ?></th>
+                        <th><?= $this->__('contact') ?></th>
+                        <th><?= $this->__('phone') ?></th>
+                        <th><?= $this->__('documents') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($partners)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No partners found</td>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_partners_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($partners as $partner): ?>
@@ -77,7 +77,7 @@
                                 default => 'secondary'
                             };
                             ?>
-                            <span class="badge badge-<?= $typeClass ?>"><?= ucfirst($partner['type']) ?></span>
+                            <span class="badge badge-<?= $typeClass ?>"><?= $this->__($partner['type'] === 'supplier' ? 'suppliers' : ($partner['type'] === 'customer' ? 'customers' : 'both')) ?></span>
                         </td>
                         <td>
                             <?= $this->e($partner['contact_person'] ?? '-') ?>
@@ -95,15 +95,15 @@
                         </td>
                         <td>
                             <?php if ($partner['is_active']): ?>
-                            <span class="badge badge-success">Active</span>
+                            <span class="badge badge-success"><?= $this->__('active') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-secondary">Inactive</span>
+                            <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="/warehouse/partners/<?= $partner['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/warehouse/partners/<?= $partner['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                             <?php if ($this->can('warehouse.partners.edit')): ?>
-                            <a href="/warehouse/partners/<?= $partner['id'] ?>/edit" class="btn btn-sm btn-outline">Edit</a>
+                            <a href="/warehouse/partners/<?= $partner['id'] ?>/edit" class="btn btn-sm btn-outline"><?= $this->__('edit') ?></a>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -117,11 +117,11 @@
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; Previous</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; <?= $this->__('previous') ?></a>
             <?php endif; ?>
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?> (<?= $total ?> partners)</span>
+            <span class="pagination-info"><?= $this->__('page') ?> <?= $page ?> <?= $this->__('of') ?> <?= $totalPages ?> (<?= $total ?> <?= $this->__('partners') ?>)</span>
             <?php if ($page < $totalPages): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline">Next &raquo;</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline"><?= $this->__('next') ?> &raquo;</a>
             <?php endif; ?>
         </div>
         <?php endif; ?>

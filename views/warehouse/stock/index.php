@@ -1,11 +1,11 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Stock Balances</h1>
+    <h1><?= $this->__('stock_balances') ?></h1>
     <div class="page-actions">
-        <a href="/warehouse/stock/movements" class="btn btn-secondary">Movements</a>
-        <a href="/warehouse/stock/low-stock" class="btn btn-warning">Low Stock</a>
-        <a href="/warehouse/stock/valuation" class="btn btn-outline">Valuation</a>
+        <a href="/warehouse/stock/movements" class="btn btn-secondary"><?= $this->__('movements') ?></a>
+        <a href="/warehouse/stock/low-stock" class="btn btn-warning"><?= $this->__('low_stock') ?></a>
+        <a href="/warehouse/stock/valuation" class="btn btn-outline"><?= $this->__('valuation') ?></a>
     </div>
 </div>
 
@@ -14,15 +14,15 @@
 <div class="summary-cards" style="margin-bottom: 20px;">
     <div class="summary-card">
         <div class="summary-value"><?= number_format($summary['item_count'] ?? 0) ?></div>
-        <div class="summary-label">Items in Stock</div>
+        <div class="summary-label"><?= $this->__('items_in_stock') ?></div>
     </div>
     <div class="summary-card">
         <div class="summary-value"><?= number_format($summary['total_quantity'] ?? 0, 0) ?></div>
-        <div class="summary-label">Total Units</div>
+        <div class="summary-label"><?= $this->__('total_units') ?></div>
     </div>
     <div class="summary-card">
         <div class="summary-value"><?= number_format($summary['total_value'] ?? 0, 2) ?></div>
-        <div class="summary-label">Total Value</div>
+        <div class="summary-label"><?= $this->__('total_value') ?></div>
     </div>
 </div>
 <?php endif; ?>
@@ -33,12 +33,12 @@
         <form method="GET" class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
-                    <input type="text" name="search" placeholder="Search SKU or name..."
+                    <input type="text" name="search" placeholder="<?= $this->__('search_sku_name') ?>"
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
                     <select name="category">
-                        <option value="">All Categories</option>
+                        <option value=""><?= $this->__('all_categories') ?></option>
                         <?php foreach ($categories as $cat): ?>
                         <option value="<?= $this->e($cat['category']) ?>" <?= $category === $cat['category'] ? 'selected' : '' ?>>
                             <?= $this->e($cat['category']) ?>
@@ -49,11 +49,11 @@
                 <div class="filter-group">
                     <label class="checkbox-label">
                         <input type="checkbox" name="show_empty" <?= $showEmpty ? 'checked' : '' ?>>
-                        Show zero stock
+                        <?= $this->__('show_zero_stock') ?>
                     </label>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/warehouse/stock" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/warehouse/stock" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -66,21 +66,21 @@
             <table>
                 <thead>
                     <tr>
-                        <th>SKU</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th class="text-right">Quantity</th>
-                        <th class="text-right">Reserved</th>
-                        <th class="text-right">Available</th>
-                        <th class="text-right">Value</th>
-                        <th>Lots</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('sku') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('category') ?></th>
+                        <th class="text-right"><?= $this->__('quantity') ?></th>
+                        <th class="text-right"><?= $this->__('reserved') ?></th>
+                        <th class="text-right"><?= $this->__('available') ?></th>
+                        <th class="text-right"><?= $this->__('value') ?></th>
+                        <th><?= $this->__('lots') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($stocks)): ?>
                     <tr>
-                        <td colspan="9" class="text-center text-muted">No stock found</td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_stock_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($stocks as $stock): ?>
@@ -122,7 +122,7 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="/warehouse/stock/<?= $stock['id'] ?>" class="btn btn-sm btn-secondary">Details</a>
+                            <a href="/warehouse/stock/<?= $stock['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('details') ?></a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -135,11 +135,11 @@
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; Previous</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; <?= $this->__('previous') ?></a>
             <?php endif; ?>
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?> (<?= $total ?> items)</span>
+            <span class="pagination-info"><?= $this->__('page') ?> <?= $page ?> <?= $this->__('of') ?> <?= $totalPages ?> (<?= $total ?> <?= $this->__('items') ?>)</span>
             <?php if ($page < $totalPages): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline">Next &raquo;</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline"><?= $this->__('next') ?> &raquo;</a>
             <?php endif; ?>
         </div>
         <?php endif; ?>

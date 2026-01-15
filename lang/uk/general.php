@@ -368,4 +368,34 @@ return [
     // Misc
     'back_to' => 'Назад до :name',
     'leave_blank_keep' => 'залиште порожнім, щоб зберегти поточний',
+
+    // Documents
+    'new_document' => 'Новий документ',
+    'document_num' => 'Документ №',
+    'document_number_search' => 'Номер документа...',
+    'all_status' => 'Усі статуси',
+    'posted' => 'Проведено',
+    'created_by' => 'Створив',
+    'no_documents_found' => 'Документи не знайдено',
+
+    // Partners
+    'new_partner' => 'Новий партнер',
+    'suppliers' => 'Постачальники',
+    'customers' => 'Покупці',
+    'both' => 'Обидва',
+    'contact' => 'Контакт',
+    'no_partners_found' => 'Партнерів не знайдено',
+    'search_partner' => 'Пошук за назвою, кодом, email...',
+
+    // Stock
+    'stock_balances' => 'Залишки на складі',
+    'movements' => 'Рухи',
+    'valuation' => 'Оцінка',
+    'items_in_stock' => 'Товарів на складі',
+    'total_units' => 'Всього одиниць',
+    'total_value' => 'Загальна вартість',
+    'show_zero_stock' => 'Показати нульові залишки',
+    'search_sku_name' => 'Пошук за SKU або назвою...',
+    'value' => 'Вартість',
+    'no_stock_found' => 'Залишки не знайдено',
 ];
