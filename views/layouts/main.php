@@ -29,8 +29,12 @@
 
                     <?php if ($this->can('warehouse.items.view')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title"><?= $this->__('nav_warehouse') ?></span>
-                        <ul class="nav-submenu">
+                        <button class="nav-group-toggle" data-section="warehouse">
+                            <span class="nav-group-icon">&#128230;</span>
+                            <span class="nav-group-title"><?= $this->__('nav_warehouse') ?></span>
+                            <span class="nav-group-arrow">&#9662;</span>
+                        </button>
+                        <ul class="nav-submenu" data-submenu="warehouse">
                             <li><a href="/warehouse/items" class="nav-link"><?= $this->__('nav_items') ?></a></li>
                             <li><a href="/warehouse/lots" class="nav-link"><?= $this->__('nav_lots') ?></a></li>
                             <li><a href="/warehouse/stock" class="nav-link"><?= $this->__('nav_stock') ?></a></li>
@@ -42,8 +46,12 @@
 
                     <?php if ($this->can('catalog.products.view')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title"><?= $this->__('nav_catalog') ?></span>
-                        <ul class="nav-submenu">
+                        <button class="nav-group-toggle" data-section="catalog">
+                            <span class="nav-group-icon">&#128736;</span>
+                            <span class="nav-group-title"><?= $this->__('nav_catalog') ?></span>
+                            <span class="nav-group-arrow">&#9662;</span>
+                        </button>
+                        <ul class="nav-submenu" data-submenu="catalog">
                             <li><a href="/catalog/products" class="nav-link"><?= $this->__('nav_products') ?></a></li>
                             <li><a href="/catalog/variants" class="nav-link"><?= $this->__('nav_variants') ?></a></li>
                             <li><a href="/catalog/bom" class="nav-link"><?= $this->__('nav_bom') ?></a></li>
@@ -54,8 +62,12 @@
 
                     <?php if ($this->can('production.orders.view')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title"><?= $this->__('nav_production') ?></span>
-                        <ul class="nav-submenu">
+                        <button class="nav-group-toggle" data-section="production">
+                            <span class="nav-group-icon">&#9881;</span>
+                            <span class="nav-group-title"><?= $this->__('nav_production') ?></span>
+                            <span class="nav-group-arrow">&#9662;</span>
+                        </button>
+                        <ul class="nav-submenu" data-submenu="production">
                             <li><a href="/production/orders" class="nav-link"><?= $this->__('nav_orders') ?></a></li>
                             <li><a href="/production/tasks" class="nav-link"><?= $this->__('nav_tasks') ?></a></li>
                             <li><a href="/production/print-queue" class="nav-link"><?= $this->__('nav_print_queue') ?></a></li>
@@ -65,8 +77,12 @@
 
                     <?php if ($this->can('costing.view')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title"><?= $this->__('nav_costing') ?></span>
-                        <ul class="nav-submenu">
+                        <button class="nav-group-toggle" data-section="costing">
+                            <span class="nav-group-icon">&#128176;</span>
+                            <span class="nav-group-title"><?= $this->__('nav_costing') ?></span>
+                            <span class="nav-group-arrow">&#9662;</span>
+                        </button>
+                        <ul class="nav-submenu" data-submenu="costing">
                             <li><a href="/costing/plan" class="nav-link"><?= $this->__('nav_plan_cost') ?></a></li>
                             <li><a href="/costing/actual" class="nav-link"><?= $this->__('nav_actual_cost') ?></a></li>
                             <li><a href="/costing/compare" class="nav-link"><?= $this->__('nav_compare') ?></a></li>
@@ -76,8 +92,12 @@
 
                     <?php if ($this->can('admin.access')): ?>
                     <li class="nav-item nav-group">
-                        <span class="nav-group-title"><?= $this->__('nav_admin') ?></span>
-                        <ul class="nav-submenu">
+                        <button class="nav-group-toggle" data-section="admin">
+                            <span class="nav-group-icon">&#128274;</span>
+                            <span class="nav-group-title"><?= $this->__('nav_admin') ?></span>
+                            <span class="nav-group-arrow">&#9662;</span>
+                        </button>
+                        <ul class="nav-submenu" data-submenu="admin">
                             <li><a href="/admin/users" class="nav-link"><?= $this->__('nav_users') ?></a></li>
                             <li><a href="/admin/roles" class="nav-link"><?= $this->__('nav_roles') ?></a></li>
                             <li><a href="/admin/audit" class="nav-link"><?= $this->__('nav_audit') ?></a></li>

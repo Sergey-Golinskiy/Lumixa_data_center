@@ -72,6 +72,33 @@ a:hover {
     position: fixed;
     height: 100vh;
     overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Custom Scrollbar for Sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    transition: background 0.2s;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Firefox scrollbar */
+.sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
 }
 
 .sidebar-header {
@@ -106,6 +133,7 @@ a:hover {
 .sidebar-nav {
     flex: 1;
     padding: 10px 0;
+    overflow-y: auto;
 }
 
 .nav-menu {
@@ -139,22 +167,92 @@ a:hover {
     text-align: center;
 }
 
+/* Collapsible Nav Group */
+.nav-group {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.nav-group:last-child {
+    border-bottom: none;
+}
+
+.nav-group-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    font-size: 13px;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.2s;
+}
+
+.nav-group-toggle:hover {
+    background: rgba(255,255,255,0.05);
+    color: white;
+}
+
+.nav-group.open .nav-group-toggle {
+    color: white;
+    background: rgba(255,255,255,0.05);
+}
+
+.nav-group-icon {
+    width: 24px;
+    font-size: 16px;
+    text-align: center;
+    margin-right: 8px;
+}
+
 .nav-group-title {
-    display: block;
-    padding: 15px 20px 5px;
-    font-size: 11px;
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #64748b;
+    letter-spacing: 0.5px;
+}
+
+.nav-group-arrow {
+    font-size: 10px;
+    transition: transform 0.3s ease;
+    margin-left: auto;
+}
+
+.nav-group.open .nav-group-arrow {
+    transform: rotate(180deg);
 }
 
 .nav-submenu {
     list-style: none;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background: rgba(0,0,0,0.15);
+}
+
+.nav-group.open .nav-submenu {
+    max-height: 500px;
+    transition: max-height 0.4s ease-in;
 }
 
 .nav-submenu .nav-link {
-    padding-left: 50px;
+    padding: 10px 20px 10px 52px;
     font-size: 13px;
+    border-left: 2px solid transparent;
+}
+
+.nav-submenu .nav-link:hover {
+    border-left-color: var(--primary);
+}
+
+.nav-submenu .nav-link.active {
+    background: rgba(37, 99, 235, 0.2);
+    border-left-color: var(--primary);
+    color: white;
 }
 
 .sidebar-footer {

@@ -48,12 +48,45 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Sidebar active state
+    // Sidebar active state and auto-expand parent group
     var currentPath = window.location.pathname;
     document.querySelectorAll('.nav-link').forEach(function(link) {
         var href = link.getAttribute('href');
         if (href === currentPath || (href !== '/' && currentPath.startsWith(href))) {
             link.classList.add('active');
+            // Auto-expand parent nav-group if link is active
+            var parentGroup = link.closest('.nav-group');
+            if (parentGroup) {
+                parentGroup.classList.add('open');
+            }
+        }
+    });
+
+    // Collapsible sidebar navigation
+    document.querySelectorAll('.nav-group-toggle').forEach(function(toggle) {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            var navGroup = this.closest('.nav-group');
+            var section = this.dataset.section;
+
+            // Toggle current group
+            navGroup.classList.toggle('open');
+
+            // Save state to localStorage
+            var openSections = JSON.parse(localStorage.getItem('navOpenSections') || '{}');
+            openSections[section] = navGroup.classList.contains('open');
+            localStorage.setItem('navOpenSections', JSON.stringify(openSections));
+        });
+    });
+
+    // Restore nav state from localStorage
+    var savedSections = JSON.parse(localStorage.getItem('navOpenSections') || '{}');
+    Object.keys(savedSections).forEach(function(section) {
+        if (savedSections[section]) {
+            var toggle = document.querySelector('.nav-group-toggle[data-section="' + section + '"]');
+            if (toggle) {
+                toggle.closest('.nav-group').classList.add('open');
+            }
         }
     });
 
