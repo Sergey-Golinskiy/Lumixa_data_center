@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $this->e($currentLocale ?? 'en') ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -90,13 +90,22 @@
             </nav>
 
             <div class="sidebar-footer">
-                <div class="user-info">
-                    <span class="user-name"><?= $this->e($this->user()['name'] ?? 'User') ?></span>
-                    <span class="user-role"><?= $this->e(implode(', ', $this->user()['roles'] ?? [])) ?></span>
+                <div class="language-switcher">
+                    <?php foreach ($localeNames as $code => $name): ?>
+                    <a href="/lang/<?= $code ?>" class="lang-link <?= $currentLocale === $code ? 'active' : '' ?>" title="<?= $this->e($name) ?>">
+                        <?= strtoupper($code) ?>
+                    </a>
+                    <?php endforeach; ?>
                 </div>
-                <div class="user-actions">
-                    <a href="/profile" class="btn-icon" title="Profile">&#9881;</a>
-                    <a href="/logout" class="btn-icon" title="Logout">&#10140;</a>
+                <div class="sidebar-footer-bottom">
+                    <div class="user-info">
+                        <span class="user-name"><?= $this->e($this->user()['name'] ?? 'User') ?></span>
+                        <span class="user-role"><?= $this->e(implode(', ', $this->user()['roles'] ?? [])) ?></span>
+                    </div>
+                    <div class="user-actions">
+                        <a href="/profile" class="btn-icon" title="<?= $this->__('profile') ?>">&#9881;</a>
+                        <a href="/logout" class="btn-icon" title="<?= $this->__('logout') ?>">&#10140;</a>
+                    </div>
                 </div>
             </div>
         </aside>

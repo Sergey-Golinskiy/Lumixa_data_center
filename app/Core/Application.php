@@ -15,6 +15,7 @@ class Application
     private ?Session $session = null;
     private ?Router $router = null;
     private ?Logger $logger = null;
+    private ?Translator $translator = null;
     private string $requestId;
     private bool $isInstalled = false;
 
@@ -52,6 +53,11 @@ class Application
         // Initialize session
         $this->session = new Session($this->config);
         $this->session->start();
+
+        // Initialize translator
+        $this->translator = Translator::getInstance($this->basePath('lang'));
+        $locale = $this->session->get('locale', $this->config['default_locale'] ?? 'en');
+        $this->translator->setLocale($locale);
 
         // Check if installed
         $this->isInstalled = $this->checkInstalled();
@@ -190,6 +196,33 @@ class Application
     public function getRouter(): Router
     {
         return $this->router;
+    }
+
+    /**
+     * Get translator
+     */
+    public function getTranslator(): Translator
+    {
+        return $this->translator;
+    }
+
+    /**
+     * Set locale
+     */
+    public function setLocale(string $locale): void
+    {
+        if (in_array($locale, Translator::SUPPORTED_LOCALES)) {
+            $this->translator->setLocale($locale);
+            $this->session->set('locale', $locale);
+        }
+    }
+
+    /**
+     * Get current locale
+     */
+    public function getLocale(): string
+    {
+        return $this->translator->getLocale();
     }
 
     /**

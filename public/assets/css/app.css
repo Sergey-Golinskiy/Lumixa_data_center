@@ -161,6 +161,39 @@ a:hover {
     padding: 15px 20px;
     border-top: 1px solid rgba(255,255,255,0.1);
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.language-switcher {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.lang-link {
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.lang-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    text-decoration: none;
+}
+
+.lang-link.active {
+    background: var(--primary);
+    color: white;
+}
+
+.sidebar-footer-bottom {
+    display: flex;
     justify-content: space-between;
     align-items: center;
 }
@@ -532,6 +565,35 @@ tr:hover {
     text-align: center;
     font-size: 12px;
     color: var(--text-muted);
+}
+
+.auth-language-switcher {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.auth-language-switcher .lang-link {
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: 1px solid var(--border);
+}
+
+.auth-language-switcher .lang-link:hover {
+    background: var(--border);
+    color: var(--text);
+    text-decoration: none;
+}
+
+.auth-language-switcher .lang-link.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
 }
 
 /* === Setup Pages === */

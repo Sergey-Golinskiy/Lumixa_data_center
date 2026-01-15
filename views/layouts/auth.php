@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= $this->e($currentLocale ?? 'en') ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,6 +32,13 @@
             </div>
 
             <div class="auth-footer">
+                <div class="auth-language-switcher">
+                    <?php foreach ($localeNames as $code => $name): ?>
+                    <a href="/lang/<?= $code ?>" class="lang-link <?= $currentLocale === $code ? 'active' : '' ?>" title="<?= $this->e($name) ?>">
+                        <?= strtoupper($code) ?>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
                 <p>&copy; <?= date('Y') ?> Lumixa. All rights reserved.</p>
             </div>
         </div>

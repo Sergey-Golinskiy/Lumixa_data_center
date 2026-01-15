@@ -26,6 +26,9 @@ return function (Router $router) {
     $router->get('/logout', 'AuthController@logout', 'logout');
     $router->post('/logout', 'AuthController@logout');
 
+    // Language Switch
+    $router->get('/lang/{locale}', 'LanguageController@switch', 'lang.switch');
+
     // ========================================
     // Protected Routes (require auth)
     // ========================================

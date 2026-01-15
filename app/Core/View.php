@@ -25,6 +25,9 @@ class View
         $this->share('app', $app);
         $this->share('config', $app->getConfig());
         $this->share('requestId', $app->getRequestId());
+        $this->share('currentLocale', $app->getLocale());
+        $this->share('supportedLocales', Translator::SUPPORTED_LOCALES);
+        $this->share('localeNames', Translator::LOCALE_NAMES);
     }
 
     /**
@@ -284,5 +287,29 @@ class View
     {
         $symbol = $this->app->config('currency_symbol', '₴');
         return $this->number($value) . ' ' . $symbol;
+    }
+
+    /**
+     * Translate a key
+     */
+    public function __($key, array $params = []): string
+    {
+        return $this->app->getTranslator()->get($key, $params);
+    }
+
+    /**
+     * Alias for translate
+     */
+    public function trans($key, array $params = []): string
+    {
+        return $this->__($key, $params);
+    }
+
+    /**
+     * Get current locale
+     */
+    public function locale(): string
+    {
+        return $this->app->getLocale();
     }
 }
