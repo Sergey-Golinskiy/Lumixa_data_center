@@ -68,6 +68,10 @@ class AuthController extends Controller
             $this->session->set('last_activity', time());
             $this->session->regenerate();
 
+            // Set user's preferred locale
+            $userLocale = $result['user']['locale'] ?? 'en';
+            $this->app->setLocale($userLocale);
+
             $this->app->getLogger()->info('User logged in', [
                 'user_id' => $result['user']['id'],
                 'email' => $email
@@ -196,7 +200,8 @@ class AuthController extends Controller
 
         $this->view('auth/profile', [
             'title' => 'My Profile',
-            'csrfToken' => $this->csrfToken()
+            'csrfToken' => $this->csrfToken(),
+            'localeNames' => \App\Core\Translator::LOCALE_NAMES
         ]);
     }
 
@@ -214,6 +219,12 @@ class AuthController extends Controller
         }
 
         $name = trim($this->post('name', ''));
+        $locale = $this->post('locale', 'en');
+
+        // Validate locale
+        if (!in_array($locale, \App\Core\Translator::SUPPORTED_LOCALES)) {
+            $locale = 'en';
+        }
 
         if (empty($name)) {
             $this->session->setErrors(['name' => 'Name is required']);
@@ -222,14 +233,19 @@ class AuthController extends Controller
         }
 
         $result = $this->authService->updateProfile($this->user()['id'], [
-            'name' => $name
+            'name' => $name,
+            'locale' => $locale
         ]);
 
         if ($result['success']) {
             // Update session
             $user = $this->user();
             $user['name'] = $name;
+            $user['locale'] = $locale;
             $this->session->set('user', $user);
+
+            // Apply locale change
+            $this->app->setLocale($locale);
 
             $this->session->setFlash('success', 'Profile updated.');
         } else {

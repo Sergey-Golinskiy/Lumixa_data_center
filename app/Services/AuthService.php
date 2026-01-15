@@ -188,6 +188,7 @@ class AuthService
             'id' => $user['id'],
             'email' => $user['email'],
             'name' => $user['name'],
+            'locale' => $user['locale'] ?? 'en',
             'is_active' => (bool)$user['is_active'],
             'must_change_password' => (bool)$user['must_change_password'],
             'roles' => $roleNames,
@@ -247,7 +248,7 @@ class AuthService
             ];
         }
 
-        $allowed = ['name'];
+        $allowed = ['name', 'locale'];
         $update = array_intersect_key($data, array_flip($allowed));
 
         if (empty($update)) {

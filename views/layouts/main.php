@@ -90,22 +90,13 @@
             </nav>
 
             <div class="sidebar-footer">
-                <div class="language-switcher">
-                    <?php foreach ($localeNames as $code => $name): ?>
-                    <a href="/lang/<?= $code ?>" class="lang-link <?= $currentLocale === $code ? 'active' : '' ?>" title="<?= $this->e($name) ?>">
-                        <?= strtoupper($code) ?>
-                    </a>
-                    <?php endforeach; ?>
+                <div class="user-info">
+                    <span class="user-name"><?= $this->e($this->user()['name'] ?? 'User') ?></span>
+                    <span class="user-role"><?= $this->e(implode(', ', $this->user()['roles'] ?? [])) ?></span>
                 </div>
-                <div class="sidebar-footer-bottom">
-                    <div class="user-info">
-                        <span class="user-name"><?= $this->e($this->user()['name'] ?? 'User') ?></span>
-                        <span class="user-role"><?= $this->e(implode(', ', $this->user()['roles'] ?? [])) ?></span>
-                    </div>
-                    <div class="user-actions">
-                        <a href="/profile" class="btn-icon" title="<?= $this->__('profile') ?>">&#9881;</a>
-                        <a href="/logout" class="btn-icon" title="<?= $this->__('logout') ?>">&#10140;</a>
-                    </div>
+                <div class="user-actions">
+                    <a href="/profile" class="btn-icon" title="<?= $this->__('profile') ?>">&#9881;</a>
+                    <a href="/logout" class="btn-icon" title="<?= $this->__('logout') ?>">&#10140;</a>
                 </div>
             </div>
         </aside>
@@ -114,11 +105,28 @@
         <main class="main-content">
             <header class="content-header">
                 <h1 class="page-title"><?= $this->e($title ?? 'Dashboard') ?></h1>
-                <?php if (isset($headerActions)): ?>
-                <div class="header-actions">
-                    <?= $headerActions ?>
+                <div class="header-right">
+                    <?php if (isset($headerActions)): ?>
+                    <div class="header-actions">
+                        <?= $headerActions ?>
+                    </div>
+                    <?php endif; ?>
+                    <div class="language-dropdown">
+                        <button class="language-dropdown-toggle" type="button">
+                            <span class="lang-flag"><?= strtoupper($currentLocale ?? 'en') ?></span>
+                            <span class="lang-name"><?= $this->e($localeNames[$currentLocale] ?? 'English') ?></span>
+                            <span class="dropdown-arrow">&#9662;</span>
+                        </button>
+                        <div class="language-dropdown-menu">
+                            <?php foreach ($localeNames as $code => $name): ?>
+                            <a href="/lang/<?= $code ?>" class="language-option <?= $currentLocale === $code ? 'active' : '' ?>">
+                                <span class="lang-flag"><?= strtoupper($code) ?></span>
+                                <span class="lang-name"><?= $this->e($name) ?></span>
+                            </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
-                <?php endif; ?>
             </header>
 
             <!-- Flash Messages -->

@@ -8,6 +8,25 @@
     <link rel="stylesheet" href="<?= $this->asset('css/app.css') ?>">
 </head>
 <body class="auth-page">
+    <!-- Global Language Dropdown -->
+    <div class="global-language-dropdown">
+        <div class="language-dropdown">
+            <button class="language-dropdown-toggle" type="button">
+                <span class="lang-flag"><?= strtoupper($currentLocale ?? 'en') ?></span>
+                <span class="lang-name"><?= $this->e($localeNames[$currentLocale] ?? 'English') ?></span>
+                <span class="dropdown-arrow">&#9662;</span>
+            </button>
+            <div class="language-dropdown-menu">
+                <?php foreach ($localeNames as $code => $name): ?>
+                <a href="/lang/<?= $code ?>" class="language-option <?= $currentLocale === $code ? 'active' : '' ?>">
+                    <span class="lang-flag"><?= strtoupper($code) ?></span>
+                    <span class="lang-name"><?= $this->e($name) ?></span>
+                </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </div>
+
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
@@ -32,13 +51,6 @@
             </div>
 
             <div class="auth-footer">
-                <div class="auth-language-switcher">
-                    <?php foreach ($localeNames as $code => $name): ?>
-                    <a href="/lang/<?= $code ?>" class="lang-link <?= $currentLocale === $code ? 'active' : '' ?>" title="<?= $this->e($name) ?>">
-                        <?= strtoupper($code) ?>
-                    </a>
-                    <?php endforeach; ?>
-                </div>
                 <p>&copy; <?= date('Y') ?> Lumixa. All rights reserved.</p>
             </div>
         </div>

@@ -80,8 +80,9 @@ class UsersController extends Controller
         }
 
         $this->view('admin/users/show', [
-            'title' => $user['username'],
-            'user' => $user
+            'title' => $user['name'],
+            'user' => $user,
+            'localeNames' => \App\Core\Translator::LOCALE_NAMES
         ]);
     }
 
@@ -98,6 +99,7 @@ class UsersController extends Controller
             'title' => 'Create User',
             'user' => null,
             'roles' => $roles,
+            'localeNames' => \App\Core\Translator::LOCALE_NAMES,
             'csrfToken' => $this->csrfToken()
         ]);
     }
@@ -115,11 +117,16 @@ class UsersController extends Controller
             return;
         }
 
+        $locale = $this->post('locale', 'en');
+        if (!in_array($locale, \App\Core\Translator::SUPPORTED_LOCALES)) {
+            $locale = 'en';
+        }
+
         $data = [
-            'username' => trim($this->post('username', '')),
+            'name' => trim($this->post('name', '')),
             'email' => trim($this->post('email', '')),
-            'full_name' => trim($this->post('full_name', '')),
             'password' => password_hash($this->post('password', ''), PASSWORD_DEFAULT),
+            'locale' => $locale,
             'is_active' => $this->post('is_active') ? 1 : 0,
             'created_at' => date('Y-m-d H:i:s')
         ];
@@ -159,10 +166,11 @@ class UsersController extends Controller
         $userRoleIds = array_column($userRoles, 'role_id');
 
         $this->view('admin/users/form', [
-            'title' => 'Edit ' . $user['username'],
+            'title' => 'Edit ' . $user['name'],
             'user' => $user,
             'roles' => $roles,
             'userRoleIds' => $userRoleIds,
+            'localeNames' => \App\Core\Translator::LOCALE_NAMES,
             'csrfToken' => $this->csrfToken()
         ]);
     }
@@ -180,10 +188,15 @@ class UsersController extends Controller
             return;
         }
 
+        $locale = $this->post('locale', 'en');
+        if (!in_array($locale, \App\Core\Translator::SUPPORTED_LOCALES)) {
+            $locale = 'en';
+        }
+
         $data = [
-            'username' => trim($this->post('username', '')),
+            'name' => trim($this->post('name', '')),
             'email' => trim($this->post('email', '')),
-            'full_name' => trim($this->post('full_name', '')),
+            'locale' => $locale,
             'is_active' => $this->post('is_active') ? 1 : 0,
             'updated_at' => date('Y-m-d H:i:s')
         ];

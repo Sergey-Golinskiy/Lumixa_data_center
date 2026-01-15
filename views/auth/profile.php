@@ -22,6 +22,17 @@
             </div>
 
             <div class="form-group">
+                <label for="locale"><?= $this->__('language') ?></label>
+                <select id="locale" name="locale" class="form-control">
+                    <?php foreach ($localeNames as $code => $name): ?>
+                    <option value="<?= $code ?>" <?= ($this->user()['locale'] ?? 'en') === $code ? 'selected' : '' ?>>
+                        <?= $this->e($name) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label>Roles</label>
                 <p><?= $this->e(implode(', ', array_map('ucfirst', $this->user()['roles'] ?? []))) ?></p>
             </div>

@@ -6,28 +6,22 @@
 
 <div class="card">
     <div class="card-header">
-        <h3><?= h($title) ?></h3>
+        <h3><?= $this->e($title) ?></h3>
     </div>
     <div class="card-body">
         <form method="post" action="<?= $user ? '/admin/users/' . $user['id'] . '/edit' : '/admin/users/create' ?>">
-            <input type="hidden" name="_token" value="<?= h($csrfToken) ?>">
+            <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
             <div class="form-group">
-                <label for="username">Username <span class="required">*</span></label>
-                <input type="text" name="username" id="username" class="form-control"
-                       value="<?= h($user['username'] ?? '') ?>" required>
+                <label for="name">Name <span class="required">*</span></label>
+                <input type="text" name="name" id="name" class="form-control"
+                       value="<?= $this->e($user['name'] ?? '') ?>" required>
             </div>
 
             <div class="form-group">
                 <label for="email">Email <span class="required">*</span></label>
                 <input type="email" name="email" id="email" class="form-control"
-                       value="<?= h($user['email'] ?? '') ?>" required>
-            </div>
-
-            <div class="form-group">
-                <label for="full_name">Full Name</label>
-                <input type="text" name="full_name" id="full_name" class="form-control"
-                       value="<?= h($user['full_name'] ?? '') ?>">
+                       value="<?= $this->e($user['email'] ?? '') ?>" required>
             </div>
 
             <div class="form-group">
@@ -37,13 +31,24 @@
             </div>
 
             <div class="form-group">
+                <label for="locale"><?= $this->__('language') ?></label>
+                <select id="locale" name="locale" class="form-control">
+                    <?php foreach ($localeNames ?? \App\Core\Translator::LOCALE_NAMES as $code => $name): ?>
+                    <option value="<?= $code ?>" <?= ($user['locale'] ?? 'en') === $code ? 'selected' : '' ?>>
+                        <?= $this->e($name) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label>Roles</label>
                 <?php foreach ($roles as $role): ?>
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="roles[]" value="<?= $role['id'] ?>"
                                <?= in_array($role['id'], $userRoleIds ?? []) ? 'checked' : '' ?>>
-                        <?= h($role['name']) ?>
+                        <?= $this->e($role['name']) ?>
                     </label>
                 </div>
                 <?php endforeach; ?>
