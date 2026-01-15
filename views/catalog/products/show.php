@@ -1,50 +1,50 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/catalog/products" class="btn btn-secondary">&laquo; Back to Products</a>
+    <a href="/catalog/products" class="btn btn-secondary">&laquo; <?= $this->__('back_to_list') ?></a>
     <?php if ($this->can('catalog.products.edit')): ?>
-    <a href="/catalog/products/<?= $product['id'] ?>/edit" class="btn btn-outline">Edit Product</a>
+    <a href="/catalog/products/<?= $product['id'] ?>/edit" class="btn btn-outline"><?= $this->__('edit_product') ?></a>
     <?php endif; ?>
 </div>
 
 <div class="detail-grid">
     <!-- Product Information -->
     <div class="card">
-        <div class="card-header">Product Information</div>
+        <div class="card-header"><?= $this->__('details') ?></div>
         <div class="card-body">
             <div class="detail-row">
-                <span class="detail-label">Code</span>
-                <span class="detail-value"><strong><?= $this->e($product['code']) ?></strong></span>
+                <span class="detail-label"><?= $this->__('code') ?></span>
+                <span class="detail-value"><strong><?= $this->e($product['code'] ?? '') ?></strong></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Name</span>
-                <span class="detail-value"><?= $this->e($product['name']) ?></span>
+                <span class="detail-label"><?= $this->__('name') ?></span>
+                <span class="detail-value"><?= $this->e($product['name'] ?? '') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Category</span>
+                <span class="detail-label"><?= $this->__('category') ?></span>
                 <span class="detail-value"><?= $this->e($product['category'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Base Price</span>
-                <span class="detail-value"><?= number_format($product['base_price'], 2) ?></span>
+                <span class="detail-label"><?= $this->__('base_price') ?></span>
+                <span class="detail-value"><?= number_format($product['base_price'] ?? 0, 2) ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Status</span>
+                <span class="detail-label"><?= $this->__('status') ?></span>
                 <span class="detail-value">
-                    <?php if ($product['is_active']): ?>
-                    <span class="badge badge-success">Active</span>
+                    <?php if ($product['is_active'] ?? false): ?>
+                    <span class="badge badge-success"><?= $this->__('active') ?></span>
                     <?php else: ?>
-                    <span class="badge badge-secondary">Inactive</span>
+                    <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
                     <?php endif; ?>
                 </span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Created</span>
-                <span class="detail-value"><?= $this->datetime($product['created_at']) ?></span>
+                <span class="detail-label"><?= $this->__('created_at') ?></span>
+                <span class="detail-value"><?= $this->datetime($product['created_at'] ?? '') ?></span>
             </div>
-            <?php if ($product['description']): ?>
+            <?php if ($product['description'] ?? false): ?>
             <div class="detail-row">
-                <span class="detail-label">Description</span>
+                <span class="detail-label"><?= $this->__('description') ?></span>
                 <span class="detail-value"><?= nl2br($this->e($product['description'])) ?></span>
             </div>
             <?php endif; ?>
@@ -53,20 +53,20 @@
 
     <!-- Quick Stats -->
     <div class="card">
-        <div class="card-header">Statistics</div>
+        <div class="card-header"><?= $this->__('system_info') ?></div>
         <div class="card-body">
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-value"><?= count($variants) ?></div>
-                    <div class="stat-label">Variants</div>
+                    <div class="stat-value"><?= count($variants ?? []) ?></div>
+                    <div class="stat-label"><?= $this->__('variants') ?></div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-value"><?= count(array_filter($variants, fn($v) => $v['has_bom'])) ?></div>
-                    <div class="stat-label">With BOM</div>
+                    <div class="stat-value"><?= count(array_filter($variants ?? [], fn($v) => $v['has_bom'] ?? false)) ?></div>
+                    <div class="stat-label"><?= $this->__('bom') ?></div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-value"><?= count(array_filter($variants, fn($v) => $v['has_routing'])) ?></div>
-                    <div class="stat-label">With Routing</div>
+                    <div class="stat-value"><?= count(array_filter($variants ?? [], fn($v) => $v['has_routing'] ?? false)) ?></div>
+                    <div class="stat-label"><?= $this->__('routing') ?></div>
                 </div>
             </div>
         </div>
@@ -76,9 +76,9 @@
 <!-- Variants -->
 <div class="card" style="margin-top: 20px;">
     <div class="card-header">
-        Variants
+        <?= $this->__('variants') ?>
         <?php if ($this->can('catalog.variants.create')): ?>
-        <a href="/catalog/variants/create?product_id=<?= $product['id'] ?>" class="btn btn-primary btn-sm" style="float: right;">+ Add Variant</a>
+        <a href="/catalog/variants/create?product_id=<?= $product['id'] ?>" class="btn btn-primary btn-sm" style="float: right;">+ <?= $this->__('new_variant') ?></a>
         <?php endif; ?>
     </div>
     <div class="card-body">
@@ -86,30 +86,30 @@
             <table>
                 <thead>
                     <tr>
-                        <th>SKU</th>
-                        <th>Name</th>
-                        <th>Attributes</th>
-                        <th class="text-right">Price</th>
-                        <th class="text-center">BOM</th>
-                        <th class="text-center">Routing</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('sku') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('attributes_materials') ?></th>
+                        <th class="text-right"><?= $this->__('base_price') ?></th>
+                        <th class="text-center"><?= $this->__('bom') ?></th>
+                        <th class="text-center"><?= $this->__('routing') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($variants)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No variants. Create one to define manufacturing specifications.</td>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_results') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($variants as $variant): ?>
                     <tr>
                         <td>
                             <a href="/catalog/variants/<?= $variant['id'] ?>">
-                                <strong><?= $this->e($variant['sku']) ?></strong>
+                                <strong><?= $this->e($variant['sku'] ?? '') ?></strong>
                             </a>
                         </td>
-                        <td><?= $this->e($variant['name']) ?></td>
+                        <td><?= $this->e($variant['name'] ?? '') ?></td>
                         <td>
                             <?php
                             $attrs = json_decode($variant['attributes'] ?? '{}', true);
@@ -121,30 +121,30 @@
                             -
                             <?php endif; ?>
                         </td>
-                        <td class="text-right"><?= number_format($variant['base_price'], 2) ?></td>
+                        <td class="text-right"><?= number_format($variant['base_price'] ?? 0, 2) ?></td>
                         <td class="text-center">
-                            <?php if ($variant['has_bom']): ?>
-                            <span class="badge badge-success">Yes</span>
+                            <?php if ($variant['has_bom'] ?? false): ?>
+                            <span class="badge badge-success"><?= $this->__('yes') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-warning">No</span>
+                            <span class="badge badge-warning"><?= $this->__('no') ?></span>
                             <?php endif; ?>
                         </td>
                         <td class="text-center">
-                            <?php if ($variant['has_routing']): ?>
-                            <span class="badge badge-success">Yes</span>
+                            <?php if ($variant['has_routing'] ?? false): ?>
+                            <span class="badge badge-success"><?= $this->__('yes') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-warning">No</span>
+                            <span class="badge badge-warning"><?= $this->__('no') ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?php if ($variant['is_active']): ?>
-                            <span class="badge badge-success">Active</span>
+                            <?php if ($variant['is_active'] ?? false): ?>
+                            <span class="badge badge-success"><?= $this->__('active') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-secondary">Inactive</span>
+                            <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="/catalog/variants/<?= $variant['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/catalog/variants/<?= $variant['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

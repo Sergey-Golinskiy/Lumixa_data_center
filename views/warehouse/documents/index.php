@@ -2,18 +2,18 @@
 
 <div class="page-actions">
     <form method="GET" class="search-form">
-        <input type="text" name="search" value="<?= $this->e($filters['search']) ?>" placeholder="<?= $this->__('document_number_search') ?>">
+        <input type="text" name="search" value="<?= $this->e($filters['search'] ?? '') ?>" placeholder="<?= $this->__('document_number_search') ?>">
         <select name="type">
             <option value=""><?= $this->__('all_types') ?></option>
-            <?php foreach ($types as $value => $label): ?>
-            <option value="<?= $this->e($value) ?>" <?= $filters['type'] === $value ? 'selected' : '' ?>><?= $this->e($label) ?></option>
+            <?php foreach ($types ?? [] as $value => $label): ?>
+            <option value="<?= $this->e($value) ?>" <?= ($filters['type'] ?? '') === $value ? 'selected' : '' ?>><?= $this->e($label) ?></option>
             <?php endforeach; ?>
         </select>
         <select name="status">
             <option value=""><?= $this->__('all_status') ?></option>
-            <option value="draft" <?= $filters['status'] === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
-            <option value="posted" <?= $filters['status'] === 'posted' ? 'selected' : '' ?>><?= $this->__('posted') ?></option>
-            <option value="cancelled" <?= $filters['status'] === 'cancelled' ? 'selected' : '' ?>><?= $this->__('cancelled') ?></option>
+            <option value="draft" <?= ($filters['status'] ?? '') === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
+            <option value="posted" <?= ($filters['status'] ?? '') === 'posted' ? 'selected' : '' ?>><?= $this->__('posted') ?></option>
+            <option value="cancelled" <?= ($filters['status'] ?? '') === 'cancelled' ? 'selected' : '' ?>><?= $this->__('cancelled') ?></option>
         </select>
         <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
     </form>
@@ -55,21 +55,21 @@
                 <?php else: ?>
                     <?php foreach ($documents as $doc): ?>
                     <tr data-href="/warehouse/documents/<?= $doc['id'] ?>">
-                        <td><strong><?= $this->e($doc['document_number']) ?></strong></td>
-                        <td><?= $this->e($types[$doc['type']] ?? $doc['type']) ?></td>
-                        <td><?= $this->date($doc['document_date'], 'Y-m-d') ?></td>
+                        <td><strong><?= $this->e($doc['document_number'] ?? '') ?></strong></td>
+                        <td><?= $this->e($types[$doc['type'] ?? ''] ?? $doc['type'] ?? '') ?></td>
+                        <td><?= $this->date($doc['document_date'] ?? '', 'Y-m-d') ?></td>
                         <td><?= $this->e($doc['partner_name'] ?? '-') ?></td>
-                        <td><?= $this->currency($doc['total_amount']) ?></td>
+                        <td><?= $this->currency($doc['total_amount'] ?? 0) ?></td>
                         <td>
                             <?php
-                            $statusClass = match($doc['status']) {
+                            $statusClass = match($doc['status'] ?? 'draft') {
                                 'draft' => 'warning',
                                 'posted' => 'success',
                                 'cancelled' => 'danger',
                                 default => 'secondary'
                             };
                             ?>
-                            <span class="badge badge-<?= $statusClass ?>"><?= $this->__($doc['status']) ?></span>
+                            <span class="badge badge-<?= $statusClass ?>"><?= $this->__($doc['status'] ?? 'draft') ?></span>
                         </td>
                         <td><?= $this->e($doc['created_by_name'] ?? '-') ?></td>
                         <td>
@@ -82,14 +82,14 @@
         </table>
     </div>
 
-    <?php if ($pagination['total_pages'] > 1): ?>
+    <?php if (($pagination['total_pages'] ?? 1) > 1): ?>
     <div class="pagination">
-        <?php if ($pagination['has_prev']): ?>
-        <a href="?page=<?= $pagination['current_page'] - 1 ?>&<?= http_build_query($filters) ?>" class="btn btn-sm">&laquo; <?= $this->__('prev') ?></a>
+        <?php if ($pagination['has_prev'] ?? false): ?>
+        <a href="?page=<?= ($pagination['current_page'] ?? 1) - 1 ?>&<?= http_build_query($filters ?? []) ?>" class="btn btn-sm">&laquo; <?= $this->__('prev') ?></a>
         <?php endif; ?>
-        <span class="pagination-info"><?= $this->__('page') ?> <?= $pagination['current_page'] ?> <?= $this->__('of') ?> <?= $pagination['total_pages'] ?></span>
-        <?php if ($pagination['has_next']): ?>
-        <a href="?page=<?= $pagination['current_page'] + 1 ?>&<?= http_build_query($filters) ?>" class="btn btn-sm"><?= $this->__('next') ?> &raquo;</a>
+        <span class="pagination-info"><?= $this->__('page') ?> <?= $pagination['current_page'] ?? 1 ?> <?= $this->__('of') ?> <?= $pagination['total_pages'] ?? 1 ?></span>
+        <?php if ($pagination['has_next'] ?? false): ?>
+        <a href="?page=<?= ($pagination['current_page'] ?? 1) + 1 ?>&<?= http_build_query($filters ?? []) ?>" class="btn btn-sm"><?= $this->__('next') ?> &raquo;</a>
         <?php endif; ?>
     </div>
     <?php endif; ?>
