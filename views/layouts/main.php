@@ -29,8 +29,7 @@
 
                     <?php if ($this->can('warehouse.items.view')): ?>
                     <li class="nav-item nav-group">
-                        <button class="nav-group-toggle" data-section="warehouse">
-                            <span class="nav-group-icon">&#128230;</span>
+                        <button class="nav-group-toggle" type="button" data-section="warehouse">
                             <span class="nav-group-title"><?= $this->__('nav_warehouse') ?></span>
                             <span class="nav-group-arrow">&#9662;</span>
                         </button>
@@ -46,8 +45,7 @@
 
                     <?php if ($this->can('catalog.products.view')): ?>
                     <li class="nav-item nav-group">
-                        <button class="nav-group-toggle" data-section="catalog">
-                            <span class="nav-group-icon">&#128736;</span>
+                        <button class="nav-group-toggle" type="button" data-section="catalog">
                             <span class="nav-group-title"><?= $this->__('nav_catalog') ?></span>
                             <span class="nav-group-arrow">&#9662;</span>
                         </button>
@@ -62,8 +60,7 @@
 
                     <?php if ($this->can('production.orders.view')): ?>
                     <li class="nav-item nav-group">
-                        <button class="nav-group-toggle" data-section="production">
-                            <span class="nav-group-icon">&#9881;</span>
+                        <button class="nav-group-toggle" type="button" data-section="production">
                             <span class="nav-group-title"><?= $this->__('nav_production') ?></span>
                             <span class="nav-group-arrow">&#9662;</span>
                         </button>
@@ -77,8 +74,7 @@
 
                     <?php if ($this->can('costing.view')): ?>
                     <li class="nav-item nav-group">
-                        <button class="nav-group-toggle" data-section="costing">
-                            <span class="nav-group-icon">&#128176;</span>
+                        <button class="nav-group-toggle" type="button" data-section="costing">
                             <span class="nav-group-title"><?= $this->__('nav_costing') ?></span>
                             <span class="nav-group-arrow">&#9662;</span>
                         </button>
@@ -92,8 +88,7 @@
 
                     <?php if ($this->can('admin.access')): ?>
                     <li class="nav-item nav-group">
-                        <button class="nav-group-toggle" data-section="admin">
-                            <span class="nav-group-icon">&#128274;</span>
+                        <button class="nav-group-toggle" type="button" data-section="admin">
                             <span class="nav-group-title"><?= $this->__('nav_admin') ?></span>
                             <span class="nav-group-arrow">&#9662;</span>
                         </button>

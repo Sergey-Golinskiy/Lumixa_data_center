@@ -181,14 +181,18 @@ a:hover {
     align-items: center;
     width: 100%;
     padding: 12px 20px;
-    background: none;
+    background: transparent;
     border: none;
+    outline: none;
     cursor: pointer;
     color: #94a3b8;
     font-size: 13px;
     font-family: inherit;
     text-align: left;
     transition: all 0.2s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
 .nav-group-toggle:hover {
@@ -199,13 +203,6 @@ a:hover {
 .nav-group.open .nav-group-toggle {
     color: white;
     background: rgba(255,255,255,0.05);
-}
-
-.nav-group-icon {
-    width: 24px;
-    font-size: 16px;
-    text-align: center;
-    margin-right: 8px;
 }
 
 .nav-group-title {
