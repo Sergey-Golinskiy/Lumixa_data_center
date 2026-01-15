@@ -57,6 +57,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Language dropdown toggle
+    document.querySelectorAll('.language-dropdown-toggle').forEach(function(toggle) {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var dropdown = this.closest('.language-dropdown');
+            var isOpen = dropdown.classList.contains('open');
+
+            // Close all other dropdowns
+            document.querySelectorAll('.language-dropdown.open').forEach(function(d) {
+                d.classList.remove('open');
+            });
+
+            // Toggle current dropdown
+            if (!isOpen) {
+                dropdown.classList.add('open');
+            }
+        });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.language-dropdown')) {
+            document.querySelectorAll('.language-dropdown.open').forEach(function(dropdown) {
+                dropdown.classList.remove('open');
+            });
+        }
+    });
+
+    // Close dropdown on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.language-dropdown.open').forEach(function(dropdown) {
+                dropdown.classList.remove('open');
+            });
+        }
+    });
+
     // Debug panel toggle (if exists)
     var debugPanel = document.querySelector('.debug-panel');
     if (debugPanel) {

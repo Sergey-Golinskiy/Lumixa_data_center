@@ -236,6 +236,7 @@ a:hover {
 /* === Language Dropdown === */
 .language-dropdown {
     position: relative;
+    display: inline-block;
 }
 
 .language-dropdown-toggle {
@@ -250,6 +251,7 @@ a:hover {
     font-size: 13px;
     color: var(--text);
     transition: all 0.2s;
+    font-family: inherit;
 }
 
 .language-dropdown-toggle:hover {
@@ -264,25 +266,45 @@ a:hover {
 .language-dropdown-toggle .dropdown-arrow {
     font-size: 10px;
     color: var(--text-muted);
+    transition: transform 0.2s;
+}
+
+.language-dropdown.open .dropdown-arrow {
+    transform: rotate(180deg);
 }
 
 .language-dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 4px);
     right: 0;
-    margin-top: 5px;
     background: white;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-md);
-    min-width: 160px;
+    min-width: 180px;
     z-index: 1000;
-    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+}
+
+/* Bridge gap for hover - prevents menu from closing when moving cursor */
+.language-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
 }
 
 .language-dropdown:hover .language-dropdown-menu,
-.language-dropdown:focus-within .language-dropdown-menu {
-    display: block;
+.language-dropdown:focus-within .language-dropdown-menu,
+.language-dropdown.open .language-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 .language-option {
@@ -293,6 +315,15 @@ a:hover {
     color: var(--text);
     text-decoration: none;
     transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.language-option:first-child {
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.language-option:last-child {
+    border-radius: 0 0 var(--radius) var(--radius);
 }
 
 .language-option:hover {
@@ -308,7 +339,8 @@ a:hover {
 
 .language-option .lang-flag {
     font-weight: 600;
-    width: 24px;
+    min-width: 24px;
+    text-align: center;
 }
 
 .content-body {
