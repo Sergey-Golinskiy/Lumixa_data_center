@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title><?= $this->e($title ?? 'Dashboard') ?> - <?= $this->e($config['app_name'] ?? 'Lumixa LMS') ?></title>
-    <link rel="stylesheet" href="<?= $this->asset('css/app.css') ?>">
+    <link rel="stylesheet" href="<?= $this->asset('css/app.css') ?>?v=<?= time() ?>">
 </head>
 <body>
     <div class="app-container">
@@ -174,6 +174,6 @@
     </div>
     <?php endif; ?>
 
-    <script src="<?= $this->asset('js/app.js') ?>"></script>
+    <script src="<?= $this->asset('js/app.js') ?>?v=<?= time() ?>"></script>
 </body>
 </html>
