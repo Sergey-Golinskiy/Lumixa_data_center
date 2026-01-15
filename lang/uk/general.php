@@ -26,6 +26,7 @@ return [
     'back' => 'Назад',
     'next' => 'Далі',
     'previous' => 'Попередній',
+    'prev' => 'Назад',
     'actions' => 'Дії',
     'status' => 'Статус',
     'active' => 'Активний',
@@ -45,7 +46,7 @@ return [
     'upload' => 'Вивантажити',
     'refresh' => 'Оновити',
     'total' => 'Всього',
-    'items' => 'Елементів',
+    'items' => 'елементів',
     'page' => 'Сторінка',
     'of' => 'з',
     'showing' => 'Показано',
@@ -62,6 +63,18 @@ return [
     'save_changes' => 'Зберегти зміни',
     'change_password' => 'Змінити пароль',
     'my_profile' => 'Мій профіль',
+    'clear' => 'Очистити',
+    'view_all' => 'Дивитись все',
+    'description' => 'Опис',
+    'code' => 'Код',
+    'category' => 'Категорія',
+    'priority' => 'Пріоритет',
+    'quantity' => 'Кількість',
+    'progress' => 'Прогрес',
+    'planned' => 'Заплановано',
+    'type' => 'Тип',
+    'unit' => 'Одиниця',
+    'system' => 'Система',
 
     // Navigation - Warehouse
     'nav_warehouse' => 'Склад',
@@ -117,6 +130,11 @@ return [
     'sign_in' => 'Увійти',
     'sign_out' => 'Вийти',
     'register' => 'Реєстрація',
+    'current_password' => 'Поточний пароль',
+    'new_password' => 'Новий пароль',
+    'confirm_password' => 'Підтвердіть новий пароль',
+    'min_characters' => 'Мінімум :count символів',
+    'password_leave_blank' => '(залиште порожнім, щоб зберегти поточний)',
 
     // Messages
     'success' => 'Успішно',
@@ -132,4 +150,222 @@ return [
     'access_denied' => 'Доступ заборонено',
     'not_found' => 'Не знайдено',
     'invalid_request' => 'Невірний запит',
+
+    // Dashboard
+    'items_sku' => 'Товари (SKU)',
+    'products' => 'Продукти',
+    'active_orders' => 'Активні замовлення',
+    'pending_print_jobs' => 'Очікують друку',
+    'quick_actions' => 'Швидкі дії',
+    'new_receipt' => 'Нове надходження',
+    'new_print_job' => 'Нове завдання друку',
+    'new_order' => 'Нове замовлення',
+    'new_item' => 'Новий товар',
+    'system_status' => 'Стан системи',
+    'database_connected' => 'База даних підключена',
+    'system_operational' => 'Система працює',
+    'view_diagnostics' => 'Діагностика',
+
+    // Users
+    'users' => 'Користувачі',
+    'user' => 'Користувач',
+    'create_user' => 'Створити користувача',
+    'edit_user' => 'Редагувати користувача',
+    'update_user' => 'Оновити користувача',
+    'search_users' => 'Пошук користувачів...',
+    'no_users_found' => 'Користувачів не знайдено.',
+    'back_to_users' => 'Назад до користувачів',
+
+    // Items / Warehouse
+    'items_list' => 'Товари',
+    'new_item' => 'Новий товар',
+    'create_item' => 'Створити товар',
+    'edit_item' => 'Редагувати товар',
+    'search_sku_name' => 'Пошук за SKU або назвою...',
+    'all_types' => 'Усі типи',
+    'sku' => 'SKU',
+    'on_hand' => 'В наявності',
+    'reserved' => 'Зарезервовано',
+    'available' => 'Доступно',
+    'no_items_found' => 'Товари не знайдено',
+    'min_stock' => 'Мін. запас',
+    'reorder_point' => 'Точка замовлення',
+    'attributes_materials' => 'Атрибути (для матеріалів)',
+    'color' => 'Колір',
+    'diameter' => 'Діаметр',
+    'brand' => 'Бренд',
+    'select_type' => 'Оберіть тип...',
+
+    // Lots
+    'lots' => 'Партії',
+    'lot' => 'Партія',
+    'lot_number' => 'Номер партії',
+    'expiry_date' => 'Термін придатності',
+    'manufacture_date' => 'Дата виробництва',
+    'supplier' => 'Постачальник',
+
+    // Stock
+    'stock' => 'Залишки',
+    'stock_movements' => 'Рух товарів',
+    'low_stock' => 'Низький запас',
+    'stock_valuation' => 'Оцінка запасів',
+
+    // Documents
+    'documents' => 'Документи',
+    'document' => 'Документ',
+    'document_number' => 'Номер документа',
+    'document_type' => 'Тип документа',
+    'receipt' => 'Надходження',
+    'shipment' => 'Відвантаження',
+    'transfer' => 'Переміщення',
+    'adjustment' => 'Коригування',
+
+    // Partners
+    'partners' => 'Партнери',
+    'partner' => 'Партнер',
+    'new_partner' => 'Новий партнер',
+    'partner_type' => 'Тип партнера',
+    'contact_person' => 'Контактна особа',
+    'phone' => 'Телефон',
+    'address' => 'Адреса',
+
+    // Products / Catalog
+    'new_product' => 'Новий продукт',
+    'create_product' => 'Створити продукт',
+    'edit_product' => 'Редагувати продукт',
+    'search_code_name' => 'Пошук за кодом або назвою...',
+    'all_categories' => 'Усі категорії',
+    'all_statuses' => 'Усі статуси',
+    'base_price' => 'Базова ціна',
+    'variants' => 'Варіанти',
+    'no_products_found' => 'Продукти не знайдено',
+
+    // Variants
+    'variant' => 'Варіант',
+    'new_variant' => 'Новий варіант',
+    'variant_sku' => 'SKU варіанта',
+
+    // BOM (Bill of Materials)
+    'bom' => 'Специфікація',
+    'bom_list' => 'Специфікації',
+    'new_bom' => 'Нова специфікація',
+    'materials' => 'Матеріали',
+    'components' => 'Компоненти',
+
+    // Routing
+    'routing' => 'Маршрут',
+    'new_routing' => 'Новий маршрут',
+    'operations' => 'Операції',
+    'operation' => 'Операція',
+    'work_center' => 'Робочий центр',
+    'setup_time' => 'Час налаштування',
+    'run_time' => 'Час виконання',
+
+    // Production Orders
+    'production_orders' => 'Виробничі замовлення',
+    'order_number' => 'Замовлення №',
+    'search_order_sku' => 'Пошук за номером замовлення або SKU...',
+    'draft' => 'Чернетка',
+    'in_progress' => 'В роботі',
+    'completed' => 'Завершено',
+    'cancelled' => 'Скасовано',
+    'no_orders_found' => 'Замовлення не знайдено',
+    'tasks' => 'завдань',
+
+    // Priority
+    'urgent' => 'Терміновий',
+    'high' => 'Високий',
+    'normal' => 'Звичайний',
+    'low' => 'Низький',
+
+    // Print Queue
+    'print_queue' => 'Черга друку',
+    'print_job' => 'Завдання друку',
+    'new_print_job' => 'Нове завдання друку',
+    'printer' => 'Принтер',
+    'print_time' => 'Час друку',
+    'pending' => 'Очікує',
+    'printing' => 'Друкується',
+    'printed' => 'Надруковано',
+    'failed' => 'Помилка',
+
+    // Tasks
+    'task' => 'Завдання',
+    'task_name' => 'Назва завдання',
+    'assigned_to' => 'Призначено',
+    'start_date' => 'Дата початку',
+    'end_date' => 'Дата завершення',
+    'due_date' => 'Термін виконання',
+
+    // Costing
+    'plan_cost' => 'Планова собівартість',
+    'actual_cost' => 'Фактична собівартість',
+    'cost_comparison' => 'Порівняння собівартості',
+    'material_cost' => 'Вартість матеріалів',
+    'labor_cost' => 'Вартість праці',
+    'overhead_cost' => 'Накладні витрати',
+    'total_cost' => 'Загальна вартість',
+
+    // Audit
+    'audit_log' => 'Журнал аудиту',
+    'all_users' => 'Усі користувачі',
+    'all_actions' => 'Усі дії',
+    'all_tables' => 'Усі таблиці',
+    'no_audit_entries' => 'Записи аудиту не знайдено.',
+    'action' => 'Дія',
+    'table' => 'Таблиця',
+    'record' => 'Запис',
+    'ip_address' => 'IP',
+    'old_values' => 'Старі значення',
+    'new_values' => 'Нові значення',
+
+    // Backups
+    'backups' => 'Резервні копії',
+    'create_backup' => 'Створити копію',
+    'restore_backup' => 'Відновити',
+    'backup_file' => 'Файл резервної копії',
+    'backup_size' => 'Розмір',
+    'backup_date' => 'Дата',
+
+    // Diagnostics
+    'diagnostics' => 'Діагностика',
+    'system_info' => 'Інформація про систему',
+    'php_version' => 'Версія PHP',
+    'database_status' => 'Стан бази даних',
+    'disk_space' => 'Дисковий простір',
+    'memory_usage' => 'Використання памʼяті',
+    'run_migrations' => 'Запустити міграції',
+    'pending_migrations' => 'Очікуючі міграції',
+
+    // Roles
+    'role' => 'Роль',
+    'new_role' => 'Нова роль',
+    'create_role' => 'Створити роль',
+    'edit_role' => 'Редагувати роль',
+    'permissions' => 'Дозволи',
+    'role_name' => 'Назва ролі',
+
+    // Error Pages
+    'page_not_found' => 'Сторінку не знайдено',
+    'page_not_found_message' => 'Сторінка, яку ви шукаєте, не існує або була переміщена.',
+    'go_to_dashboard' => 'На головну',
+    'go_back' => 'Назад',
+    'access_forbidden' => 'Доступ заборонено',
+    'access_forbidden_message' => 'У вас немає прав для доступу до цієї сторінки.',
+
+    // Pagination
+    'page_of' => 'Сторінка :current з :total',
+    'showing_results' => ':count :items',
+
+    // Form placeholders
+    'placeholder_email' => 'ваш@email.com',
+    'placeholder_sku' => 'напр., PLA-BLK-001',
+    'placeholder_name' => 'Назва товару',
+    'placeholder_color' => 'напр., Чорний, Білий',
+    'placeholder_diameter' => 'напр., 1.75мм',
+    'placeholder_brand' => 'напр., Polymaker',
+
+    // Misc
+    'back_to' => 'Назад до :name',
+    'leave_blank_keep' => 'залиште порожнім, щоб зберегти поточний',
 ];

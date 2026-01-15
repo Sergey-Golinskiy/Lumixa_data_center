@@ -26,6 +26,7 @@ return [
     'back' => 'Назад',
     'next' => 'Далее',
     'previous' => 'Предыдущий',
+    'prev' => 'Назад',
     'actions' => 'Действия',
     'status' => 'Статус',
     'active' => 'Активен',
@@ -45,7 +46,7 @@ return [
     'upload' => 'Загрузить',
     'refresh' => 'Обновить',
     'total' => 'Всего',
-    'items' => 'Элементов',
+    'items' => 'элементов',
     'page' => 'Страница',
     'of' => 'из',
     'showing' => 'Показано',
@@ -62,6 +63,18 @@ return [
     'save_changes' => 'Сохранить изменения',
     'change_password' => 'Сменить пароль',
     'my_profile' => 'Мой профиль',
+    'clear' => 'Очистить',
+    'view_all' => 'Смотреть все',
+    'description' => 'Описание',
+    'code' => 'Код',
+    'category' => 'Категория',
+    'priority' => 'Приоритет',
+    'quantity' => 'Количество',
+    'progress' => 'Прогресс',
+    'planned' => 'Запланировано',
+    'type' => 'Тип',
+    'unit' => 'Единица',
+    'system' => 'Система',
 
     // Navigation - Warehouse
     'nav_warehouse' => 'Склад',
@@ -117,6 +130,11 @@ return [
     'sign_in' => 'Войти',
     'sign_out' => 'Выйти',
     'register' => 'Регистрация',
+    'current_password' => 'Текущий пароль',
+    'new_password' => 'Новый пароль',
+    'confirm_password' => 'Подтвердите новый пароль',
+    'min_characters' => 'Минимум :count символов',
+    'password_leave_blank' => '(оставьте пустым, чтобы сохранить текущий)',
 
     // Messages
     'success' => 'Успешно',
@@ -132,4 +150,222 @@ return [
     'access_denied' => 'Доступ запрещён',
     'not_found' => 'Не найдено',
     'invalid_request' => 'Неверный запрос',
+
+    // Dashboard
+    'items_sku' => 'Товары (SKU)',
+    'products' => 'Продукты',
+    'active_orders' => 'Активные заказы',
+    'pending_print_jobs' => 'Ожидающие печати',
+    'quick_actions' => 'Быстрые действия',
+    'new_receipt' => 'Новое поступление',
+    'new_print_job' => 'Новое задание печати',
+    'new_order' => 'Новый заказ',
+    'new_item' => 'Новый товар',
+    'system_status' => 'Состояние системы',
+    'database_connected' => 'База данных подключена',
+    'system_operational' => 'Система работает',
+    'view_diagnostics' => 'Диагностика',
+
+    // Users
+    'users' => 'Пользователи',
+    'user' => 'Пользователь',
+    'create_user' => 'Создать пользователя',
+    'edit_user' => 'Редактировать пользователя',
+    'update_user' => 'Обновить пользователя',
+    'search_users' => 'Поиск пользователей...',
+    'no_users_found' => 'Пользователи не найдены.',
+    'back_to_users' => 'Назад к пользователям',
+
+    // Items / Warehouse
+    'items_list' => 'Товары',
+    'new_item' => 'Новый товар',
+    'create_item' => 'Создать товар',
+    'edit_item' => 'Редактировать товар',
+    'search_sku_name' => 'Поиск по SKU или названию...',
+    'all_types' => 'Все типы',
+    'sku' => 'SKU',
+    'on_hand' => 'В наличии',
+    'reserved' => 'Зарезервировано',
+    'available' => 'Доступно',
+    'no_items_found' => 'Товары не найдены',
+    'min_stock' => 'Мин. запас',
+    'reorder_point' => 'Точка заказа',
+    'attributes_materials' => 'Атрибуты (для материалов)',
+    'color' => 'Цвет',
+    'diameter' => 'Диаметр',
+    'brand' => 'Бренд',
+    'select_type' => 'Выберите тип...',
+
+    // Lots
+    'lots' => 'Партии',
+    'lot' => 'Партия',
+    'lot_number' => 'Номер партии',
+    'expiry_date' => 'Срок годности',
+    'manufacture_date' => 'Дата производства',
+    'supplier' => 'Поставщик',
+
+    // Stock
+    'stock' => 'Остатки',
+    'stock_movements' => 'Движение товаров',
+    'low_stock' => 'Низкий запас',
+    'stock_valuation' => 'Оценка запасов',
+
+    // Documents
+    'documents' => 'Документы',
+    'document' => 'Документ',
+    'document_number' => 'Номер документа',
+    'document_type' => 'Тип документа',
+    'receipt' => 'Поступление',
+    'shipment' => 'Отгрузка',
+    'transfer' => 'Перемещение',
+    'adjustment' => 'Корректировка',
+
+    // Partners
+    'partners' => 'Партнёры',
+    'partner' => 'Партнёр',
+    'new_partner' => 'Новый партнёр',
+    'partner_type' => 'Тип партнёра',
+    'contact_person' => 'Контактное лицо',
+    'phone' => 'Телефон',
+    'address' => 'Адрес',
+
+    // Products / Catalog
+    'new_product' => 'Новый продукт',
+    'create_product' => 'Создать продукт',
+    'edit_product' => 'Редактировать продукт',
+    'search_code_name' => 'Поиск по коду или названию...',
+    'all_categories' => 'Все категории',
+    'all_statuses' => 'Все статусы',
+    'base_price' => 'Базовая цена',
+    'variants' => 'Варианты',
+    'no_products_found' => 'Продукты не найдены',
+
+    // Variants
+    'variant' => 'Вариант',
+    'new_variant' => 'Новый вариант',
+    'variant_sku' => 'SKU варианта',
+
+    // BOM (Bill of Materials)
+    'bom' => 'Спецификация',
+    'bom_list' => 'Спецификации',
+    'new_bom' => 'Новая спецификация',
+    'materials' => 'Материалы',
+    'components' => 'Компоненты',
+
+    // Routing
+    'routing' => 'Маршрут',
+    'new_routing' => 'Новый маршрут',
+    'operations' => 'Операции',
+    'operation' => 'Операция',
+    'work_center' => 'Рабочий центр',
+    'setup_time' => 'Время наладки',
+    'run_time' => 'Время выполнения',
+
+    // Production Orders
+    'production_orders' => 'Производственные заказы',
+    'order_number' => 'Заказ №',
+    'search_order_sku' => 'Поиск по номеру заказа или SKU...',
+    'draft' => 'Черновик',
+    'in_progress' => 'В работе',
+    'completed' => 'Завершён',
+    'cancelled' => 'Отменён',
+    'no_orders_found' => 'Заказы не найдены',
+    'tasks' => 'задач',
+
+    // Priority
+    'urgent' => 'Срочный',
+    'high' => 'Высокий',
+    'normal' => 'Обычный',
+    'low' => 'Низкий',
+
+    // Print Queue
+    'print_queue' => 'Очередь печати',
+    'print_job' => 'Задание печати',
+    'new_print_job' => 'Новое задание печати',
+    'printer' => 'Принтер',
+    'print_time' => 'Время печати',
+    'pending' => 'Ожидает',
+    'printing' => 'Печатается',
+    'printed' => 'Напечатано',
+    'failed' => 'Ошибка',
+
+    // Tasks
+    'task' => 'Задача',
+    'task_name' => 'Название задачи',
+    'assigned_to' => 'Назначено',
+    'start_date' => 'Дата начала',
+    'end_date' => 'Дата окончания',
+    'due_date' => 'Срок выполнения',
+
+    // Costing
+    'plan_cost' => 'Плановая себестоимость',
+    'actual_cost' => 'Фактическая себестоимость',
+    'cost_comparison' => 'Сравнение себестоимости',
+    'material_cost' => 'Стоимость материалов',
+    'labor_cost' => 'Стоимость труда',
+    'overhead_cost' => 'Накладные расходы',
+    'total_cost' => 'Общая стоимость',
+
+    // Audit
+    'audit_log' => 'Журнал аудита',
+    'all_users' => 'Все пользователи',
+    'all_actions' => 'Все действия',
+    'all_tables' => 'Все таблицы',
+    'no_audit_entries' => 'Записи аудита не найдены.',
+    'action' => 'Действие',
+    'table' => 'Таблица',
+    'record' => 'Запись',
+    'ip_address' => 'IP',
+    'old_values' => 'Старые значения',
+    'new_values' => 'Новые значения',
+
+    // Backups
+    'backups' => 'Резервные копии',
+    'create_backup' => 'Создать копию',
+    'restore_backup' => 'Восстановить',
+    'backup_file' => 'Файл резервной копии',
+    'backup_size' => 'Размер',
+    'backup_date' => 'Дата',
+
+    // Diagnostics
+    'diagnostics' => 'Диагностика',
+    'system_info' => 'Информация о системе',
+    'php_version' => 'Версия PHP',
+    'database_status' => 'Состояние базы данных',
+    'disk_space' => 'Дисковое пространство',
+    'memory_usage' => 'Использование памяти',
+    'run_migrations' => 'Запустить миграции',
+    'pending_migrations' => 'Ожидающие миграции',
+
+    // Roles
+    'role' => 'Роль',
+    'new_role' => 'Новая роль',
+    'create_role' => 'Создать роль',
+    'edit_role' => 'Редактировать роль',
+    'permissions' => 'Разрешения',
+    'role_name' => 'Название роли',
+
+    // Error Pages
+    'page_not_found' => 'Страница не найдена',
+    'page_not_found_message' => 'Запрашиваемая страница не существует или была перемещена.',
+    'go_to_dashboard' => 'На главную',
+    'go_back' => 'Назад',
+    'access_forbidden' => 'Доступ запрещён',
+    'access_forbidden_message' => 'У вас нет прав для доступа к этой странице.',
+
+    // Pagination
+    'page_of' => 'Страница :current из :total',
+    'showing_results' => ':count :items',
+
+    // Form placeholders
+    'placeholder_email' => 'ваш@email.com',
+    'placeholder_sku' => 'напр., PLA-BLK-001',
+    'placeholder_name' => 'Название товара',
+    'placeholder_color' => 'напр., Чёрный, Белый',
+    'placeholder_diameter' => 'напр., 1.75мм',
+    'placeholder_brand' => 'напр., Polymaker',
+
+    // Misc
+    'back_to' => 'Назад к :name',
+    'leave_blank_keep' => 'оставьте пустым, чтобы сохранить текущий',
 ];

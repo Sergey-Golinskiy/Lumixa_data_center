@@ -26,6 +26,7 @@ return [
     'back' => 'Back',
     'next' => 'Next',
     'previous' => 'Previous',
+    'prev' => 'Prev',
     'actions' => 'Actions',
     'status' => 'Status',
     'active' => 'Active',
@@ -45,7 +46,7 @@ return [
     'upload' => 'Upload',
     'refresh' => 'Refresh',
     'total' => 'Total',
-    'items' => 'Items',
+    'items' => 'items',
     'page' => 'Page',
     'of' => 'of',
     'showing' => 'Showing',
@@ -62,6 +63,18 @@ return [
     'save_changes' => 'Save Changes',
     'change_password' => 'Change Password',
     'my_profile' => 'My Profile',
+    'clear' => 'Clear',
+    'view_all' => 'View all',
+    'description' => 'Description',
+    'code' => 'Code',
+    'category' => 'Category',
+    'priority' => 'Priority',
+    'quantity' => 'Quantity',
+    'progress' => 'Progress',
+    'planned' => 'Planned',
+    'type' => 'Type',
+    'unit' => 'Unit',
+    'system' => 'System',
 
     // Navigation - Warehouse
     'nav_warehouse' => 'Warehouse',
@@ -117,6 +130,11 @@ return [
     'sign_in' => 'Sign In',
     'sign_out' => 'Sign Out',
     'register' => 'Register',
+    'current_password' => 'Current Password',
+    'new_password' => 'New Password',
+    'confirm_password' => 'Confirm New Password',
+    'min_characters' => 'Minimum :count characters',
+    'password_leave_blank' => '(leave blank to keep current)',
 
     // Messages
     'success' => 'Success',
@@ -132,4 +150,223 @@ return [
     'access_denied' => 'Access denied',
     'not_found' => 'Not found',
     'invalid_request' => 'Invalid request',
+
+    // Dashboard
+    'items_sku' => 'Items (SKU)',
+    'products' => 'Products',
+    'active_orders' => 'Active Orders',
+    'pending_print_jobs' => 'Pending Print Jobs',
+    'quick_actions' => 'Quick Actions',
+    'new_receipt' => 'New Receipt',
+    'new_print_job' => 'New Print Job',
+    'new_order' => 'New Order',
+    'new_item' => 'New Item',
+    'system_status' => 'System Status',
+    'database_connected' => 'Database Connected',
+    'system_operational' => 'System Operational',
+    'view_diagnostics' => 'View Diagnostics',
+
+    // Users
+    'users' => 'Users',
+    'user' => 'User',
+    'create_user' => 'Create User',
+    'edit_user' => 'Edit User',
+    'update_user' => 'Update User',
+    'search_users' => 'Search users...',
+    'no_users_found' => 'No users found.',
+    'back_to_users' => 'Back to Users',
+
+    // Items / Warehouse
+    'items_list' => 'Items',
+    'new_item' => 'New Item',
+    'create_item' => 'Create Item',
+    'edit_item' => 'Edit Item',
+    'search_sku_name' => 'Search SKU or name...',
+    'all_types' => 'All Types',
+    'sku' => 'SKU',
+    'on_hand' => 'On Hand',
+    'reserved' => 'Reserved',
+    'available' => 'Available',
+    'no_items_found' => 'No items found',
+    'min_stock' => 'Min Stock',
+    'reorder_point' => 'Reorder Point',
+    'attributes_materials' => 'Attributes (for Materials)',
+    'color' => 'Color',
+    'diameter' => 'Diameter',
+    'brand' => 'Brand',
+    'select_type' => 'Select type...',
+
+    // Lots
+    'lots' => 'Lots',
+    'lot' => 'Lot',
+    'lot_number' => 'Lot Number',
+    'expiry_date' => 'Expiry Date',
+    'manufacture_date' => 'Manufacture Date',
+    'supplier' => 'Supplier',
+
+    // Stock
+    'stock' => 'Stock',
+    'stock_movements' => 'Stock Movements',
+    'low_stock' => 'Low Stock',
+    'stock_valuation' => 'Stock Valuation',
+
+    // Documents
+    'documents' => 'Documents',
+    'document' => 'Document',
+    'document_number' => 'Document Number',
+    'document_type' => 'Document Type',
+    'receipt' => 'Receipt',
+    'shipment' => 'Shipment',
+    'transfer' => 'Transfer',
+    'adjustment' => 'Adjustment',
+
+    // Partners
+    'partners' => 'Partners',
+    'partner' => 'Partner',
+    'new_partner' => 'New Partner',
+    'partner_type' => 'Partner Type',
+    'contact_person' => 'Contact Person',
+    'phone' => 'Phone',
+    'address' => 'Address',
+
+    // Products / Catalog
+    'new_product' => 'New Product',
+    'create_product' => 'Create Product',
+    'edit_product' => 'Edit Product',
+    'search_code_name' => 'Search code or name...',
+    'all_categories' => 'All Categories',
+    'all_statuses' => 'All Statuses',
+    'base_price' => 'Base Price',
+    'variants' => 'Variants',
+    'no_products_found' => 'No products found',
+
+    // Variants
+    'variant' => 'Variant',
+    'new_variant' => 'New Variant',
+    'variant_sku' => 'Variant SKU',
+
+    // BOM (Bill of Materials)
+    'bom' => 'Bill of Materials',
+    'bom_list' => 'BOM',
+    'new_bom' => 'New BOM',
+    'materials' => 'Materials',
+    'components' => 'Components',
+
+    // Routing
+    'routing' => 'Routing',
+    'new_routing' => 'New Routing',
+    'operations' => 'Operations',
+    'operation' => 'Operation',
+    'work_center' => 'Work Center',
+    'setup_time' => 'Setup Time',
+    'run_time' => 'Run Time',
+
+    // Production Orders
+    'production_orders' => 'Production Orders',
+    'order_number' => 'Order #',
+    'search_order_sku' => 'Search order # or SKU...',
+    'all_statuses' => 'All Statuses',
+    'draft' => 'Draft',
+    'in_progress' => 'In Progress',
+    'completed' => 'Completed',
+    'cancelled' => 'Cancelled',
+    'no_orders_found' => 'No orders found',
+    'tasks' => 'tasks',
+
+    // Priority
+    'urgent' => 'Urgent',
+    'high' => 'High',
+    'normal' => 'Normal',
+    'low' => 'Low',
+
+    // Print Queue
+    'print_queue' => 'Print Queue',
+    'print_job' => 'Print Job',
+    'new_print_job' => 'New Print Job',
+    'printer' => 'Printer',
+    'print_time' => 'Print Time',
+    'pending' => 'Pending',
+    'printing' => 'Printing',
+    'printed' => 'Printed',
+    'failed' => 'Failed',
+
+    // Tasks
+    'task' => 'Task',
+    'task_name' => 'Task Name',
+    'assigned_to' => 'Assigned To',
+    'start_date' => 'Start Date',
+    'end_date' => 'End Date',
+    'due_date' => 'Due Date',
+
+    // Costing
+    'plan_cost' => 'Plan Cost',
+    'actual_cost' => 'Actual Cost',
+    'cost_comparison' => 'Cost Comparison',
+    'material_cost' => 'Material Cost',
+    'labor_cost' => 'Labor Cost',
+    'overhead_cost' => 'Overhead Cost',
+    'total_cost' => 'Total Cost',
+
+    // Audit
+    'audit_log' => 'Audit Log',
+    'all_users' => 'All Users',
+    'all_actions' => 'All Actions',
+    'all_tables' => 'All Tables',
+    'no_audit_entries' => 'No audit entries found.',
+    'action' => 'Action',
+    'table' => 'Table',
+    'record' => 'Record',
+    'ip_address' => 'IP',
+    'old_values' => 'Old Values',
+    'new_values' => 'New Values',
+
+    // Backups
+    'backups' => 'Backups',
+    'create_backup' => 'Create Backup',
+    'restore_backup' => 'Restore Backup',
+    'backup_file' => 'Backup File',
+    'backup_size' => 'Size',
+    'backup_date' => 'Date',
+
+    // Diagnostics
+    'diagnostics' => 'Diagnostics',
+    'system_info' => 'System Information',
+    'php_version' => 'PHP Version',
+    'database_status' => 'Database Status',
+    'disk_space' => 'Disk Space',
+    'memory_usage' => 'Memory Usage',
+    'run_migrations' => 'Run Migrations',
+    'pending_migrations' => 'Pending Migrations',
+
+    // Roles
+    'role' => 'Role',
+    'new_role' => 'New Role',
+    'create_role' => 'Create Role',
+    'edit_role' => 'Edit Role',
+    'permissions' => 'Permissions',
+    'role_name' => 'Role Name',
+
+    // Error Pages
+    'page_not_found' => 'Page Not Found',
+    'page_not_found_message' => 'The page you are looking for doesn\'t exist or has been moved.',
+    'go_to_dashboard' => 'Go to Dashboard',
+    'go_back' => 'Go Back',
+    'access_forbidden' => 'Access Forbidden',
+    'access_forbidden_message' => 'You don\'t have permission to access this page.',
+
+    // Pagination
+    'page_of' => 'Page :current of :total',
+    'showing_results' => ':count :items',
+
+    // Form placeholders
+    'placeholder_email' => 'your@email.com',
+    'placeholder_sku' => 'e.g., PLA-BLK-001',
+    'placeholder_name' => 'Item name',
+    'placeholder_color' => 'e.g., Black, White',
+    'placeholder_diameter' => 'e.g., 1.75mm',
+    'placeholder_brand' => 'e.g., Polymaker',
+
+    // Misc
+    'back_to' => 'Back to :name',
+    'leave_blank_keep' => 'leave blank to keep current',
 ];
