@@ -165,7 +165,26 @@ class View
      */
     public function url(string $path = ''): string
     {
-        $base = rtrim($this->app->config('app_url', ''), '/');
+        $base = rtrim((string)$this->app->config('app_url', ''), '/');
+        if ($base === '' || str_contains($base, 'localhost') || str_contains($base, '127.0.0.1')) {
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            if ($host !== '') {
+                $scheme = 'http';
+                if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+                    $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+                } elseif (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+                    $scheme = 'https';
+                }
+                $base = $scheme . '://' . $host;
+            } else {
+                $base = '';
+            }
+        }
+
+        if ($base === '') {
+            return '/' . ltrim($path, '/');
+        }
+
         return $base . '/' . ltrim($path, '/');
     }
 
