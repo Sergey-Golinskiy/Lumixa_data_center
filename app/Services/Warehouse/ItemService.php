@@ -139,7 +139,7 @@ class ItemService
     /**
      * Create item
      */
-    public function create(array $data, array $attributes = [], int $userId = null): array
+    public function create(array $data, array $attributes = [], ?int $userId = null): array
     {
         $this->db->beginTransaction();
 
@@ -191,7 +191,7 @@ class ItemService
     /**
      * Update item
      */
-    public function update(int $id, array $data, array $attributes = [], int $userId = null): void
+    public function update(int $id, array $data, array $attributes = [], ?int $userId = null): void
     {
         $old = $this->findById($id);
 
