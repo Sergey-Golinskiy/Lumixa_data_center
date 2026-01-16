@@ -13,11 +13,24 @@ CREATE TABLE IF NOT EXISTS product_categories (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ALTER TABLE products
-    ADD COLUMN category_id INT UNSIGNED NULL AFTER description,
-    ADD INDEX idx_category_id (category_id),
-    ADD CONSTRAINT fk_products_category_id
-        FOREIGN KEY (category_id) REFERENCES product_categories(id)
-        ON DELETE SET NULL;
+    ADD COLUMN IF NOT EXISTS category_id INT UNSIGNED NULL AFTER description,
+    ADD INDEX IF NOT EXISTS idx_category_id (category_id);
+
+SET @fk_exists := (
+    SELECT COUNT(*) FROM information_schema.table_constraints
+    WHERE constraint_schema = DATABASE()
+      AND table_name = 'products'
+      AND constraint_name = 'fk_products_category_id'
+      AND constraint_type = 'FOREIGN KEY'
+);
+SET @fk_sql := IF(
+    @fk_exists = 0,
+    'ALTER TABLE products ADD CONSTRAINT fk_products_category_id FOREIGN KEY (category_id) REFERENCES product_categories(id) ON DELETE SET NULL',
+    'SELECT 1'
+);
+PREPARE fk_stmt FROM @fk_sql;
+EXECUTE fk_stmt;
+DEALLOCATE PREPARE fk_stmt;
 
 INSERT INTO product_categories (name, is_active)
 SELECT DISTINCT category, 1
