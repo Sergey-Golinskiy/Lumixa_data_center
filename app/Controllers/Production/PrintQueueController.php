@@ -54,7 +54,7 @@ class PrintQueueController extends Controller
         $printers = $this->db()->fetchAll("SELECT DISTINCT printer FROM print_queue WHERE printer IS NOT NULL ORDER BY printer");
 
         $this->render('production/print-queue/index', [
-            'title' => 'Print Queue',
+            'title' => $this->app->getTranslator()->get('print_queue'),
             'jobs' => $jobs,
             'printers' => $printers,
             'status' => $status,
@@ -90,7 +90,7 @@ class PrintQueueController extends Controller
         $printers = $this->db()->fetchAll("SELECT * FROM printers WHERE is_active = 1 ORDER BY code");
 
         $this->render('production/print-queue/show', [
-            'title' => "Print Job: {$job['job_number']}",
+            'title' => $this->app->getTranslator()->get('print_job_title', ['number' => $job['job_number']]),
             'job' => $job,
             'printers' => $printers
         ]);
@@ -118,7 +118,7 @@ class PrintQueueController extends Controller
         $printers = $this->db()->fetchAll("SELECT * FROM printers WHERE is_active = 1 ORDER BY code");
 
         $this->render('production/print-queue/form', [
-            'title' => 'Create Print Job',
+            'title' => $this->app->getTranslator()->get('create_print_job'),
             'job' => null,
             'variants' => $variants,
             'orders' => $orders,

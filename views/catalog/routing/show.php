@@ -1,35 +1,35 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/catalog/routing" class="btn btn-secondary">&laquo; Back to Routings</a>
-    <a href="/catalog/variants/<?= $routing['variant_id'] ?>" class="btn btn-outline">View Variant</a>
+    <a href="/catalog/routing" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('routing')]) ?></a>
+    <a href="/catalog/variants/<?= $routing['variant_id'] ?>" class="btn btn-outline"><?= $this->__('view_variant') ?></a>
     <?php if ($routing['status'] === 'draft' && $this->can('catalog.routing.edit')): ?>
-    <a href="/catalog/routing/<?= $routing['id'] ?>/edit" class="btn btn-outline">Edit</a>
+    <a href="/catalog/routing/<?= $routing['id'] ?>/edit" class="btn btn-outline"><?= $this->__('edit') ?></a>
     <?php endif; ?>
 </div>
 
 <div class="detail-grid">
     <!-- Routing Info -->
     <div class="card">
-        <div class="card-header">Routing Information</div>
+        <div class="card-header"><?= $this->__('routing_information') ?></div>
         <div class="card-body">
             <div class="detail-row">
-                <span class="detail-label">Variant</span>
+                <span class="detail-label"><?= $this->__('variant') ?></span>
                 <span class="detail-value">
                     <a href="/catalog/variants/<?= $routing['variant_id'] ?>"><?= $this->e($routing['variant_sku']) ?></a>
                     <br><small class="text-muted"><?= $this->e($routing['variant_name']) ?></small>
                 </span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Version</span>
+                <span class="detail-label"><?= $this->__('version') ?></span>
                 <span class="detail-value"><strong><?= $this->e($routing['version']) ?></strong></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Name</span>
+                <span class="detail-label"><?= $this->__('name') ?></span>
                 <span class="detail-value"><?= $this->e($routing['name'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Status</span>
+                <span class="detail-label"><?= $this->__('status') ?></span>
                 <span class="detail-value">
                     <?php
                     $statusClass = match($routing['status']) {
@@ -38,21 +38,26 @@
                         'archived' => 'secondary',
                         default => 'secondary'
                     };
+                    $statusLabels = [
+                        'draft' => $this->__('draft'),
+                        'active' => $this->__('active'),
+                        'archived' => $this->__('archived')
+                    ];
                     ?>
-                    <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($routing['status']) ?></span>
+                    <span class="badge badge-<?= $statusClass ?>"><?= $statusLabels[$routing['status']] ?? $this->e($routing['status']) ?></span>
                 </span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Effective Date</span>
+                <span class="detail-label"><?= $this->__('effective_date') ?></span>
                 <span class="detail-value"><?= $routing['effective_date'] ? $this->date($routing['effective_date'], 'Y-m-d') : '-' ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Created By</span>
+                <span class="detail-label"><?= $this->__('created_by') ?></span>
                 <span class="detail-value"><?= $this->e($routing['created_by_name'] ?? '-') ?></span>
             </div>
             <?php if ($routing['notes']): ?>
             <div class="detail-row">
-                <span class="detail-label">Notes</span>
+                <span class="detail-label"><?= $this->__('notes') ?></span>
                 <span class="detail-value"><?= nl2br($this->e($routing['notes'])) ?></span>
             </div>
             <?php endif; ?>
@@ -61,30 +66,30 @@
 
     <!-- Actions -->
     <div class="card">
-        <div class="card-header">Actions</div>
+        <div class="card-header"><?= $this->__('actions') ?></div>
         <div class="card-body">
             <?php if ($routing['status'] === 'draft'): ?>
-            <p>This routing is in draft status.</p>
+            <p><?= $this->__('routing_in_draft') ?></p>
             <?php if ($this->can('catalog.routing.activate')): ?>
             <form method="POST" action="/catalog/routing/<?= $routing['id'] ?>/activate" style="margin-bottom: 10px;">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                <button type="submit" class="btn btn-success" onclick="return confirm('Activate this routing?')">Activate</button>
+                <button type="submit" class="btn btn-success" onclick="return confirm('<?= $this->__('activate_routing_confirm') ?>')"><?= $this->__('activate') ?></button>
             </form>
             <?php endif; ?>
             <?php elseif ($routing['status'] === 'active'): ?>
-            <p>This routing is currently active.</p>
+            <p><?= $this->__('routing_active') ?></p>
             <?php if ($this->can('catalog.routing.edit')): ?>
             <form method="POST" action="/catalog/routing/<?= $routing['id'] ?>/archive">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                <button type="submit" class="btn btn-warning" onclick="return confirm('Archive this routing?')">Archive</button>
+                <button type="submit" class="btn btn-warning" onclick="return confirm('<?= $this->__('archive_routing_confirm') ?>')"><?= $this->__('archive') ?></button>
             </form>
             <?php endif; ?>
             <?php else: ?>
-            <p>This routing is archived.</p>
+            <p><?= $this->__('routing_archived') ?></p>
             <?php if ($this->can('catalog.routing.activate')): ?>
             <form method="POST" action="/catalog/routing/<?= $routing['id'] ?>/activate">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                <button type="submit" class="btn btn-success" onclick="return confirm('Re-activate this routing?')">Re-Activate</button>
+                <button type="submit" class="btn btn-success" onclick="return confirm('<?= $this->__('reactivate_routing_confirm') ?>')"><?= $this->__('reactivate') ?></button>
             </form>
             <?php endif; ?>
             <?php endif; ?>
@@ -94,20 +99,20 @@
 
 <!-- Operations -->
 <div class="card" style="margin-top: 20px;">
-    <div class="card-header">Operations</div>
+    <div class="card-header"><?= $this->__('operations') ?></div>
     <div class="card-body">
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
-                        <th>Op #</th>
-                        <th>Operation</th>
-                        <th>Work Center</th>
-                        <th class="text-right">Setup (min)</th>
-                        <th class="text-right">Run (min)</th>
-                        <th class="text-right">Labor Cost</th>
-                        <th class="text-right">Overhead</th>
-                        <th class="text-right">Total</th>
+                        <th><?= $this->__('operation_number') ?></th>
+                        <th><?= $this->__('operation') ?></th>
+                        <th><?= $this->__('work_center') ?></th>
+                        <th class="text-right"><?= $this->__('setup_minutes') ?></th>
+                        <th class="text-right"><?= $this->__('run_minutes') ?></th>
+                        <th class="text-right"><?= $this->__('labor_cost') ?></th>
+                        <th class="text-right"><?= $this->__('overhead') ?></th>
+                        <th class="text-right"><?= $this->__('total') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,7 +143,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>Totals:</strong></td>
+                        <td colspan="3" class="text-right"><strong><?= $this->__('totals') ?>:</strong></td>
                         <td class="text-right"><strong><?= number_format($totalSetup) ?></strong></td>
                         <td class="text-right"><strong><?= number_format($totalRun) ?></strong></td>
                         <td class="text-right"><strong><?= number_format($totalLabor, 2) ?></strong></td>

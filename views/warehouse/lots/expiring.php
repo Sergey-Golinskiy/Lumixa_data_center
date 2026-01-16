@@ -1,9 +1,9 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Expiring Lots</h1>
+    <h1><?= $this->__('expiring_lots') ?></h1>
     <div class="page-actions">
-        <a href="/warehouse/lots" class="btn btn-secondary">&laquo; Back to Lots</a>
+        <a href="/warehouse/lots" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('lots')]) ?></a>
     </div>
 </div>
 
@@ -12,13 +12,13 @@
     <div class="card-body">
         <form method="GET" class="filter-form">
             <div class="filter-row">
-                <label>Show lots expiring within:</label>
+                <label><?= $this->__('expiring_lots') ?>:</label>
                 <select name="days" onchange="this.form.submit()">
-                    <option value="7" <?= $days == 7 ? 'selected' : '' ?>>7 days</option>
-                    <option value="14" <?= $days == 14 ? 'selected' : '' ?>>14 days</option>
-                    <option value="30" <?= $days == 30 ? 'selected' : '' ?>>30 days</option>
-                    <option value="60" <?= $days == 60 ? 'selected' : '' ?>>60 days</option>
-                    <option value="90" <?= $days == 90 ? 'selected' : '' ?>>90 days</option>
+                    <option value="7" <?= $days == 7 ? 'selected' : '' ?>>7 <?= $this->__('days') ?></option>
+                    <option value="14" <?= $days == 14 ? 'selected' : '' ?>>14 <?= $this->__('days') ?></option>
+                    <option value="30" <?= $days == 30 ? 'selected' : '' ?>>30 <?= $this->__('days') ?></option>
+                    <option value="60" <?= $days == 60 ? 'selected' : '' ?>>60 <?= $this->__('days') ?></option>
+                    <option value="90" <?= $days == 90 ? 'selected' : '' ?>>90 <?= $this->__('days') ?></option>
                 </select>
             </div>
         </form>
@@ -39,12 +39,12 @@ foreach ($lots as $lot) {
 
 <?php if ($expiredCount > 0 || $criticalCount > 0): ?>
 <div class="alert alert-danger" style="margin-bottom: 20px;">
-    <strong>Attention Required!</strong>
+    <strong><?= $this->__('attention_required') ?></strong>
     <?php if ($expiredCount > 0): ?>
-    <?= $expiredCount ?> lot(s) have already expired.
+    <?= $this->__('lots_already_expired', ['count' => $expiredCount]) ?>
     <?php endif; ?>
     <?php if ($criticalCount > 0): ?>
-    <?= $criticalCount ?> lot(s) will expire within 7 days.
+    <?= $this->__('lots_expire_within_days', ['count' => $criticalCount, 'days' => 7]) ?>
     <?php endif; ?>
 </div>
 <?php endif; ?>
@@ -56,20 +56,20 @@ foreach ($lots as $lot) {
             <table>
                 <thead>
                     <tr>
-                        <th>Status</th>
-                        <th>Lot #</th>
-                        <th>Item</th>
-                        <th>Expiry Date</th>
-                        <th>Days Left</th>
-                        <th>Stock Qty</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('lot_number') ?></th>
+                        <th><?= $this->__('items_list') ?></th>
+                        <th><?= $this->__('expiry_date') ?></th>
+                        <th><?= $this->__('days_left_label') ?></th>
+                        <th><?= $this->__('stock_qty') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($lots)): ?>
                     <tr>
                         <td colspan="7" class="text-center text-muted">
-                            No lots expiring within <?= $days ?> days
+                            <?= $this->__('no_lots_expiring_within', ['days' => $days]) ?>
                         </td>
                     </tr>
                     <?php else: ?>
@@ -78,13 +78,13 @@ foreach ($lots as $lot) {
                     $daysLeft = $lot['days_until_expiry'];
                     if ($daysLeft < 0) {
                         $rowClass = 'row-expired';
-                        $statusBadge = '<span class="badge badge-danger">EXPIRED</span>';
+                        $statusBadge = '<span class="badge badge-danger">' . $this->__('expired') . '</span>';
                     } elseif ($daysLeft <= 7) {
                         $rowClass = 'row-critical';
-                        $statusBadge = '<span class="badge badge-danger">Critical</span>';
+                        $statusBadge = '<span class="badge badge-danger">' . $this->__('critical') . '</span>';
                     } else {
                         $rowClass = 'row-warning';
-                        $statusBadge = '<span class="badge badge-warning">Warning</span>';
+                        $statusBadge = '<span class="badge badge-warning">' . $this->__('warning') . '</span>';
                     }
                     ?>
                     <tr class="<?= $rowClass ?>">
@@ -104,9 +104,9 @@ foreach ($lots as $lot) {
                         <td><?= $this->date($lot['expiry_date'], 'Y-m-d') ?></td>
                         <td>
                             <?php if ($daysLeft < 0): ?>
-                            <strong class="text-danger"><?= abs($daysLeft) ?> days ago</strong>
+                            <strong class="text-danger"><?= $this->__('days_ago', ['count' => abs($daysLeft)]) ?></strong>
                             <?php else: ?>
-                            <strong><?= $daysLeft ?> days</strong>
+                            <strong><?= $this->__('days_left', ['count' => $daysLeft]) ?></strong>
                             <?php endif; ?>
                         </td>
                         <td>
@@ -114,9 +114,9 @@ foreach ($lots as $lot) {
                             <?= $this->e($lot['unit']) ?>
                         </td>
                         <td>
-                            <a href="/warehouse/lots/<?= $lot['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/warehouse/lots/<?= $lot['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                             <?php if ($this->can('warehouse.lots.edit')): ?>
-                            <a href="/warehouse/lots/<?= $lot['id'] ?>/edit" class="btn btn-sm btn-outline">Edit</a>
+                            <a href="/warehouse/lots/<?= $lot['id'] ?>/edit" class="btn btn-sm btn-outline"><?= $this->__('edit') ?></a>
                             <?php endif; ?>
                         </td>
                     </tr>

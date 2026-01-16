@@ -1,39 +1,39 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/costing" class="btn btn-secondary">&laquo; Cost Analysis</a>
+    <a href="/costing" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('costing')]) ?></a>
 </div>
 
 <div class="filters" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px;">
     <form method="get" action="/costing/actual" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <label>From:</label>
+        <label><?= $this->__('from') ?>:</label>
         <input type="date" name="from" value="<?= h($dateFrom) ?>" class="form-control" style="width: 150px;">
-        <label>To:</label>
+        <label><?= $this->__('to') ?>:</label>
         <input type="date" name="to" value="<?= h($dateTo) ?>" class="form-control" style="width: 150px;">
-        <button type="submit" class="btn btn-secondary">Apply</button>
+        <button type="submit" class="btn btn-secondary"><?= $this->__('apply') ?></button>
     </form>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h4 style="margin: 0;">Actual Production Costs</h4>
+        <h4 style="margin: 0;"><?= $this->__('actual_production_costs') ?></h4>
     </div>
     <div class="card-body">
         <?php if (empty($orders)): ?>
-        <p class="text-muted">No completed orders in this period.</p>
+        <p class="text-muted"><?= $this->__('no_completed_orders_period') ?></p>
         <?php else: ?>
         <table class="table">
             <thead>
                 <tr>
-                    <th>Order</th>
-                    <th>Variant</th>
-                    <th style="text-align: right;">Qty</th>
-                    <th style="text-align: right;">Material</th>
-                    <th style="text-align: right;">Labor</th>
-                    <th style="text-align: right;">Actual Total</th>
-                    <th style="text-align: right;">Planned</th>
-                    <th style="text-align: right;">Variance</th>
-                    <th>Completed</th>
+                    <th><?= $this->__('order') ?></th>
+                    <th><?= $this->__('variant') ?></th>
+                    <th style="text-align: right;"><?= $this->__('quantity') ?></th>
+                    <th style="text-align: right;"><?= $this->__('material_cost') ?></th>
+                    <th style="text-align: right;"><?= $this->__('labor_cost') ?></th>
+                    <th style="text-align: right;"><?= $this->__('actual_total') ?></th>
+                    <th style="text-align: right;"><?= $this->__('planned') ?></th>
+                    <th style="text-align: right;"><?= $this->__('variance') ?></th>
+                    <th><?= $this->__('completed') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -49,11 +49,11 @@
                     <td style="text-align: right;"><?= number_format($order['completed_quantity'], 2) ?></td>
                     <td style="text-align: right;">
                         <?= number_format($order['actual_material_cost'], 2) ?>
-                        <small style="display: block; color: #666;"><?= (int)$order['material_count'] ?> items</small>
+                        <small style="display: block; color: #666;"><?= (int)$order['material_count'] ?> <?= $this->__('items') ?></small>
                     </td>
                     <td style="text-align: right;">
                         <?= number_format($order['actual_labor_cost'], 2) ?>
-                        <small style="display: block; color: #666;"><?= (int)$order['labor_minutes'] ?> min</small>
+                        <small style="display: block; color: #666;"><?= (int)$order['labor_minutes'] ?> <?= $this->__('minutes_short') ?></small>
                     </td>
                     <td style="text-align: right; font-weight: bold;"><?= number_format($order['actual_total'], 2) ?></td>
                     <td style="text-align: right;"><?= number_format($order['planned_total'], 2) ?></td>

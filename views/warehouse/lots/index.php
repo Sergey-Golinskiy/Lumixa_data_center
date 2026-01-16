@@ -1,12 +1,12 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Lots Management</h1>
+    <h1><?= $this->__('lots_management') ?></h1>
     <div class="page-actions">
         <?php if ($this->can('warehouse.lots.create')): ?>
-        <a href="/warehouse/lots/create" class="btn btn-primary">+ New Lot</a>
+        <a href="/warehouse/lots/create" class="btn btn-primary">+ <?= $this->__('new_lot') ?></a>
         <?php endif; ?>
-        <a href="/warehouse/lots/expiring" class="btn btn-warning">Expiring Lots</a>
+        <a href="/warehouse/lots/expiring" class="btn btn-warning"><?= $this->__('expiring_lots') ?></a>
     </div>
 </div>
 
@@ -16,12 +16,12 @@
         <form method="GET" class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
-                    <input type="text" name="search" placeholder="Search lot #, item..."
+                    <input type="text" name="search" placeholder="<?= $this->__('search_lot_item') ?>"
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
                     <select name="item_id">
-                        <option value="">All Items</option>
+                        <option value=""><?= $this->__('all_items') ?></option>
                         <?php foreach ($items as $item): ?>
                         <option value="<?= $item['id'] ?>" <?= $itemId == $item['id'] ? 'selected' : '' ?>>
                             <?= $this->e($item['sku']) ?> - <?= $this->e($item['name']) ?>
@@ -31,15 +31,15 @@
                 </div>
                 <div class="filter-group">
                     <select name="status">
-                        <option value="">All Statuses</option>
-                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
-                        <option value="quarantine" <?= $status === 'quarantine' ? 'selected' : '' ?>>Quarantine</option>
-                        <option value="blocked" <?= $status === 'blocked' ? 'selected' : '' ?>>Blocked</option>
-                        <option value="expired" <?= $status === 'expired' ? 'selected' : '' ?>>Expired</option>
+                        <option value=""><?= $this->__('all_statuses') ?></option>
+                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>><?= $this->__('active') ?></option>
+                        <option value="quarantine" <?= $status === 'quarantine' ? 'selected' : '' ?>><?= $this->__('quarantine') ?></option>
+                        <option value="blocked" <?= $status === 'blocked' ? 'selected' : '' ?>><?= $this->__('blocked') ?></option>
+                        <option value="expired" <?= $status === 'expired' ? 'selected' : '' ?>><?= $this->__('expired') ?></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/warehouse/lots" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/warehouse/lots" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -52,19 +52,19 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Lot #</th>
-                        <th>Item</th>
-                        <th>Status</th>
-                        <th>Manufacture Date</th>
-                        <th>Expiry Date</th>
-                        <th>Supplier Lot</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('lot_number') ?></th>
+                        <th><?= $this->__('items_list') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('manufacture_date') ?></th>
+                        <th><?= $this->__('expiry_date') ?></th>
+                        <th><?= $this->__('supplier_lot') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($lots)): ?>
                     <tr>
-                        <td colspan="7" class="text-center text-muted">No lots found</td>
+                        <td colspan="7" class="text-center text-muted"><?= $this->__('no_lots_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($lots as $lot): ?>
@@ -91,7 +91,15 @@
                                 default => 'secondary'
                             };
                             ?>
-                            <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($lot['status']) ?></span>
+                            <?php
+                            $statusLabels = [
+                                'active' => $this->__('active'),
+                                'quarantine' => $this->__('quarantine'),
+                                'blocked' => $this->__('blocked'),
+                                'expired' => $this->__('expired')
+                            ];
+                            ?>
+                            <span class="badge badge-<?= $statusClass ?>"><?= $statusLabels[$lot['status']] ?? $this->e($lot['status']) ?></span>
                         </td>
                         <td><?= $lot['manufacture_date'] ? $this->date($lot['manufacture_date'], 'Y-m-d') : '-' ?></td>
                         <td>
@@ -108,9 +116,9 @@
                                 <span class="<?= $expiryClass ?>">
                                     <?= $this->date($lot['expiry_date'], 'Y-m-d') ?>
                                     <?php if ($daysLeft < 0): ?>
-                                    <br><small>(Expired)</small>
+                                    <br><small>(<?= $this->__('expired') ?>)</small>
                                     <?php elseif ($daysLeft <= 30): ?>
-                                    <br><small>(<?= $daysLeft ?> days left)</small>
+                                    <br><small>(<?= $this->__('days_left', ['count' => $daysLeft]) ?>)</small>
                                     <?php endif; ?>
                                 </span>
                             <?php else: ?>
@@ -119,9 +127,9 @@
                         </td>
                         <td><?= $this->e($lot['supplier_lot'] ?? '-') ?></td>
                         <td>
-                            <a href="/warehouse/lots/<?= $lot['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/warehouse/lots/<?= $lot['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                             <?php if ($this->can('warehouse.lots.edit')): ?>
-                            <a href="/warehouse/lots/<?= $lot['id'] ?>/edit" class="btn btn-sm btn-outline">Edit</a>
+                            <a href="/warehouse/lots/<?= $lot['id'] ?>/edit" class="btn btn-sm btn-outline"><?= $this->__('edit') ?></a>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -135,13 +143,16 @@
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; Previous</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; <?= $this->__('previous') ?></a>
             <?php endif; ?>
 
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?> (<?= $total ?> total)</span>
+            <span class="pagination-info">
+                <?= $this->__('page_of', ['current' => $page, 'total' => $totalPages]) ?>
+                (<?= $this->e($total) ?> <?= $this->__('total') ?>)
+            </span>
 
             <?php if ($page < $totalPages): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline">Next &raquo;</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline"><?= $this->__('next') ?> &raquo;</a>
             <?php endif; ?>
         </div>
         <?php endif; ?>

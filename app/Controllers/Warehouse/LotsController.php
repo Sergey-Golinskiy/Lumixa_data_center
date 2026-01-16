@@ -67,9 +67,10 @@ class LotsController extends Controller
 
         // Get items for filter
         $items = $this->db()->fetchAll("SELECT id, sku, name FROM items WHERE is_active = 1 ORDER BY sku");
+        $translator = $this->app->getTranslator();
 
         $this->render('warehouse/lots/index', [
-            'title' => 'Lots Management',
+            'title' => $translator->get('lots_management'),
             'lots' => $lots,
             'items' => $items,
             'search' => $search,
@@ -117,9 +118,10 @@ class LotsController extends Controller
             "SELECT * FROM stock_balances WHERE lot_id = ?",
             [$id]
         );
+        $translator = $this->app->getTranslator();
 
         $this->render('warehouse/lots/show', [
-            'title' => "Lot: {$lot['lot_number']}",
+            'title' => $translator->get('lot_title', ['number' => $lot['lot_number']]),
             'lot' => $lot,
             'movements' => $movements,
             'stockBalance' => $stockBalance
@@ -136,9 +138,10 @@ class LotsController extends Controller
         $items = $this->db()->fetchAll(
             "SELECT id, sku, name, unit FROM items WHERE is_active = 1 AND track_lots = 1 ORDER BY sku"
         );
+        $translator = $this->app->getTranslator();
 
         $this->render('warehouse/lots/form', [
-            'title' => 'Create Lot',
+            'title' => $translator->get('create_lot'),
             'lot' => null,
             'items' => $items
         ]);
@@ -165,11 +168,11 @@ class LotsController extends Controller
         $errors = [];
 
         if (empty($data['item_id'])) {
-            $errors['item_id'] = 'Item is required';
+            $errors['item_id'] = $this->app->getTranslator()->get('item_required');
         }
 
         if (empty($data['lot_number'])) {
-            $errors['lot_number'] = 'Lot number is required';
+            $errors['lot_number'] = $this->app->getTranslator()->get('lot_number_required');
         } else {
             // Check uniqueness per item
             $exists = $this->db()->fetch(
@@ -177,13 +180,13 @@ class LotsController extends Controller
                 [$data['item_id'], $data['lot_number']]
             );
             if ($exists) {
-                $errors['lot_number'] = 'Lot number already exists for this item';
+                $errors['lot_number'] = $this->app->getTranslator()->get('lot_number_exists');
             }
         }
 
         if ($data['expiry_date'] && $data['manufacture_date']) {
             if ($data['expiry_date'] < $data['manufacture_date']) {
-                $errors['expiry_date'] = 'Expiry date cannot be before manufacture date';
+                $errors['expiry_date'] = $this->app->getTranslator()->get('expiry_before_manufacture');
             }
         }
 
@@ -197,7 +200,7 @@ class LotsController extends Controller
         // Check if item tracks lots
         $item = $this->db()->fetch("SELECT track_lots FROM items WHERE id = ?", [$data['item_id']]);
         if (!$item || !$item['track_lots']) {
-            $this->session->setFlash('error', 'Selected item does not track lots');
+            $this->session->setFlash('error', $this->app->getTranslator()->get('item_no_lot_tracking'));
             $this->redirect('/warehouse/lots/create');
             return;
         }
@@ -215,7 +218,7 @@ class LotsController extends Controller
         ]);
 
         $this->audit('lot.created', 'lots', $id, null, $data);
-        $this->session->setFlash('success', 'Lot created successfully');
+        $this->session->setFlash('success', $this->app->getTranslator()->get('lot_created_success'));
         $this->redirect("/warehouse/lots/{$id}");
     }
 
@@ -241,9 +244,10 @@ class LotsController extends Controller
         $items = $this->db()->fetchAll(
             "SELECT id, sku, name, unit FROM items WHERE is_active = 1 AND track_lots = 1 ORDER BY sku"
         );
+        $translator = $this->app->getTranslator();
 
         $this->render('warehouse/lots/form', [
-            'title' => "Edit Lot: {$lot['lot_number']}",
+            'title' => $translator->get('edit_lot_title', ['number' => $lot['lot_number']]),
             'lot' => $lot,
             'items' => $items
         ]);
@@ -275,7 +279,7 @@ class LotsController extends Controller
         $errors = [];
 
         if (empty($data['lot_number'])) {
-            $errors['lot_number'] = 'Lot number is required';
+            $errors['lot_number'] = $this->app->getTranslator()->get('lot_number_required');
         } else {
             // Check uniqueness per item
             $exists = $this->db()->fetch(
@@ -283,18 +287,18 @@ class LotsController extends Controller
                 [$lot['item_id'], $data['lot_number'], $id]
             );
             if ($exists) {
-                $errors['lot_number'] = 'Lot number already exists for this item';
+                $errors['lot_number'] = $this->app->getTranslator()->get('lot_number_exists');
             }
         }
 
         if ($data['expiry_date'] && $data['manufacture_date']) {
             if ($data['expiry_date'] < $data['manufacture_date']) {
-                $errors['expiry_date'] = 'Expiry date cannot be before manufacture date';
+                $errors['expiry_date'] = $this->app->getTranslator()->get('expiry_before_manufacture');
             }
         }
 
         if (!in_array($data['status'], ['active', 'quarantine', 'blocked', 'expired'])) {
-            $errors['status'] = 'Invalid status';
+            $errors['status'] = $this->app->getTranslator()->get('invalid_status');
         }
 
         if ($errors) {
@@ -316,7 +320,7 @@ class LotsController extends Controller
         ], ['id' => $id]);
 
         $this->audit('lot.updated', 'lots', $id, $lot, $data);
-        $this->session->setFlash('success', 'Lot updated successfully');
+        $this->session->setFlash('success', $this->app->getTranslator()->get('lot_updated_success'));
         $this->redirect("/warehouse/lots/{$id}");
     }
 
@@ -337,7 +341,7 @@ class LotsController extends Controller
         $reason = trim($_POST['reason'] ?? '');
 
         if (!in_array($status, ['active', 'quarantine', 'blocked', 'expired'])) {
-            $this->session->setFlash('error', 'Invalid status');
+            $this->session->setFlash('error', $this->app->getTranslator()->get('invalid_status'));
             $this->redirect("/warehouse/lots/{$id}");
             return;
         }
@@ -355,7 +359,8 @@ class LotsController extends Controller
         ], ['id' => $id]);
 
         $this->audit('lot.status_changed', 'lots', $id, ['status' => $oldStatus], ['status' => $status, 'reason' => $reason]);
-        $this->session->setFlash('success', "Lot status changed to {$status}");
+        $statusLabel = $this->app->getTranslator()->get($status);
+        $this->session->setFlash('success', $this->app->getTranslator()->get('lot_status_changed', ['status' => $statusLabel]));
         $this->redirect("/warehouse/lots/{$id}");
     }
 
@@ -381,9 +386,10 @@ class LotsController extends Controller
              ORDER BY l.expiry_date ASC",
             [$days]
         );
+        $translator = $this->app->getTranslator();
 
         $this->render('warehouse/lots/expiring', [
-            'title' => 'Expiring Lots',
+            'title' => $translator->get('expiring_lots'),
             'lots' => $lots,
             'days' => $days
         ]);

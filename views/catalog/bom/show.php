@@ -1,20 +1,20 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/catalog/bom" class="btn btn-secondary">&laquo; Back to BOMs</a>
-    <a href="/catalog/variants/<?= $bom['variant_id'] ?>" class="btn btn-outline">View Variant</a>
+    <a href="/catalog/bom" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('bom_list')]) ?></a>
+    <a href="/catalog/variants/<?= $bom['variant_id'] ?>" class="btn btn-outline"><?= $this->__('view_variant') ?></a>
     <?php if ($bom['status'] === 'draft' && $this->can('catalog.bom.edit')): ?>
-    <a href="/catalog/bom/<?= $bom['id'] ?>/edit" class="btn btn-outline">Edit</a>
+    <a href="/catalog/bom/<?= $bom['id'] ?>/edit" class="btn btn-outline"><?= $this->__('edit') ?></a>
     <?php endif; ?>
 </div>
 
 <div class="detail-grid">
     <!-- BOM Information -->
     <div class="card">
-        <div class="card-header">BOM Information</div>
+        <div class="card-header"><?= $this->__('bom_information') ?></div>
         <div class="card-body">
             <div class="detail-row">
-                <span class="detail-label">Variant</span>
+                <span class="detail-label"><?= $this->__('variant') ?></span>
                 <span class="detail-value">
                     <a href="/catalog/variants/<?= $bom['variant_id'] ?>">
                         <?= $this->e($bom['variant_sku']) ?>
@@ -23,15 +23,15 @@
                 </span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Version</span>
+                <span class="detail-label"><?= $this->__('version') ?></span>
                 <span class="detail-value"><strong><?= $this->e($bom['version']) ?></strong></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Name</span>
+                <span class="detail-label"><?= $this->__('name') ?></span>
                 <span class="detail-value"><?= $this->e($bom['name'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Status</span>
+                <span class="detail-label"><?= $this->__('status') ?></span>
                 <span class="detail-value">
                     <?php
                     $statusClass = match($bom['status']) {
@@ -40,25 +40,30 @@
                         'archived' => 'secondary',
                         default => 'secondary'
                     };
+                    $statusLabels = [
+                        'draft' => $this->__('draft'),
+                        'active' => $this->__('active'),
+                        'archived' => $this->__('archived')
+                    ];
                     ?>
-                    <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($bom['status']) ?></span>
+                    <span class="badge badge-<?= $statusClass ?>"><?= $statusLabels[$bom['status']] ?? $this->e($bom['status']) ?></span>
                 </span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Effective Date</span>
+                <span class="detail-label"><?= $this->__('effective_date') ?></span>
                 <span class="detail-value"><?= $bom['effective_date'] ? $this->date($bom['effective_date'], 'Y-m-d') : '-' ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Created By</span>
+                <span class="detail-label"><?= $this->__('created_by') ?></span>
                 <span class="detail-value"><?= $this->e($bom['created_by_name'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Created At</span>
+                <span class="detail-label"><?= $this->__('created_at') ?></span>
                 <span class="detail-value"><?= $this->datetime($bom['created_at']) ?></span>
             </div>
             <?php if ($bom['notes']): ?>
             <div class="detail-row">
-                <span class="detail-label">Notes</span>
+                <span class="detail-label"><?= $this->__('notes') ?></span>
                 <span class="detail-value"><?= nl2br($this->e($bom['notes'])) ?></span>
             </div>
             <?php endif; ?>
@@ -67,35 +72,35 @@
 
     <!-- Actions -->
     <div class="card">
-        <div class="card-header">Actions</div>
+        <div class="card-header"><?= $this->__('actions') ?></div>
         <div class="card-body">
             <?php if ($bom['status'] === 'draft'): ?>
-            <p>This BOM is in draft status. When ready, activate it to use in production.</p>
+            <p><?= $this->__('bom_draft_message') ?></p>
             <?php if ($this->can('catalog.bom.activate')): ?>
             <form method="POST" action="/catalog/bom/<?= $bom['id'] ?>/activate" style="margin-bottom: 10px;">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                <button type="submit" class="btn btn-success" onclick="return confirm('Activate this BOM? This will archive any currently active BOM for this variant.')">
-                    Activate BOM
+                <button type="submit" class="btn btn-success" onclick="return confirm('<?= $this->__('activate_bom_confirm') ?>')">
+                    <?= $this->__('activate_bom') ?>
                 </button>
             </form>
             <?php endif; ?>
             <?php elseif ($bom['status'] === 'active'): ?>
-            <p>This BOM is currently active and used for production costing.</p>
+            <p><?= $this->__('bom_active_message') ?></p>
             <?php if ($this->can('catalog.bom.edit')): ?>
             <form method="POST" action="/catalog/bom/<?= $bom['id'] ?>/archive">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                <button type="submit" class="btn btn-warning" onclick="return confirm('Archive this BOM?')">
-                    Archive BOM
+                <button type="submit" class="btn btn-warning" onclick="return confirm('<?= $this->__('archive_bom_confirm') ?>')">
+                    <?= $this->__('archive_bom') ?>
                 </button>
             </form>
             <?php endif; ?>
             <?php else: ?>
-            <p>This BOM is archived and no longer in use.</p>
+            <p><?= $this->__('bom_archived_message') ?></p>
             <?php if ($this->can('catalog.bom.activate')): ?>
             <form method="POST" action="/catalog/bom/<?= $bom['id'] ?>/activate">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                <button type="submit" class="btn btn-success" onclick="return confirm('Re-activate this BOM?')">
-                    Re-Activate
+                <button type="submit" class="btn btn-success" onclick="return confirm('<?= $this->__('reactivate_bom_confirm') ?>')">
+                    <?= $this->__('reactivate') ?>
                 </button>
             </form>
             <?php endif; ?>
@@ -106,27 +111,27 @@
 
 <!-- Materials -->
 <div class="card" style="margin-top: 20px;">
-    <div class="card-header">Materials</div>
+    <div class="card-header"><?= $this->__('materials') ?></div>
     <div class="card-body">
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Item</th>
-                        <th>Name</th>
-                        <th class="text-right">Quantity</th>
-                        <th>Unit</th>
-                        <th class="text-right">Unit Cost</th>
-                        <th class="text-right">Waste %</th>
-                        <th class="text-right">Total Cost</th>
-                        <th>Notes</th>
+                        <th><?= $this->__('item') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th class="text-right"><?= $this->__('quantity') ?></th>
+                        <th><?= $this->__('unit') ?></th>
+                        <th class="text-right"><?= $this->__('unit_cost') ?></th>
+                        <th class="text-right"><?= $this->__('waste_percent') ?></th>
+                        <th class="text-right"><?= $this->__('total_cost') ?></th>
+                        <th><?= $this->__('notes') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($lines)): ?>
                     <tr>
-                        <td colspan="9" class="text-center text-muted">No materials defined</td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_materials_defined') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php $totalCost = 0; foreach ($lines as $i => $line): ?>
@@ -151,7 +156,7 @@
                 <?php if (!empty($lines)): ?>
                 <tfoot>
                     <tr>
-                        <td colspan="7" class="text-right"><strong>Total Material Cost:</strong></td>
+                        <td colspan="7" class="text-right"><strong><?= $this->__('total_material_cost') ?>:</strong></td>
                         <td class="text-right"><strong><?= number_format($totalCost, 2) ?></strong></td>
                         <td></td>
                     </tr>

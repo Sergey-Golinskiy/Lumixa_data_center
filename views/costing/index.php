@@ -1,44 +1,44 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/costing/plan" class="btn btn-primary">Planned Costs</a>
-    <a href="/costing/actual" class="btn btn-secondary">Actual Costs</a>
-    <a href="/costing/compare" class="btn btn-outline">Plan vs Actual</a>
+    <a href="/costing/plan" class="btn btn-primary"><?= $this->__('planned_costs') ?></a>
+    <a href="/costing/actual" class="btn btn-secondary"><?= $this->__('actual_costs') ?></a>
+    <a href="/costing/compare" class="btn btn-outline"><?= $this->__('plan_vs_actual') ?></a>
 </div>
 
 <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
     <div class="stat-card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
         <div style="font-size: 2em; font-weight: bold; color: #007bff;"><?= (int)$totalVariants ?></div>
-        <div style="color: #666;">Active Variants</div>
+        <div style="color: #666;"><?= $this->__('active_variants') ?></div>
     </div>
     <div class="stat-card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
         <div style="font-size: 2em; font-weight: bold; color: #28a745;"><?= (int)$variantsWithCost ?></div>
-        <div style="color: #666;">With Calculated Costs</div>
+        <div style="color: #666;"><?= $this->__('with_calculated_costs') ?></div>
     </div>
     <div class="stat-card" style="padding: 20px; background: #f8f9fa; border-radius: 8px; text-align: center;">
         <div style="font-size: 2em; font-weight: bold; color: #17a2b8;"><?= (int)$completedOrders ?></div>
-        <div style="color: #666;">Completed Orders</div>
+        <div style="color: #666;"><?= $this->__('completed_orders') ?></div>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h4 style="margin: 0;">Recent Cost Variances</h4>
+        <h4 style="margin: 0;"><?= $this->__('recent_cost_variances') ?></h4>
     </div>
     <div class="card-body">
         <?php if (empty($recentVariances)): ?>
-        <p class="text-muted">No completed production orders yet.</p>
+        <p class="text-muted"><?= $this->__('no_completed_orders') ?></p>
         <?php else: ?>
         <table class="table">
             <thead>
                 <tr>
-                    <th>Order</th>
-                    <th>Variant</th>
-                    <th>Qty</th>
-                    <th style="text-align: right;">Planned</th>
-                    <th style="text-align: right;">Actual</th>
-                    <th style="text-align: right;">Variance</th>
-                    <th>Completed</th>
+                    <th><?= $this->__('order') ?></th>
+                    <th><?= $this->__('variant') ?></th>
+                    <th><?= $this->__('quantity') ?></th>
+                    <th style="text-align: right;"><?= $this->__('planned') ?></th>
+                    <th style="text-align: right;"><?= $this->__('actual_cost') ?></th>
+                    <th style="text-align: right;"><?= $this->__('variance') ?></th>
+                    <th><?= $this->__('completed') ?></th>
                 </tr>
             </thead>
             <tbody>
