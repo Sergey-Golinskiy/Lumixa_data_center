@@ -337,6 +337,18 @@ class Database
     }
 
     /**
+     * Check if column exists
+     */
+    public function columnExists(string $table, string $column): bool
+    {
+        $dbName = $this->config['db_name'] ?? '';
+        $sql = "SELECT COUNT(*) FROM information_schema.columns
+                WHERE table_schema = ? AND table_name = ? AND column_name = ?";
+        $result = $this->fetchColumn($sql, [$dbName, $table, $column]);
+        return (int)$result > 0;
+    }
+
+    /**
      * Get all tables
      */
     public function getTables(): array

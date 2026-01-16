@@ -135,9 +135,13 @@ class LotsController extends Controller
     {
         $this->requirePermission('warehouse.lots.create');
 
-        $items = $this->db()->fetchAll(
-            "SELECT id, sku, name, unit FROM items WHERE is_active = 1 AND track_lots = 1 ORDER BY sku"
-        );
+        $trackLotsEnabled = $this->db()->columnExists('items', 'track_lots');
+        $itemsQuery = "SELECT id, sku, name, unit FROM items WHERE is_active = 1";
+        if ($trackLotsEnabled) {
+            $itemsQuery .= " AND track_lots = 1";
+        }
+        $itemsQuery .= " ORDER BY sku";
+        $items = $this->db()->fetchAll($itemsQuery);
         $translator = $this->app->getTranslator();
 
         $this->render('warehouse/lots/form', [
@@ -198,11 +202,14 @@ class LotsController extends Controller
         }
 
         // Check if item tracks lots
-        $item = $this->db()->fetch("SELECT track_lots FROM items WHERE id = ?", [$data['item_id']]);
-        if (!$item || !$item['track_lots']) {
-            $this->session->setFlash('error', $this->app->getTranslator()->get('item_no_lot_tracking'));
-            $this->redirect('/warehouse/lots/create');
-            return;
+        $trackLotsEnabled = $this->db()->columnExists('items', 'track_lots');
+        if ($trackLotsEnabled) {
+            $item = $this->db()->fetch("SELECT track_lots FROM items WHERE id = ?", [$data['item_id']]);
+            if (!$item || !$item['track_lots']) {
+                $this->session->setFlash('error', $this->app->getTranslator()->get('item_no_lot_tracking'));
+                $this->redirect('/warehouse/lots/create');
+                return;
+            }
         }
 
         // Create lot
@@ -241,9 +248,13 @@ class LotsController extends Controller
             $this->notFound();
         }
 
-        $items = $this->db()->fetchAll(
-            "SELECT id, sku, name, unit FROM items WHERE is_active = 1 AND track_lots = 1 ORDER BY sku"
-        );
+        $trackLotsEnabled = $this->db()->columnExists('items', 'track_lots');
+        $itemsQuery = "SELECT id, sku, name, unit FROM items WHERE is_active = 1";
+        if ($trackLotsEnabled) {
+            $itemsQuery .= " AND track_lots = 1";
+        }
+        $itemsQuery .= " ORDER BY sku";
+        $items = $this->db()->fetchAll($itemsQuery);
         $translator = $this->app->getTranslator();
 
         $this->render('warehouse/lots/form', [
