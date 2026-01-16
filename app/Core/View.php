@@ -273,6 +273,14 @@ class View
     }
 
     /**
+     * Format datetime (alias for date)
+     */
+    public function datetime($date, string $format = 'Y-m-d H:i'): string
+    {
+        return $this->date($date, $format);
+    }
+
+    /**
      * Format number
      */
     public function number($value, int $decimals = 2): string
