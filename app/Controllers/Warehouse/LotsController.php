@@ -376,7 +376,7 @@ class LotsController extends Controller
         $lots = $this->db()->fetchAll(
             "SELECT l.*, i.sku, i.name as item_name, i.unit,
                     DATEDIFF(l.expiry_date, CURDATE()) as days_until_expiry,
-                    sb.quantity as stock_quantity
+                    COALESCE(sb.on_hand, 0) as stock_quantity
              FROM lots l
              JOIN items i ON l.item_id = i.id
              LEFT JOIN stock_balances sb ON l.id = sb.lot_id

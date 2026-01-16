@@ -35,6 +35,9 @@ abstract class Controller
      */
     protected function view(string $template, array $data = []): void
     {
+        if (!array_key_exists('csrfToken', $data)) {
+            $data['csrfToken'] = $this->csrfToken();
+        }
         echo $this->view->render($template, $data);
     }
 
