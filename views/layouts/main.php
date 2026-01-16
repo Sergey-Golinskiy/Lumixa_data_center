@@ -96,6 +96,9 @@
                             <li><a href="/admin/users" class="nav-link"><?= $this->__('nav_users') ?></a></li>
                             <li><a href="/admin/roles" class="nav-link"><?= $this->__('nav_roles') ?></a></li>
                             <li><a href="/admin/audit" class="nav-link"><?= $this->__('nav_audit') ?></a></li>
+                            <?php if ($this->can('admin.product_categories.view')): ?>
+                            <li><a href="/admin/product-categories" class="nav-link"><?= $this->__('nav_product_categories') ?></a></li>
+                            <?php endif; ?>
                             <li><a href="/admin/backups" class="nav-link"><?= $this->__('nav_backups') ?></a></li>
                             <li><a href="/admin/diagnostics" class="nav-link"><?= $this->__('nav_diagnostics') ?></a></li>
                         </ul>

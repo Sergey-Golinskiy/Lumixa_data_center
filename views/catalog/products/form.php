@@ -22,17 +22,24 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="category">Category</label>
-                    <input type="text" id="category" name="category" list="categories"
-                           value="<?= $this->e($product['category'] ?? $this->old('category')) ?>"
-                           placeholder="e.g., Electronics">
-                    <datalist id="categories">
+                    <label for="category_id">Category *</label>
+                    <select id="category_id" name="category_id" required>
+                        <option value=""><?= $this->__('select_category') ?></option>
                         <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $this->e($cat['category']) ?>">
+                        <option value="<?= $this->e($cat['id']) ?>"
+                                <?= (string)$this->old('category_id', $product['category_id'] ?? '') === (string)$cat['id'] ? 'selected' : '' ?>>
+                            <?= $this->e($cat['name']) ?>
+                        </option>
                         <?php endforeach; ?>
-                    </datalist>
-                    <?php if ($this->hasError('category')): ?>
-                    <span class="error"><?= $this->error('category') ?></span>
+                    </select>
+                    <?php if (empty($categories)): ?>
+                    <small class="text-muted">
+                        <?= $this->__('no_categories_hint') ?>
+                        <a href="/admin/product-categories"><?= $this->__('manage_categories') ?></a>
+                    </small>
+                    <?php endif; ?>
+                    <?php if ($this->hasError('category_id')): ?>
+                    <span class="error"><?= $this->error('category_id') ?></span>
                     <?php endif; ?>
                 </div>
             </div>

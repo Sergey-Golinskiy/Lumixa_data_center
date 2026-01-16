@@ -90,6 +90,14 @@ return function (Router $router) {
         $router->post('/backups/{id}/restore', 'Admin\\BackupController@restore');
         $router->post('/backups/{id}/delete', 'Admin\\BackupController@delete');
 
+        // Product Categories
+        $router->get('/product-categories', 'Admin\\ProductCategoriesController@index', 'admin.product-categories');
+        $router->get('/product-categories/create', 'Admin\\ProductCategoriesController@create', 'admin.product-categories.create');
+        $router->post('/product-categories', 'Admin\\ProductCategoriesController@store');
+        $router->get('/product-categories/{id}/edit', 'Admin\\ProductCategoriesController@edit', 'admin.product-categories.edit');
+        $router->post('/product-categories/{id}', 'Admin\\ProductCategoriesController@update');
+        $router->post('/product-categories/{id}/delete', 'Admin\\ProductCategoriesController@delete');
+
     }, ['AdminMiddleware', 'CSRFMiddleware']);
 
     // ========================================

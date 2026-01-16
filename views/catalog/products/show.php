@@ -22,7 +22,7 @@
             </div>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('category') ?></span>
-                <span class="detail-value"><?= $this->e($product['category'] ?? '-') ?></span>
+                <span class="detail-value"><?= $this->e($product['category_name'] ?? $product['category'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('base_price') ?></span>

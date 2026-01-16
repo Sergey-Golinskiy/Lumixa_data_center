@@ -22,8 +22,8 @@
                     <select name="category">
                         <option value=""><?= $this->__('all_categories') ?></option>
                         <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $this->e($cat['category']) ?>" <?= $category === $cat['category'] ? 'selected' : '' ?>>
-                            <?= $this->e($cat['category']) ?>
+                        <option value="<?= $this->e($cat['id']) ?>" <?= (string)$category === (string)$cat['id'] ? 'selected' : '' ?>>
+                            <?= $this->e($cat['name']) ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
@@ -72,7 +72,7 @@
                             </a>
                         </td>
                         <td><?= $this->e($product['name']) ?></td>
-                        <td><?= $this->e($product['category'] ?? '-') ?></td>
+                        <td><?= $this->e($product['category_name'] ?? '-') ?></td>
                         <td class="text-right"><?= number_format($product['base_price'], 2) ?></td>
                         <td class="text-center">
                             <?php if ($product['variant_count'] > 0): ?>

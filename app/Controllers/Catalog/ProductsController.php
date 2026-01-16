@@ -33,7 +33,7 @@ class ProductsController extends Controller
         }
 
         if ($category) {
-            $where[] = "p.category = ?";
+            $where[] = "p.category_id = ?";
             $params[] = $category;
         }
 
@@ -54,9 +54,10 @@ class ProductsController extends Controller
         // Get products with variant count
         $offset = ($page - 1) * $perPage;
         $products = $this->db()->fetchAll(
-            "SELECT p.*,
+            "SELECT p.*, COALESCE(pc.name, p.category) as category_name,
                     (SELECT COUNT(*) FROM variants WHERE product_id = p.id) as variant_count
              FROM products p
+             LEFT JOIN product_categories pc ON p.category_id = pc.id
              WHERE {$whereClause}
              ORDER BY p.code
              LIMIT {$perPage} OFFSET {$offset}",
@@ -65,7 +66,7 @@ class ProductsController extends Controller
 
         // Get categories for filter
         $categories = $this->db()->fetchAll(
-            "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
+            "SELECT id, name FROM product_categories WHERE is_active = 1 ORDER BY name"
         );
 
         $this->render('catalog/products/index', [
@@ -90,7 +91,10 @@ class ProductsController extends Controller
         $this->requirePermission('catalog.products.view');
 
         $product = $this->db()->fetch(
-            "SELECT * FROM products WHERE id = ?",
+            "SELECT p.*, COALESCE(pc.name, p.category) as category_name
+             FROM products p
+             LEFT JOIN product_categories pc ON p.category_id = pc.id
+             WHERE p.id = ?",
             [$id]
         );
 
@@ -124,7 +128,7 @@ class ProductsController extends Controller
         $this->requirePermission('catalog.products.create');
 
         $categories = $this->db()->fetchAll(
-            "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
+            "SELECT id, name FROM product_categories WHERE is_active = 1 ORDER BY name"
         );
 
         $this->render('catalog/products/form', [
@@ -146,7 +150,7 @@ class ProductsController extends Controller
             'code' => strtoupper(trim($_POST['code'] ?? '')),
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
-            'category' => trim($_POST['category'] ?? '') ?: null,
+            'category_id' => (int)($_POST['category_id'] ?? 0),
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
@@ -165,6 +169,20 @@ class ProductsController extends Controller
 
         if (empty($data['name'])) {
             $errors['name'] = 'Product name is required';
+        }
+
+        if (empty($data['category_id'])) {
+            $errors['category_id'] = 'Category is required';
+        } else {
+            $categoryRow = $this->db()->fetch(
+                "SELECT id, name FROM product_categories WHERE id = ? AND is_active = 1",
+                [$data['category_id']]
+            );
+            if (!$categoryRow) {
+                $errors['category_id'] = 'Invalid category';
+            } else {
+                $data['category'] = $categoryRow['name'];
+            }
         }
 
         if ($errors) {
@@ -198,7 +216,7 @@ class ProductsController extends Controller
         }
 
         $categories = $this->db()->fetchAll(
-            "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
+            "SELECT id, name FROM product_categories WHERE is_active = 1 ORDER BY name"
         );
 
         $this->render('catalog/products/form', [
@@ -225,7 +243,7 @@ class ProductsController extends Controller
             'code' => strtoupper(trim($_POST['code'] ?? '')),
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
-            'category' => trim($_POST['category'] ?? '') ?: null,
+            'category_id' => (int)($_POST['category_id'] ?? 0),
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
@@ -244,6 +262,20 @@ class ProductsController extends Controller
 
         if (empty($data['name'])) {
             $errors['name'] = 'Product name is required';
+        }
+
+        if (empty($data['category_id'])) {
+            $errors['category_id'] = 'Category is required';
+        } else {
+            $categoryRow = $this->db()->fetch(
+                "SELECT id, name FROM product_categories WHERE id = ? AND is_active = 1",
+                [$data['category_id']]
+            );
+            if (!$categoryRow) {
+                $errors['category_id'] = 'Invalid category';
+            } else {
+                $data['category'] = $categoryRow['name'];
+            }
         }
 
         if ($errors) {
