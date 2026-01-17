@@ -3,7 +3,7 @@
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS printers (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
     model VARCHAR(150),
     power_watts DECIMAL(10,2) DEFAULT 0,
