@@ -202,17 +202,23 @@ class PrintersController extends Controller
     private function getPayload(): array
     {
         $data = [
-            'name' => trim($this->post('name', '')),
-            'power_watts' => (float)$this->post('power_watts', 0),
-            'electricity_cost_per_kwh' => (float)$this->post('electricity_cost_per_kwh', 0),
-            'amortization_per_hour' => (float)$this->post('amortization_per_hour', 0),
-            'maintenance_per_hour' => (float)$this->post('maintenance_per_hour', 0),
-            'notes' => trim($this->post('notes', '')),
-            'is_active' => $this->post('is_active') ? 1 : 0
+            'name' => trim($this->post('name', ''))
         ];
 
-        if ($this->hasModelColumn()) {
-            $data['model'] = trim($this->post('model', ''));
+        $optionalColumns = [
+            'model' => fn () => trim($this->post('model', '')),
+            'power_watts' => fn () => (float)$this->post('power_watts', 0),
+            'electricity_cost_per_kwh' => fn () => (float)$this->post('electricity_cost_per_kwh', 0),
+            'amortization_per_hour' => fn () => (float)$this->post('amortization_per_hour', 0),
+            'maintenance_per_hour' => fn () => (float)$this->post('maintenance_per_hour', 0),
+            'notes' => fn () => trim($this->post('notes', '')),
+            'is_active' => fn () => $this->post('is_active') ? 1 : 0
+        ];
+
+        foreach ($optionalColumns as $column => $valueFactory) {
+            if ($this->db()->columnExists('printers', $column)) {
+                $data[$column] = $valueFactory();
+            }
         }
 
         return $data;
@@ -253,16 +259,15 @@ class PrintersController extends Controller
         return false;
     }
 
-    private function hasModelColumn(): bool
-    {
-        return $this->db()->columnExists('printers', 'model');
-    }
-
     private function getPrinterColumns(): array
     {
         $columns = [
             'id',
-            'name',
+            'name'
+        ];
+
+        $optionalColumns = [
+            'model',
             'power_watts',
             'electricity_cost_per_kwh',
             'amortization_per_hour',
@@ -273,10 +278,12 @@ class PrintersController extends Controller
             'updated_at'
         ];
 
-        if ($this->hasModelColumn()) {
-            $columns[] = 'model';
-        } else {
-            $columns[] = 'NULL AS model';
+        foreach ($optionalColumns as $column) {
+            if ($this->db()->columnExists('printers', $column)) {
+                $columns[] = $column;
+            } else {
+                $columns[] = "NULL AS {$column}";
+            }
         }
 
         return $columns;
