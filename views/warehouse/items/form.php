@@ -2,7 +2,7 @@
 
 <div class="card" style="max-width: 800px;">
     <div class="card-body">
-        <form method="POST" enctype="multipart/form-data" action="<?= $item ? "/warehouse/items/{$item['id']}/edit" : '/warehouse/items/create' ?>">
+        <form method="POST" enctype="multipart/form-data" action="<?= $item ? "/warehouse/items/{$item['id']}" : '/warehouse/items' ?>">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
             <div class="form-row">
