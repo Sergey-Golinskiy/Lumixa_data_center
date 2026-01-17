@@ -110,7 +110,6 @@
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th style="width: 200px;">Item *</th>
-                            <th style="width: 150px;">Lot</th>
                             <th style="width: 100px;">Quantity *</th>
                             <th style="width: 120px;">Unit Price</th>
                             <th style="width: 120px;">Total</th>
@@ -123,7 +122,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
+                            <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
                             <td><strong id="footer-total">0.00</strong></td>
                             <td colspan="2"></td>
                         </tr>
@@ -227,9 +226,6 @@ function addLine(data = null) {
             <select name="lines[${lineNumber}][item_id]" required onchange="updateLineUnit(${lineNumber})">
                 ${itemOptions}
             </select>
-        </td>
-        <td>
-            <input type="text" name="lines[${lineNumber}][lot_number]" placeholder="Lot #" value="${data ? (data.lot_number || '') : ''}">
         </td>
         <td>
             <input type="number" name="lines[${lineNumber}][quantity]" step="0.001" min="0.001" required

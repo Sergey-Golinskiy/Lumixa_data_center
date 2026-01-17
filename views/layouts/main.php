@@ -35,7 +35,6 @@
                         </button>
                         <ul class="nav-submenu" data-submenu="warehouse">
                             <li><a href="/warehouse/items" class="nav-link"><?= $this->__('nav_items') ?></a></li>
-                            <li><a href="/warehouse/lots" class="nav-link"><?= $this->__('nav_lots') ?></a></li>
                             <li><a href="/warehouse/stock" class="nav-link"><?= $this->__('nav_stock') ?></a></li>
                             <li><a href="/warehouse/documents" class="nav-link"><?= $this->__('nav_documents') ?></a></li>
                             <li><a href="/warehouse/partners" class="nav-link"><?= $this->__('nav_partners') ?></a></li>

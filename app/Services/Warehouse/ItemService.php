@@ -155,10 +155,6 @@ class ItemService
                 'is_active' => 1
             ];
 
-            if ($this->db->columnExists('items', 'track_lots')) {
-                $itemData['track_lots'] = $data['track_lots'] ?? 0;
-            }
-
             if ($this->db->columnExists('items', 'image_path')) {
                 $itemData['image_path'] = $data['image_path'] ?? null;
             }
@@ -179,7 +175,6 @@ class ItemService
             // Create initial stock balance
             $this->db->insert('stock_balances', [
                 'item_id' => $id,
-                'lot_id' => null,
                 'on_hand' => 0,
                 'reserved' => 0,
                 'avg_cost' => 0
@@ -222,10 +217,6 @@ class ItemService
                 'reorder_point' => $data['reorder_point'] ?? 0,
                 'is_active' => $data['is_active'] ?? 1
             ];
-
-            if ($this->db->columnExists('items', 'track_lots')) {
-                $itemData['track_lots'] = $data['track_lots'] ?? 0;
-            }
 
             if ($this->db->columnExists('items', 'image_path')) {
                 $itemData['image_path'] = $data['image_path'] ?? $old['image_path'] ?? null;
@@ -280,11 +271,10 @@ class ItemService
     public function getStock(int $itemId): array
     {
         return $this->db->fetchAll(
-            "SELECT sb.*, l.lot_number, l.color
+            "SELECT sb.*
              FROM stock_balances sb
-             LEFT JOIN lots l ON sb.lot_id = l.id
              WHERE sb.item_id = ?
-             ORDER BY l.lot_number",
+             ORDER BY sb.id",
             [$itemId]
         );
     }
@@ -314,10 +304,9 @@ class ItemService
     public function getMovementHistory(int $itemId, int $limit = 50): array
     {
         return $this->db->fetchAll(
-            "SELECT sm.*, d.document_number, d.type as doc_type, l.lot_number
+            "SELECT sm.*, d.document_number, d.type as doc_type
              FROM stock_movements sm
              JOIN documents d ON sm.document_id = d.id
-             LEFT JOIN lots l ON sm.lot_id = l.id
              WHERE sm.item_id = ?
              ORDER BY sm.created_at DESC
              LIMIT {$limit}",

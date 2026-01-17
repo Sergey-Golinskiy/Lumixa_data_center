@@ -326,7 +326,6 @@ class DetailsController extends Controller
             'description' => $detailData['print_parameters'] ?? '',
             'min_stock' => 0,
             'reorder_point' => 0,
-            'track_lots' => 0,
             'is_active' => $detailData['is_active'] ?? 1,
             'image_path' => $detailData['image_path'] ?? ($existingItem['image_path'] ?? null)
         ];

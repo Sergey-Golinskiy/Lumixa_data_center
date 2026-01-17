@@ -120,7 +120,6 @@
                         <th>#</th>
                         <th>SKU</th>
                         <th>Item</th>
-                        <th>Lot</th>
                         <th>Quantity</th>
                         <th>Unit Price</th>
                         <th>Total</th>
@@ -137,7 +136,6 @@
                             </a>
                         </td>
                         <td><?= $this->e($line['item_name']) ?></td>
-                        <td><?= $this->e($line['lot_number'] ?? '-') ?></td>
                         <td><?= $this->number($line['quantity']) ?> <?= $line['unit'] ?></td>
                         <td><?= $this->currency($line['unit_price']) ?></td>
                         <td><?= $this->currency($line['total_price']) ?></td>
@@ -147,7 +145,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
+                        <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
                         <td><strong><?= $this->currency($document['total_amount']) ?></strong></td>
                         <td></td>
                     </tr>

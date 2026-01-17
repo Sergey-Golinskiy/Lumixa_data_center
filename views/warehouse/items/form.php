@@ -79,14 +79,6 @@
                 <small class="text-muted"><?= $this->__('upload_photo') ?></small>
             </div>
 
-            <div class="form-group form-checkbox">
-                <label>
-                    <input type="checkbox" name="track_lots" value="1"
-                           <?= $this->old('track_lots', $item['track_lots'] ?? 0) ? 'checked' : '' ?>>
-                    <span><?= $this->__('track_lots') ?></span>
-                </label>
-            </div>
-
             <hr>
             <h3><?= $this->__('attributes_materials') ?></h3>
 

@@ -85,31 +85,6 @@
                 </div>
             </div>
 
-            <?php if (count($stock ?? []) > 1): ?>
-            <h4 style="margin-top: 20px;"><?= $this->__('lots') ?></h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th><?= $this->__('lot') ?></th>
-                        <th><?= $this->__('color') ?></th>
-                        <th><?= $this->__('on_hand') ?></th>
-                        <th><?= $this->__('reserved') ?></th>
-                        <th><?= $this->__('value') ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($stock as $s): ?>
-                    <tr>
-                        <td><?= $this->e($s['lot_number'] ?? '-') ?></td>
-                        <td><?= $this->e($s['color'] ?? '-') ?></td>
-                        <td><?= $this->number($s['on_hand'] ?? 0) ?></td>
-                        <td><?= $this->number($s['reserved'] ?? 0) ?></td>
-                        <td><?= $this->currency($s['avg_cost'] ?? 0) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            <?php endif; ?>
         </div>
     </div>
 
@@ -166,7 +141,6 @@
                         <th><?= $this->__('date') ?></th>
                         <th><?= $this->__('document') ?></th>
                         <th><?= $this->__('type') ?></th>
-                        <th><?= $this->__('lot') ?></th>
                         <th><?= $this->__('quantity') ?></th>
                         <th><?= $this->__('total') ?></th>
                     </tr>
@@ -185,7 +159,6 @@
                                 <?= $this->e(strtoupper($h['movement_type'] ?? '')) ?>
                             </span>
                         </td>
-                        <td><?= $this->e($h['lot_number'] ?? '-') ?></td>
                         <td>
                             <?= ($h['movement_type'] ?? '') === 'in' ? '+' : '-' ?><?= $this->number($h['quantity'] ?? 0) ?>
                         </td>

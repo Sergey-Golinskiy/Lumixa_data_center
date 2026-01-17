@@ -130,10 +130,9 @@ class DocumentService
     public function getLines(int $documentId): array
     {
         return $this->db->fetchAll(
-            "SELECT dl.*, i.sku, i.name as item_name, i.unit, l.lot_number, l.color
+            "SELECT dl.*, i.sku, i.name as item_name, i.unit
              FROM document_lines dl
              JOIN items i ON dl.item_id = i.id
-             LEFT JOIN lots l ON dl.lot_id = l.id
              WHERE dl.document_id = ?
              ORDER BY dl.line_number",
             [$documentId]
@@ -205,7 +204,6 @@ class DocumentService
                     'document_id' => $docId,
                     'line_number' => $lineNum++,
                     'item_id' => $line['item_id'],
-                    'lot_id' => $line['lot_id'] ?? null,
                     'quantity' => $line['quantity'],
                     'unit_price' => $line['unit_price'] ?? 0,
                     'total_price' => $lineTotal,
@@ -270,7 +268,6 @@ class DocumentService
                     'document_id' => $id,
                     'line_number' => $lineNum++,
                     'item_id' => $line['item_id'],
-                    'lot_id' => $line['lot_id'] ?? null,
                     'quantity' => $line['quantity'],
                     'unit_price' => $line['unit_price'] ?? 0,
                     'total_price' => $lineTotal,
@@ -347,12 +344,11 @@ class DocumentService
     private function processLine(array $doc, array $line): void
     {
         $itemId = $line['item_id'];
-        $lotId = $line['lot_id'];
         $quantity = (float)$line['quantity'];
         $unitPrice = (float)$line['unit_price'];
 
         // Get current balance
-        $balance = $this->getOrCreateBalance($itemId, $lotId);
+        $balance = $this->getOrCreateBalance($itemId);
         $balanceBefore = (float)$balance['on_hand'];
 
         switch ($doc['type']) {
@@ -400,7 +396,6 @@ class DocumentService
             'document_id' => $doc['id'],
             'document_line_id' => $line['id'],
             'item_id' => $itemId,
-            'lot_id' => $lotId,
             'movement_type' => $movementType,
             'quantity' => $quantity,
             'unit_cost' => $unitPrice,
@@ -412,22 +407,16 @@ class DocumentService
     /**
      * Get or create stock balance
      */
-    private function getOrCreateBalance(int $itemId, ?int $lotId): array
+    private function getOrCreateBalance(int $itemId): array
     {
-        $where = $lotId
-            ? "item_id = ? AND lot_id = ?"
-            : "item_id = ? AND lot_id IS NULL";
-        $params = $lotId ? [$itemId, $lotId] : [$itemId];
-
         $balance = $this->db->fetch(
-            "SELECT * FROM stock_balances WHERE {$where} FOR UPDATE",
-            $params
+            "SELECT * FROM stock_balances WHERE item_id = ? FOR UPDATE",
+            [$itemId]
         );
 
         if (!$balance) {
             $id = $this->db->insert('stock_balances', [
                 'item_id' => $itemId,
-                'lot_id' => $lotId,
                 'on_hand' => 0,
                 'reserved' => 0,
                 'avg_cost' => 0
@@ -528,7 +517,7 @@ class DocumentService
         );
 
         foreach ($movements as $movement) {
-            $balance = $this->getOrCreateBalance($movement['item_id'], $movement['lot_id']);
+            $balance = $this->getOrCreateBalance($movement['item_id']);
 
             // Reverse the movement
             if ($movement['movement_type'] === 'in') {

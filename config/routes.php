@@ -114,15 +114,6 @@ return function (Router $router) {
         $router->post('/items/{id}', 'Warehouse\\ItemsController@update');
 
         // Lots
-        $router->get('/lots', 'Warehouse\\LotsController@index', 'warehouse.lots');
-        $router->get('/lots/expiring', 'Warehouse\\LotsController@expiring', 'warehouse.lots.expiring');
-        $router->get('/lots/create', 'Warehouse\\LotsController@create', 'warehouse.lots.create');
-        $router->post('/lots', 'Warehouse\\LotsController@store');
-        $router->get('/lots/{id}', 'Warehouse\\LotsController@show', 'warehouse.lots.show');
-        $router->get('/lots/{id}/edit', 'Warehouse\\LotsController@edit', 'warehouse.lots.edit');
-        $router->post('/lots/{id}', 'Warehouse\\LotsController@update');
-        $router->post('/lots/{id}/status', 'Warehouse\\LotsController@changeStatus');
-
         // Stock
         $router->get('/stock', 'Warehouse\\StockController@index', 'warehouse.stock');
         $router->get('/stock/movements', 'Warehouse\\StockController@movements', 'warehouse.stock.movements');

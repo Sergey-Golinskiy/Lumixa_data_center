@@ -320,7 +320,6 @@ class DocumentsController extends Controller
 
             $result[] = [
                 'item_id' => (int)$line['item_id'],
-                'lot_number' => $line['lot_number'] ?? null,
                 'quantity' => (float)$line['quantity'],
                 'unit_price' => (float)($line['unit_price'] ?? 0),
                 'notes' => $line['notes'] ?? ''
