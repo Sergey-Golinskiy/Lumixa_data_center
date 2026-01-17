@@ -59,12 +59,12 @@ EXECUTE fk_stmt;
 DEALLOCATE PREPARE fk_stmt;
 
 INSERT INTO product_categories (name, is_active)
-SELECT DISTINCT category, 1
+SELECT DISTINCT category COLLATE utf8mb4_unicode_ci, 1
 FROM products
 WHERE category IS NOT NULL AND category != ''
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 UPDATE products p
-JOIN product_categories pc ON pc.name = p.category
+JOIN product_categories pc ON pc.name = (p.category COLLATE utf8mb4_unicode_ci)
 SET p.category_id = pc.id
 WHERE p.category IS NOT NULL AND p.category != '';
