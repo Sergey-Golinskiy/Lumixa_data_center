@@ -12,9 +12,35 @@ CREATE TABLE IF NOT EXISTS product_categories (
     INDEX idx_is_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-ALTER TABLE products
-    ADD COLUMN IF NOT EXISTS category_id INT UNSIGNED NULL AFTER description,
-    ADD INDEX IF NOT EXISTS idx_category_id (category_id);
+SET @col_exists := (
+    SELECT COUNT(*) FROM information_schema.columns
+    WHERE table_schema = DATABASE()
+      AND table_name = 'products'
+      AND column_name = 'category_id'
+);
+SET @col_sql := IF(
+    @col_exists = 0,
+    'ALTER TABLE products ADD COLUMN category_id INT UNSIGNED NULL AFTER description',
+    'SELECT 1'
+);
+PREPARE col_stmt FROM @col_sql;
+EXECUTE col_stmt;
+DEALLOCATE PREPARE col_stmt;
+
+SET @idx_exists := (
+    SELECT COUNT(*) FROM information_schema.statistics
+    WHERE table_schema = DATABASE()
+      AND table_name = 'products'
+      AND index_name = 'idx_category_id'
+);
+SET @idx_sql := IF(
+    @idx_exists = 0,
+    'ALTER TABLE products ADD INDEX idx_category_id (category_id)',
+    'SELECT 1'
+);
+PREPARE idx_stmt FROM @idx_sql;
+EXECUTE idx_stmt;
+DEALLOCATE PREPARE idx_stmt;
 
 SET @fk_exists := (
     SELECT COUNT(*) FROM information_schema.table_constraints
