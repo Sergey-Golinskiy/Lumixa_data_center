@@ -80,28 +80,118 @@
             </div>
 
             <hr>
-            <h3><?= $this->__('attributes_materials') ?></h3>
+            <div id="material-attributes" class="item-attributes-section">
+                <h3><?= $this->__('attributes_materials') ?></h3>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="attr_color"><?= $this->__('color') ?></label>
-                    <input type="text" id="attr_color" name="attr_color"
-                           value="<?= $this->e($this->old('attr_color', $attributes['color'] ?? '')) ?>"
-                           placeholder="<?= $this->__('placeholder_color') ?>">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="attr_material"><?= $this->__('material') ?></label>
+                        <select id="attr_material" name="attr_material">
+                            <option value=""><?= $this->__('select_material') ?></option>
+                            <?php foreach (($materialOptions ?? []) as $option): ?>
+                            <option value="<?= $this->e($option['name']) ?>"
+                                    data-filament="<?= $option['is_filament'] ? '1' : '0' ?>"
+                                    <?= $this->old('attr_material', $attributes['material'] ?? '') === $option['name'] ? 'selected' : '' ?>>
+                                <?= $this->e($option['name']) ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="attr_manufacturer"><?= $this->__('manufacturer') ?></label>
+                        <select id="attr_manufacturer" name="attr_manufacturer">
+                            <option value=""><?= $this->__('select_manufacturer') ?></option>
+                            <?php foreach (($manufacturerOptions ?? []) as $option): ?>
+                            <option value="<?= $this->e($option['name']) ?>"
+                                    <?= $this->old('attr_manufacturer', $attributes['manufacturer'] ?? '') === $option['name'] ? 'selected' : '' ?>>
+                                <?= $this->e($option['name']) ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="attr_diameter"><?= $this->__('diameter') ?></label>
-                    <input type="text" id="attr_diameter" name="attr_diameter"
-                           value="<?= $this->e($this->old('attr_diameter', $attributes['diameter'] ?? '')) ?>"
-                           placeholder="<?= $this->__('placeholder_diameter') ?>">
-                </div>
+                <div id="filament-attributes" class="item-attributes-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="attr_plastic_type"><?= $this->__('plastic_type') ?></label>
+                            <select id="attr_plastic_type" name="attr_plastic_type">
+                                <option value=""><?= $this->__('select_plastic_type') ?></option>
+                                <?php foreach (($plasticTypeOptions ?? []) as $option): ?>
+                                <option value="<?= $this->e($option['name']) ?>"
+                                        <?= $this->old('attr_plastic_type', $attributes['plastic_type'] ?? '') === $option['name'] ? 'selected' : '' ?>>
+                                    <?= $this->e($option['name']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
-                <div class="form-group">
-                    <label for="attr_brand"><?= $this->__('brand') ?></label>
-                    <input type="text" id="attr_brand" name="attr_brand"
-                           value="<?= $this->e($this->old('attr_brand', $attributes['brand'] ?? '')) ?>"
-                           placeholder="<?= $this->__('placeholder_brand') ?>">
+                        <div class="form-group">
+                            <label for="attr_filament_color"><?= $this->__('filament_color') ?></label>
+                            <input type="text" id="attr_filament_color" name="attr_filament_color"
+                                   value="<?= $this->e($this->old('attr_filament_color', $attributes['filament_color'] ?? '')) ?>"
+                                   placeholder="<?= $this->__('placeholder_color') ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="attr_filament_diameter"><?= $this->__('filament_diameter') ?></label>
+                            <select id="attr_filament_diameter" name="attr_filament_diameter">
+                                <option value=""><?= $this->__('select_filament_diameter') ?></option>
+                                <?php
+                                $diameters = ['1.75 mm', '2.85 mm', '3.00 mm'];
+                                $selectedDiameter = $this->old('attr_filament_diameter', $attributes['filament_diameter'] ?? '');
+                                ?>
+                                <?php foreach ($diameters as $diameter): ?>
+                                <option value="<?= $this->e($diameter) ?>" <?= $selectedDiameter === $diameter ? 'selected' : '' ?>>
+                                    <?= $this->e($diameter) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="attr_filament_alias"><?= $this->__('filament_alias') ?></label>
+                            <select id="attr_filament_alias" name="attr_filament_alias">
+                                <option value=""><?= $this->__('select_filament_alias') ?></option>
+                                <?php foreach (($filamentAliasOptions ?? []) as $option): ?>
+                                <option value="<?= $this->e($option['name']) ?>"
+                                        <?= $this->old('attr_filament_alias', $attributes['filament_alias'] ?? '') === $option['name'] ? 'selected' : '' ?>>
+                                    <?= $this->e($option['name']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="non-material-attributes" class="item-attributes-section">
+                <h3><?= $this->__('attributes') ?></h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="attr_color"><?= $this->__('color') ?></label>
+                        <input type="text" id="attr_color" name="attr_color"
+                               value="<?= $this->e($this->old('attr_color', $attributes['color'] ?? '')) ?>"
+                               placeholder="<?= $this->__('placeholder_color') ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="attr_diameter"><?= $this->__('diameter') ?></label>
+                        <input type="text" id="attr_diameter" name="attr_diameter"
+                               value="<?= $this->e($this->old('attr_diameter', $attributes['diameter'] ?? '')) ?>"
+                               placeholder="<?= $this->__('placeholder_diameter') ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="attr_brand"><?= $this->__('brand') ?></label>
+                        <input type="text" id="attr_brand" name="attr_brand"
+                               value="<?= $this->e($this->old('attr_brand', $attributes['brand'] ?? '')) ?>"
+                               placeholder="<?= $this->__('placeholder_brand') ?>">
+                    </div>
                 </div>
             </div>
 
@@ -124,5 +214,39 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const typeSelect = document.getElementById('type');
+    const materialSection = document.getElementById('material-attributes');
+    const nonMaterialSection = document.getElementById('non-material-attributes');
+    const materialSelect = document.getElementById('attr_material');
+    const filamentSection = document.getElementById('filament-attributes');
+
+    const updateFilamentSection = () => {
+        if (!materialSelect || !filamentSection) {
+            return;
+        }
+        const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+        const isFilament = selectedOption?.dataset?.filament === '1';
+        filamentSection.classList.toggle('is-hidden', !isFilament);
+    };
+
+    const updateTypeSections = () => {
+        const isMaterial = typeSelect?.value === 'material';
+        materialSection?.classList.toggle('is-hidden', !isMaterial);
+        nonMaterialSection?.classList.toggle('is-hidden', isMaterial);
+        updateFilamentSection();
+    };
+
+    typeSelect?.addEventListener('change', updateTypeSections);
+    materialSelect?.addEventListener('change', updateFilamentSection);
+    updateTypeSections();
+});
+</script>
+
+<style>
+.item-attributes-section.is-hidden { display: none; }
+</style>
 
 <?php $this->endSection(); ?>

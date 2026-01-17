@@ -101,6 +101,12 @@
                             <?php if ($this->can('admin.product_categories.view')): ?>
                             <li><a href="/admin/product-categories" class="nav-link"><?= $this->__('nav_product_categories') ?></a></li>
                             <?php endif; ?>
+                            <?php if ($this->can('admin.item_options.view')): ?>
+                            <li><a href="/admin/item-options/materials" class="nav-link"><?= $this->__('nav_materials') ?></a></li>
+                            <li><a href="/admin/item-options/manufacturers" class="nav-link"><?= $this->__('nav_manufacturers') ?></a></li>
+                            <li><a href="/admin/item-options/plastic-types" class="nav-link"><?= $this->__('nav_plastic_types') ?></a></li>
+                            <li><a href="/admin/item-options/filament-aliases" class="nav-link"><?= $this->__('nav_filament_aliases') ?></a></li>
+                            <?php endif; ?>
                             <li><a href="/admin/backups" class="nav-link"><?= $this->__('nav_backups') ?></a></li>
                             <li><a href="/admin/diagnostics" class="nav-link"><?= $this->__('nav_diagnostics') ?></a></li>
                         </ul>

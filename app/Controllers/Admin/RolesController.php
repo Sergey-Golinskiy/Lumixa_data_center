@@ -169,7 +169,11 @@ class RolesController extends Controller
                 'admin.backups.create' => 'Create Backups',
                 'admin.backups.restore' => 'Restore Backups',
                 'admin.backups.delete' => 'Delete Backups',
-                'admin.audit.view' => 'View Audit Log'
+                'admin.audit.view' => 'View Audit Log',
+                'admin.item_options.view' => 'View Item Options',
+                'admin.item_options.create' => 'Create Item Options',
+                'admin.item_options.edit' => 'Edit Item Options',
+                'admin.item_options.delete' => 'Delete Item Options'
             ],
             'warehouse' => [
                 'warehouse.items.view' => 'View Items',

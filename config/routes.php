@@ -98,6 +98,14 @@ return function (Router $router) {
         $router->post('/product-categories/{id}', 'Admin\\ProductCategoriesController@update');
         $router->post('/product-categories/{id}/delete', 'Admin\\ProductCategoriesController@delete');
 
+        // Item Options
+        $router->get('/item-options/{group}', 'Admin\\ItemOptionsController@index', 'admin.item-options');
+        $router->get('/item-options/{group}/create', 'Admin\\ItemOptionsController@create', 'admin.item-options.create');
+        $router->post('/item-options/{group}', 'Admin\\ItemOptionsController@store');
+        $router->get('/item-options/{group}/{id}/edit', 'Admin\\ItemOptionsController@edit', 'admin.item-options.edit');
+        $router->post('/item-options/{group}/{id}', 'Admin\\ItemOptionsController@update');
+        $router->post('/item-options/{group}/{id}/delete', 'Admin\\ItemOptionsController@delete');
+
     }, ['AdminMiddleware', 'CSRFMiddleware']);
 
     // ========================================

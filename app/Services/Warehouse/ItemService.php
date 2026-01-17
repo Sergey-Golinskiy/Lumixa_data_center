@@ -56,6 +56,24 @@ class ItemService
     }
 
     /**
+     * Get option values for item attributes
+     */
+    public function getOptionValues(string $groupKey): array
+    {
+        if (!$this->db->tableExists('item_option_values')) {
+            return [];
+        }
+
+        return $this->db->fetchAll(
+            "SELECT id, name, is_filament
+             FROM item_option_values
+             WHERE group_key = ? AND is_active = 1
+             ORDER BY name",
+            [$groupKey]
+        );
+    }
+
+    /**
      * Paginated list
      */
     public function paginate(int $page, int $perPage, array $filters = []): array

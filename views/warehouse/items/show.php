@@ -90,17 +90,46 @@
 
     <!-- Attributes -->
     <?php if (!empty($attributes)): ?>
+    <?php
+        $materialAttributeOrder = [
+            'material' => $this->__('material'),
+            'manufacturer' => $this->__('manufacturer'),
+            'plastic_type' => $this->__('plastic_type'),
+            'filament_color' => $this->__('filament_color'),
+            'filament_diameter' => $this->__('filament_diameter'),
+            'filament_alias' => $this->__('filament_alias')
+        ];
+        $defaultAttributeOrder = [
+            'color' => $this->__('color'),
+            'diameter' => $this->__('diameter'),
+            'brand' => $this->__('brand')
+        ];
+        $orderedAttributes = $item['type'] === 'material'
+            ? $materialAttributeOrder
+            : $defaultAttributeOrder;
+        $displayAttributes = array_filter(
+            $orderedAttributes,
+            fn($label, $name) => !empty($attributes[$name]),
+            ARRAY_FILTER_USE_BOTH
+        );
+    ?>
+    <?php if (!empty($displayAttributes)): ?>
     <div class="card">
-        <div class="card-header"><?= $this->__('attributes_materials') ?></div>
+        <div class="card-header">
+            <?= $item['type'] === 'material' ? $this->__('attributes_materials') : $this->__('attributes') ?>
+        </div>
         <div class="card-body">
-            <?php foreach ($attributes as $name => $value): ?>
+            <?php foreach ($displayAttributes as $name => $label): ?>
+            <?php if (!empty($attributes[$name])): ?>
             <div class="detail-row">
-                <span class="detail-label"><?= $this->e(ucfirst($name)) ?></span>
-                <span class="detail-value"><?= $this->e($value) ?></span>
+                <span class="detail-label"><?= $this->e($label) ?></span>
+                <span class="detail-value"><?= $this->e($attributes[$name]) ?></span>
             </div>
+            <?php endif; ?>
             <?php endforeach; ?>
         </div>
     </div>
+    <?php endif; ?>
     <?php endif; ?>
 
     <!-- Settings -->
