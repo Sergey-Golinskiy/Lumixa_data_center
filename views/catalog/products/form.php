@@ -7,7 +7,7 @@
 <div class="card" style="max-width: 700px;">
     <div class="card-header"><?= $product ? 'Edit Product' : 'Create New Product' ?></div>
     <div class="card-body">
-        <form method="POST" action="<?= $product ? "/catalog/products/{$product['id']}" : '/catalog/products' ?>">
+        <form method="POST" enctype="multipart/form-data" action="<?= $product ? "/catalog/products/{$product['id']}" : '/catalog/products' ?>">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
             <div class="form-row">
@@ -61,6 +61,17 @@
                 <?php if ($this->hasError('description')): ?>
                 <span class="error"><?= $this->error('description') ?></span>
                 <?php endif; ?>
+            </div>
+
+            <div class="form-group">
+                <label for="image"><?= $this->__('photo') ?></label>
+                <?php if (!empty($product['image_path'])): ?>
+                <div class="form-image-preview">
+                    <img src="/<?= $this->e(ltrim($product['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($product['image_path'], '/')) ?>">
+                </div>
+                <?php endif; ?>
+                <input type="file" id="image" name="image" accept="image/*">
+                <small class="text-muted"><?= $this->__('upload_photo') ?></small>
             </div>
 
             <div class="form-group">

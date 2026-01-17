@@ -40,6 +40,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th><?= $this->__('photo') ?></th>
                         <th><?= $this->__('variant') ?></th>
                         <th><?= $this->__('version') ?></th>
                         <th><?= $this->__('name') ?></th>
@@ -53,11 +54,18 @@
                 <tbody>
                     <?php if (empty($routings)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_routings_found') ?></td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_routings_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($routings as $routing): ?>
                     <tr>
+                        <td>
+                            <?php if (!empty($routing['image_path'])): ?>
+                            <img src="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <a href="/catalog/variants/<?= $routing['variant_id'] ?>">
                                 <strong><?= $this->e($routing['variant_sku']) ?></strong>

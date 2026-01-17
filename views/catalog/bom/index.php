@@ -40,6 +40,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th><?= $this->__('photo') ?></th>
                         <th><?= $this->__('variant') ?></th>
                         <th><?= $this->__('version') ?></th>
                         <th><?= $this->__('name') ?></th>
@@ -53,11 +54,18 @@
                 <tbody>
                     <?php if (empty($boms)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_boms_found') ?></td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_boms_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($boms as $bom): ?>
                     <tr>
+                        <td>
+                            <?php if (!empty($bom['image_path'])): ?>
+                            <img src="/<?= $this->e(ltrim($bom['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($bom['image_path'], '/')) ?>">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <a href="/catalog/variants/<?= $bom['variant_id'] ?>">
                                 <strong><?= $this->e($bom['variant_sku']) ?></strong>

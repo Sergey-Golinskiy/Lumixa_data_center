@@ -177,6 +177,14 @@
     </div>
     <?php endif; ?>
 
+    <div class="image-preview-modal" id="image-preview-modal" aria-hidden="true">
+        <div class="image-preview-backdrop" data-image-preview-close></div>
+        <div class="image-preview-content">
+            <button type="button" class="image-preview-close" data-image-preview-close>&times;</button>
+            <img src="" alt="<?= $this->__('photo') ?>" id="image-preview-img">
+        </div>
+    </div>
+
     <script src="<?= $this->asset('js/app.js') ?>?v=<?= time() ?>"></script>
 </body>
 </html>

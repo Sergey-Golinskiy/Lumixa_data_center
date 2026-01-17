@@ -776,4 +776,6 @@ return [
     'manage_categories' => 'Manage categories',
     'confirm_delete_category' => 'Delete this category?',
     'invalid_security_token' => 'Invalid security token',
+    'photo' => 'Photo',
+    'upload_photo' => 'Upload an image (JPG, PNG, GIF, WEBP).',
 ];

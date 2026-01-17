@@ -42,6 +42,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th><?= $this->__('photo') ?></th>
                         <th><?= $this->__('sku') ?></th>
                         <th><?= $this->__('name') ?></th>
                         <th><?= $this->__('product') ?></th>
@@ -55,11 +56,18 @@
                 <tbody>
                     <?php if (empty($variants)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_variants_found') ?></td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_variants_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($variants as $variant): ?>
                     <tr>
+                        <td>
+                            <?php if (!empty($variant['image_path'])): ?>
+                            <img src="/<?= $this->e(ltrim($variant['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($variant['image_path'], '/')) ?>">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <a href="/catalog/variants/<?= $variant['id'] ?>">
                                 <strong><?= $this->e($variant['sku']) ?></strong>

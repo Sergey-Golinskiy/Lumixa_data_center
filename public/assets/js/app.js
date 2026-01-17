@@ -161,6 +161,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         });
     });
+
+    // Image preview modal
+    var imageModal = document.getElementById('image-preview-modal');
+    var imageModalImg = document.getElementById('image-preview-img');
+    if (imageModal && imageModalImg) {
+        document.querySelectorAll('[data-image-preview]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                var src = this.getAttribute('data-image-preview') || this.getAttribute('src');
+                if (!src) return;
+                imageModalImg.src = src;
+                imageModal.classList.add('open');
+                imageModal.setAttribute('aria-hidden', 'false');
+            });
+        });
+
+        imageModal.querySelectorAll('[data-image-preview-close]').forEach(function(closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                imageModal.classList.remove('open');
+                imageModal.setAttribute('aria-hidden', 'true');
+                imageModalImg.src = '';
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && imageModal.classList.contains('open')) {
+                imageModal.classList.remove('open');
+                imageModal.setAttribute('aria-hidden', 'true');
+                imageModalImg.src = '';
+            }
+        });
+    }
 });
 
 // CSRF token for AJAX requests

@@ -56,6 +56,61 @@ a:hover {
     text-decoration: underline;
 }
 
+/* === Image Preview === */
+.image-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+}
+.form-image-preview {
+    margin-bottom: 8px;
+}
+.image-preview-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.image-preview-modal.open {
+    display: flex;
+}
+.image-preview-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+.image-preview-content {
+    position: relative;
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 90vw;
+    max-height: 90vh;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.image-preview-content img {
+    max-width: 85vw;
+    max-height: 80vh;
+}
+.image-preview-close {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text);
+}
+
 /* === Layout === */
 .app-container {
     display: flex;

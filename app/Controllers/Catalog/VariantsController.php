@@ -176,6 +176,10 @@ class VariantsController extends Controller
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
+        $imagePath = $this->storeImageUpload('image', 'variants');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Parse attributes
         $attributes = [];
@@ -275,6 +279,10 @@ class VariantsController extends Controller
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
+        $imagePath = $this->storeImageUpload('image', 'variants');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Parse attributes
         $attributes = [];

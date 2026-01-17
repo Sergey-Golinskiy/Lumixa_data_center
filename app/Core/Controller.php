@@ -158,6 +158,52 @@ abstract class Controller
     }
 
     /**
+     * Store uploaded image and return relative path
+     */
+    protected function storeImageUpload(string $field, string $subdir): ?string
+    {
+        if (empty($_FILES[$field]) || !is_array($_FILES[$field])) {
+            return null;
+        }
+
+        $file = $_FILES[$field];
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            return null;
+        }
+
+        if (!is_uploaded_file($file['tmp_name'])) {
+            return null;
+        }
+
+        $imageInfo = getimagesize($file['tmp_name']);
+        if ($imageInfo === false) {
+            return null;
+        }
+
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $originalName = $file['name'] ?? '';
+        $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return null;
+        }
+
+        $uploadRoot = rtrim($this->app->config('upload_path'), '/');
+        $targetDir = $uploadRoot . '/' . trim($subdir, '/');
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
+        $filename = sprintf('%s_%s.%s', date('YmdHis'), bin2hex(random_bytes(6)), $extension);
+        $targetPath = $targetDir . '/' . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+            return null;
+        }
+
+        return 'uploads/' . trim($subdir, '/') . '/' . $filename;
+    }
+
+    /**
      * Require authentication
      */
     protected function requireAuth(): void

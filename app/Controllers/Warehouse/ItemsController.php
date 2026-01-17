@@ -89,6 +89,10 @@ class ItemsController extends Controller
         $data['min_stock'] = (float)$this->post('min_stock', 0);
         $data['reorder_point'] = (float)$this->post('reorder_point', 0);
         $data['track_lots'] = $this->post('track_lots') ? 1 : 0;
+        $imagePath = $this->storeImageUpload('image', 'items');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Attributes
         $attributes = [];
@@ -204,6 +208,10 @@ class ItemsController extends Controller
         $data['reorder_point'] = (float)$this->post('reorder_point', 0);
         $data['is_active'] = $this->post('is_active') ? 1 : 0;
         $data['track_lots'] = $this->post('track_lots') ? 1 : 0;
+        $imagePath = $this->storeImageUpload('image', 'items');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Attributes
         $attributes = [];

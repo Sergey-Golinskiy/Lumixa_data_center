@@ -121,6 +121,7 @@ class Application
                 'log_file' => dirname(__DIR__, 2) . '/storage/logs/app.log',
                 'base_path' => dirname(__DIR__, 2),
                 'storage_path' => dirname(__DIR__, 2) . '/storage',
+                'upload_path' => dirname(__DIR__, 2) . '/public/uploads',
             ];
             return;
         }

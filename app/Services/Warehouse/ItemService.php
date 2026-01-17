@@ -153,6 +153,7 @@ class ItemService
                 'min_stock' => $data['min_stock'] ?? 0,
                 'reorder_point' => $data['reorder_point'] ?? 0,
                 'track_lots' => $data['track_lots'] ?? 0,
+                'image_path' => $data['image_path'] ?? null,
                 'is_active' => 1
             ]);
 
@@ -212,6 +213,7 @@ class ItemService
                 'min_stock' => $data['min_stock'] ?? 0,
                 'reorder_point' => $data['reorder_point'] ?? 0,
                 'track_lots' => $data['track_lots'] ?? 0,
+                'image_path' => $data['image_path'] ?? $old['image_path'] ?? null,
                 'is_active' => $data['is_active'] ?? 1
             ], ['id' => $id]);
 

@@ -775,4 +775,6 @@ return [
     'manage_categories' => 'Управлять категориями',
     'confirm_delete_category' => 'Удалить эту категорию?',
     'invalid_security_token' => 'Неверный токен безопасности',
+    'photo' => 'Фото',
+    'upload_photo' => 'Загрузите изображение (JPG, PNG, GIF, WEBP).',
 ];

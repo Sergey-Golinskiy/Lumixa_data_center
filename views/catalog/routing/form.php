@@ -4,7 +4,7 @@
     <a href="/catalog/routing" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('routing')]) ?></a>
 </div>
 
-<form method="POST" action="<?= $routing ? "/catalog/routing/{$routing['id']}" : '/catalog/routing' ?>" id="routing-form">
+<form method="POST" enctype="multipart/form-data" action="<?= $routing ? "/catalog/routing/{$routing['id']}" : '/catalog/routing' ?>" id="routing-form">
     <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
     <div class="detail-grid">
@@ -51,6 +51,17 @@
                 <div class="form-group">
                     <label for="notes"><?= $this->__('notes') ?></label>
                     <textarea id="notes" name="notes" rows="2"><?= $this->e($routing['notes'] ?? '') ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image"><?= $this->__('photo') ?></label>
+                    <?php if (!empty($routing['image_path'])): ?>
+                    <div class="form-image-preview">
+                        <img src="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>">
+                    </div>
+                    <?php endif; ?>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <small class="text-muted"><?= $this->__('upload_photo') ?></small>
                 </div>
             </div>
         </div>

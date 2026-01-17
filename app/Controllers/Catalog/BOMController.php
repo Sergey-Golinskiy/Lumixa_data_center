@@ -164,6 +164,10 @@ class BOMController extends Controller
             'effective_date' => $_POST['effective_date'] ?: null,
             'notes' => trim($_POST['notes'] ?? '')
         ];
+        $imagePath = $this->storeImageUpload('image', 'bom');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Validation
         $errors = [];
@@ -304,6 +308,10 @@ class BOMController extends Controller
             'effective_date' => $_POST['effective_date'] ?: null,
             'notes' => trim($_POST['notes'] ?? '')
         ];
+        $imagePath = $this->storeImageUpload('image', 'bom');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         $lines = $this->parseLines();
         if (empty($lines)) {

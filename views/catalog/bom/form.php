@@ -4,7 +4,7 @@
     <a href="/catalog/bom" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('bom_list')]) ?></a>
 </div>
 
-<form method="POST" action="<?= $bom ? "/catalog/bom/{$bom['id']}" : '/catalog/bom' ?>" id="bom-form">
+<form method="POST" enctype="multipart/form-data" action="<?= $bom ? "/catalog/bom/{$bom['id']}" : '/catalog/bom' ?>" id="bom-form">
     <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
     <div class="detail-grid">
@@ -53,6 +53,17 @@
                 <div class="form-group">
                     <label for="notes"><?= $this->__('notes') ?></label>
                     <textarea id="notes" name="notes" rows="3"><?= $this->e($bom['notes'] ?? $this->old('notes')) ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image"><?= $this->__('photo') ?></label>
+                    <?php if (!empty($bom['image_path'])): ?>
+                    <div class="form-image-preview">
+                        <img src="/<?= $this->e(ltrim($bom['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($bom['image_path'], '/')) ?>">
+                    </div>
+                    <?php endif; ?>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <small class="text-muted"><?= $this->__('upload_photo') ?></small>
                 </div>
             </div>
         </div>

@@ -7,7 +7,7 @@
 <div class="card" style="max-width: 700px;">
     <div class="card-header"><?= $variant ? $this->__('edit_variant') : $this->__('create_new_variant') ?></div>
     <div class="card-body">
-        <form method="POST" action="<?= $variant ? "/catalog/variants/{$variant['id']}" : '/catalog/variants' ?>">
+        <form method="POST" enctype="multipart/form-data" action="<?= $variant ? "/catalog/variants/{$variant['id']}" : '/catalog/variants' ?>">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
             <div class="form-group">
@@ -59,6 +59,17 @@
                 <?php if ($this->hasError('name')): ?>
                 <span class="error"><?= $this->error('name') ?></span>
                 <?php endif; ?>
+            </div>
+
+            <div class="form-group">
+                <label for="image"><?= $this->__('photo') ?></label>
+                <?php if (!empty($variant['image_path'])): ?>
+                <div class="form-image-preview">
+                    <img src="/<?= $this->e(ltrim($variant['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($variant['image_path'], '/')) ?>">
+                </div>
+                <?php endif; ?>
+                <input type="file" id="image" name="image" accept="image/*">
+                <small class="text-muted"><?= $this->__('upload_photo') ?></small>
             </div>
 
             <!-- Attributes -->

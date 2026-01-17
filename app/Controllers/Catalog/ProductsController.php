@@ -154,6 +154,10 @@ class ProductsController extends Controller
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
+        $imagePath = $this->storeImageUpload('image', 'products');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Validation
         $errors = [];
@@ -247,6 +251,10 @@ class ProductsController extends Controller
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
+        $imagePath = $this->storeImageUpload('image', 'products');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Validation
         $errors = [];

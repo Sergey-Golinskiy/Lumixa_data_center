@@ -2,7 +2,7 @@
 
 <div class="card" style="max-width: 800px;">
     <div class="card-body">
-        <form method="POST" action="<?= $item ? "/warehouse/items/{$item['id']}/edit" : '/warehouse/items/create' ?>">
+        <form method="POST" enctype="multipart/form-data" action="<?= $item ? "/warehouse/items/{$item['id']}/edit" : '/warehouse/items/create' ?>">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
             <div class="form-row">
@@ -66,6 +66,17 @@
             <div class="form-group">
                 <label for="description"><?= $this->__('description') ?></label>
                 <textarea id="description" name="description" rows="3"><?= $this->e($this->old('description', $item['description'] ?? '')) ?></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="image"><?= $this->__('photo') ?></label>
+                <?php if (!empty($item['image_path'])): ?>
+                <div class="form-image-preview">
+                    <img src="/<?= $this->e(ltrim($item['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($item['image_path'], '/')) ?>">
+                </div>
+                <?php endif; ?>
+                <input type="file" id="image" name="image" accept="image/*">
+                <small class="text-muted"><?= $this->__('upload_photo') ?></small>
             </div>
 
             <div class="form-group form-checkbox">

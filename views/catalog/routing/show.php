@@ -29,6 +29,16 @@
                 <span class="detail-value"><?= $this->e($routing['name'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
+                <span class="detail-label"><?= $this->__('photo') ?></span>
+                <span class="detail-value">
+                    <?php if (!empty($routing['image_path'])): ?>
+                    <img src="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>">
+                    <?php else: ?>
+                    <span class="text-muted">-</span>
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="detail-row">
                 <span class="detail-label"><?= $this->__('status') ?></span>
                 <span class="detail-value">
                     <?php

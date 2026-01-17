@@ -150,6 +150,10 @@ class RoutingController extends Controller
             'effective_date' => $_POST['effective_date'] ?: null,
             'notes' => trim($_POST['notes'] ?? '')
         ];
+        $imagePath = $this->storeImageUpload('image', 'routing');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Validation
         $errors = [];
@@ -286,6 +290,10 @@ class RoutingController extends Controller
             'effective_date' => $_POST['effective_date'] ?: null,
             'notes' => trim($_POST['notes'] ?? '')
         ];
+        $imagePath = $this->storeImageUpload('image', 'routing');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         $operations = $this->parseOperations();
         if (empty($operations)) {

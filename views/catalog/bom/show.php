@@ -31,6 +31,16 @@
                 <span class="detail-value"><?= $this->e($bom['name'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
+                <span class="detail-label"><?= $this->__('photo') ?></span>
+                <span class="detail-value">
+                    <?php if (!empty($bom['image_path'])): ?>
+                    <img src="/<?= $this->e(ltrim($bom['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($bom['image_path'], '/')) ?>">
+                    <?php else: ?>
+                    <span class="text-muted">-</span>
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="detail-row">
                 <span class="detail-label"><?= $this->__('status') ?></span>
                 <span class="detail-value">
                     <?php

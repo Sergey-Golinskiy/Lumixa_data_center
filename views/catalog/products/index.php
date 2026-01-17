@@ -49,6 +49,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th><?= $this->__('photo') ?></th>
                         <th><?= $this->__('code') ?></th>
                         <th><?= $this->__('name') ?></th>
                         <th><?= $this->__('category') ?></th>
@@ -61,11 +62,18 @@
                 <tbody>
                     <?php if (empty($products)): ?>
                     <tr>
-                        <td colspan="7" class="text-center text-muted"><?= $this->__('no_products_found') ?></td>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_products_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($products as $product): ?>
                     <tr>
+                        <td>
+                            <?php if (!empty($product['image_path'])): ?>
+                            <img src="/<?= $this->e(ltrim($product['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($product['image_path'], '/')) ?>">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <a href="/catalog/products/<?= $product['id'] ?>">
                                 <strong><?= $this->e($product['code']) ?></strong>

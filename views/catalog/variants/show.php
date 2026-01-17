@@ -18,6 +18,16 @@
                 <span class="detail-value"><strong><?= $this->e($variant['sku']) ?></strong></span>
             </div>
             <div class="detail-row">
+                <span class="detail-label"><?= $this->__('photo') ?></span>
+                <span class="detail-value">
+                    <?php if (!empty($variant['image_path'])): ?>
+                    <img src="/<?= $this->e(ltrim($variant['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($variant['image_path'], '/')) ?>">
+                    <?php else: ?>
+                    <span class="text-muted">-</span>
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="detail-row">
                 <span class="detail-label"><?= $this->__('name') ?></span>
                 <span class="detail-value"><?= $this->e($variant['name']) ?></span>
             </div>
