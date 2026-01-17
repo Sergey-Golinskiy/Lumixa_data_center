@@ -39,11 +39,15 @@
                 <div class="filter-group">
                     <select name="category">
                         <option value=""><?= $this->__('all_categories') ?></option>
-                        <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $this->e($cat['category']) ?>" <?= $category === $cat['category'] ? 'selected' : '' ?>>
-                            <?= $this->e($cat['category']) ?>
-                        </option>
-                        <?php endforeach; ?>
+                    <?php foreach ($categories as $cat): ?>
+                        <?php $categoryValue = $cat['category'] ?? ''; ?>
+                        <?php if ($categoryValue === ''): ?>
+                            <?php continue; ?>
+                        <?php endif; ?>
+                    <option value="<?= $this->e($categoryValue) ?>" <?= $category === $categoryValue ? 'selected' : '' ?>>
+                        <?= $this->e($categoryValue) ?>
+                    </option>
+                    <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="filter-group">
