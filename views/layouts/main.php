@@ -126,11 +126,17 @@
                 </div>
             </div>
         </aside>
+        <div class="sidebar-backdrop" data-sidebar-backdrop></div>
 
         <!-- Main Content -->
         <main class="main-content">
             <header class="content-header">
-                <h1 class="page-title"><?= $this->e($title ?? 'Dashboard') ?></h1>
+                <div class="content-header-left">
+                    <button class="sidebar-toggle" type="button" aria-label="<?= $this->__('toggle_navigation') ?>">
+                        &#9776;
+                    </button>
+                    <h1 class="page-title"><?= $this->e($title ?? 'Dashboard') ?></h1>
+                </div>
                 <div class="header-right">
                     <?php if (isset($headerActions)): ?>
                     <div class="header-actions">

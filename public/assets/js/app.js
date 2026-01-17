@@ -90,6 +90,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Mobile sidebar toggle
+    var sidebarToggle = document.querySelector('.sidebar-toggle');
+    var sidebarBackdrop = document.querySelector('[data-sidebar-backdrop]');
+
+    function closeSidebar() {
+        document.body.classList.remove('sidebar-open');
+    }
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-open');
+        });
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeSidebar);
+    }
+
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 1200) {
+                closeSidebar();
+            }
+        });
+    });
+
     // Language dropdown toggle
     document.querySelectorAll('.language-dropdown-toggle').forEach(function(toggle) {
         toggle.addEventListener('click', function(e) {

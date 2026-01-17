@@ -117,6 +117,7 @@ return [
     'nav_audit' => 'Audit Log',
     'nav_backups' => 'Backups',
     'nav_diagnostics' => 'Diagnostics',
+    'toggle_navigation' => 'Toggle navigation',
     'nav_materials' => 'Materials',
     'nav_manufacturers' => 'Manufacturers',
     'nav_plastic_types' => 'Plastic Types',

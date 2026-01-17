@@ -117,6 +117,7 @@ return [
     'nav_audit' => 'Журнал аудиту',
     'nav_backups' => 'Резервні копії',
     'nav_diagnostics' => 'Діагностика',
+    'toggle_navigation' => 'Перемкнути навігацію',
     'nav_materials' => 'Матеріали',
     'nav_manufacturers' => 'Виробники',
     'nav_plastic_types' => 'Типи пластику',
