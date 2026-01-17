@@ -82,9 +82,16 @@ class DetailsController extends Controller
     {
         $this->requirePermission('catalog.details.view');
 
+        $printerSelect = 'p.name AS printer_name';
+        if ($this->db()->columnExists('printers', 'model')) {
+            $printerSelect .= ', p.model AS printer_model';
+        } else {
+            $printerSelect .= ", NULL AS printer_model";
+        }
+
         $detail = $this->db()->fetch(
             "SELECT d.*, m.sku AS material_sku, m.name AS material_name,
-                    p.name AS printer_name, p.model AS printer_model
+                    {$printerSelect}
              FROM details d
              LEFT JOIN items m ON d.material_item_id = m.id
              LEFT JOIN printers p ON d.printer_id = p.id
@@ -260,8 +267,15 @@ class DetailsController extends Controller
             return [];
         }
 
+        $columns = ['id', 'name'];
+        if ($this->db()->columnExists('printers', 'model')) {
+            $columns[] = 'model';
+        } else {
+            $columns[] = 'NULL AS model';
+        }
+
         return $this->db()->fetchAll(
-            "SELECT id, name, model
+            "SELECT " . implode(', ', $columns) . "
              FROM printers
              WHERE is_active = 1
              ORDER BY name"
