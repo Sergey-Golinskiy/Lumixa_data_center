@@ -27,6 +27,17 @@
                 </div>
             </div>
 
+            <?php if (!empty($hasCodeColumn)): ?>
+            <div class="form-group">
+                <label for="code"><?= $this->__('code') ?> *</label>
+                <input type="text" id="code" name="code" required maxlength="50"
+                       value="<?= $this->e($printer['code'] ?? $this->old('code')) ?>">
+                <?php if ($this->hasError('code')): ?>
+                <span class="error"><?= $this->error('code') ?></span>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="power_watts"><?= $this->__('power_watts') ?></label>

@@ -796,6 +796,8 @@ return [
     'edit_printer_title' => 'Редактировать: :name',
     'printer_name_required' => 'Название принтера обязательно',
     'printer_name_exists' => 'Принтер с таким названием уже существует',
+    'code_required' => 'Код обязателен',
+    'code_exists' => 'Код уже существует',
     'printer_created_success' => 'Принтер создан',
     'printer_updated_success' => 'Принтер обновлён',
     'printer_deleted_success' => 'Принтер удалён',

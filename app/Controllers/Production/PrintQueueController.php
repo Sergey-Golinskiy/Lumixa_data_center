@@ -87,7 +87,7 @@ class PrintQueueController extends Controller
             $this->notFound();
         }
 
-        $printers = $this->db()->fetchAll("SELECT * FROM printers WHERE is_active = 1 ORDER BY code");
+        $printers = $this->getActivePrinters();
 
         $this->render('production/print-queue/show', [
             'title' => $this->app->getTranslator()->get('print_job_title', ['number' => $job['job_number']]),
@@ -115,7 +115,7 @@ class PrintQueueController extends Controller
              ORDER BY po.order_number DESC"
         );
 
-        $printers = $this->db()->fetchAll("SELECT * FROM printers WHERE is_active = 1 ORDER BY code");
+        $printers = $this->getActivePrinters();
 
         $this->render('production/print-queue/form', [
             'title' => $this->app->getTranslator()->get('create_print_job'),
@@ -257,6 +257,21 @@ class PrintQueueController extends Controller
         $this->audit('print_job.cancelled', 'print_queue', $id, ['status' => $job['status']], ['status' => 'cancelled']);
         $this->session->setFlash('success', 'Print job cancelled');
         $this->redirect("/production/print-queue/{$id}");
+    }
+
+    private function getActivePrinters(): array
+    {
+        if (!$this->db()->tableExists('printers')) {
+            return [];
+        }
+
+        $hasCode = $this->db()->columnExists('printers', 'code');
+        $orderBy = $hasCode ? 'code' : 'name';
+        $codeSelect = $hasCode ? 'code' : 'name AS code';
+
+        return $this->db()->fetchAll(
+            "SELECT id, name, {$codeSelect} FROM printers WHERE is_active = 1 ORDER BY {$orderBy}"
+        );
     }
 
     /**

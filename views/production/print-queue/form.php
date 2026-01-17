@@ -63,7 +63,8 @@
                         <select name="printer" id="printer" class="form-control">
                             <option value=""><?= $this->__('select_later') ?></option>
                             <?php foreach ($printers as $p): ?>
-                            <option value="<?= h($p['code']) ?>" <?= ($job['printer'] ?? '') === $p['code'] ? 'selected' : '' ?>>
+                            <?php $printerCode = $p['code'] ?? $p['name']; ?>
+                            <option value="<?= h($printerCode) ?>" <?= ($job['printer'] ?? '') === $printerCode ? 'selected' : '' ?>>
                                 <?= h($p['name']) ?>
                             </option>
                             <?php endforeach; ?>

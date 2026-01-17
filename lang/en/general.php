@@ -797,6 +797,8 @@ return [
     'edit_printer_title' => 'Edit: :name',
     'printer_name_required' => 'Printer name is required',
     'printer_name_exists' => 'Printer name already exists',
+    'code_required' => 'Code is required',
+    'code_exists' => 'Code already exists',
     'printer_created_success' => 'Printer created successfully',
     'printer_updated_success' => 'Printer updated successfully',
     'printer_deleted_success' => 'Printer deleted successfully',

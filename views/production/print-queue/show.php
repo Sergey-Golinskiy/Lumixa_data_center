@@ -136,7 +136,8 @@
                 <select name="printer" class="form-control" style="width: 200px;">
                     <option value=""><?= $this->__('select_printer') ?></option>
                     <?php foreach ($printers as $p): ?>
-                    <option value="<?= h($p['code']) ?>" <?= $job['printer'] === $p['code'] ? 'selected' : '' ?>><?= h($p['name']) ?></option>
+                    <?php $printerCode = $p['code'] ?? $p['name']; ?>
+                    <option value="<?= h($printerCode) ?>" <?= $job['printer'] === $printerCode ? 'selected' : '' ?>><?= h($p['name']) ?></option>
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" class="btn btn-success"><?= $this->__('start_printing') ?></button>

@@ -40,9 +40,11 @@ class PrintersController extends Controller
             return;
         }
 
+        $hasCodeColumn = $this->db()->columnExists('printers', 'code');
         $this->view('admin/printers/form', [
             'title' => $this->app->getTranslator()->get('create_printer'),
-            'printer' => null
+            'printer' => null,
+            'hasCodeColumn' => $hasCodeColumn
         ]);
     }
 
@@ -103,9 +105,11 @@ class PrintersController extends Controller
             $this->notFound();
         }
 
+        $hasCodeColumn = $this->db()->columnExists('printers', 'code');
         $this->view('admin/printers/form', [
             'title' => $this->app->getTranslator()->get('edit_printer_title', ['name' => $printer['name']]),
-            'printer' => $printer
+            'printer' => $printer,
+            'hasCodeColumn' => $hasCodeColumn
         ]);
     }
 
@@ -127,8 +131,9 @@ class PrintersController extends Controller
             return;
         }
 
+        $columns = $this->getPrinterColumns();
         $printer = $this->db()->fetch(
-            "SELECT * FROM printers WHERE id = ?",
+            "SELECT " . implode(', ', $columns) . " FROM printers WHERE id = ?",
             [$id]
         );
 
@@ -136,7 +141,7 @@ class PrintersController extends Controller
             $this->notFound();
         }
 
-        $data = $this->getPayload();
+        $data = $this->getPayload($printer);
         $errors = $this->validatePayload($data, (int)$id);
 
         if ($errors) {
@@ -173,8 +178,9 @@ class PrintersController extends Controller
             return;
         }
 
+        $columns = $this->getPrinterColumns();
         $printer = $this->db()->fetch(
-            "SELECT * FROM printers WHERE id = ?",
+            "SELECT " . implode(', ', $columns) . " FROM printers WHERE id = ?",
             [$id]
         );
 
@@ -199,7 +205,7 @@ class PrintersController extends Controller
         $this->redirect('/admin/printers');
     }
 
-    private function getPayload(): array
+    private function getPayload(?array $existing = null): array
     {
         $data = [
             'name' => trim($this->post('name', ''))
@@ -218,6 +224,17 @@ class PrintersController extends Controller
         foreach ($optionalColumns as $column => $valueFactory) {
             if ($this->db()->columnExists('printers', $column)) {
                 $data[$column] = $valueFactory();
+            }
+        }
+
+        if ($this->db()->columnExists('printers', 'code')) {
+            $postedCode = trim($this->post('code', ''));
+            if ($postedCode !== '') {
+                $data['code'] = $postedCode;
+            } elseif (!empty($existing['code'])) {
+                $data['code'] = $existing['code'];
+            } else {
+                $data['code'] = $this->generatePrinterCode($data['name']);
             }
         }
 
@@ -244,6 +261,24 @@ class PrintersController extends Controller
             }
         }
 
+        if ($this->db()->columnExists('printers', 'code')) {
+            $code = trim($data['code'] ?? '');
+            if ($code === '') {
+                $errors['code'] = $translator->get('code_required');
+            } else {
+                $params = [$code];
+                $sql = "SELECT id FROM printers WHERE code = ?";
+                if ($id) {
+                    $sql .= " AND id != ?";
+                    $params[] = $id;
+                }
+                $exists = $this->db()->fetch($sql, $params);
+                if ($exists) {
+                    $errors['code'] = $translator->get('code_exists');
+                }
+            }
+        }
+
         return $errors;
     }
 
@@ -267,6 +302,7 @@ class PrintersController extends Controller
         ];
 
         $optionalColumns = [
+            'code',
             'model',
             'power_watts',
             'electricity_cost_per_kwh',
@@ -274,6 +310,10 @@ class PrintersController extends Controller
             'maintenance_per_hour',
             'notes',
             'is_active',
+            'status',
+            'type',
+            'hourly_rate',
+            'current_job_id',
             'created_at',
             'updated_at'
         ];
@@ -287,5 +327,23 @@ class PrintersController extends Controller
         }
 
         return $columns;
+    }
+
+    private function generatePrinterCode(string $name): string
+    {
+        $base = strtoupper(trim(preg_replace('/[^A-Za-z0-9]+/', '-', $name)));
+        $base = trim($base, '-');
+        if ($base === '') {
+            $base = 'PRN';
+        }
+
+        $candidate = $base;
+        $suffix = 1;
+        while ($this->db()->fetchColumn("SELECT COUNT(*) FROM printers WHERE code = ?", [$candidate])) {
+            $suffix++;
+            $candidate = "{$base}-{$suffix}";
+        }
+
+        return $candidate;
     }
 }
