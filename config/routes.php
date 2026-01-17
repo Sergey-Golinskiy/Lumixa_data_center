@@ -164,6 +164,14 @@ return function (Router $router) {
         $router->get('/products/{id}/edit', 'Catalog\\ProductsController@edit', 'catalog.products.edit');
         $router->post('/products/{id}', 'Catalog\\ProductsController@update');
 
+        // Details
+        $router->get('/details', 'Catalog\\DetailsController@index', 'catalog.details');
+        $router->get('/details/create', 'Catalog\\DetailsController@create', 'catalog.details.create');
+        $router->post('/details', 'Catalog\\DetailsController@store');
+        $router->get('/details/{id}', 'Catalog\\DetailsController@show', 'catalog.details.show');
+        $router->get('/details/{id}/edit', 'Catalog\\DetailsController@edit', 'catalog.details.edit');
+        $router->post('/details/{id}', 'Catalog\\DetailsController@update');
+
         // Variants
         $router->get('/variants', 'Catalog\\VariantsController@index', 'catalog.variants');
         $router->get('/variants/create', 'Catalog\\VariantsController@create', 'catalog.variants.create');

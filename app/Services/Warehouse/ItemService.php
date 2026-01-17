@@ -144,7 +144,7 @@ class ItemService
         $this->db->beginTransaction();
 
         try {
-            $id = $this->db->insert('items', [
+            $itemData = [
                 'sku' => $data['sku'],
                 'name' => $data['name'],
                 'type' => $data['type'],
@@ -152,10 +152,18 @@ class ItemService
                 'description' => $data['description'] ?? '',
                 'min_stock' => $data['min_stock'] ?? 0,
                 'reorder_point' => $data['reorder_point'] ?? 0,
-                'track_lots' => $data['track_lots'] ?? 0,
-                'image_path' => $data['image_path'] ?? null,
                 'is_active' => 1
-            ]);
+            ];
+
+            if ($this->db->columnExists('items', 'track_lots')) {
+                $itemData['track_lots'] = $data['track_lots'] ?? 0;
+            }
+
+            if ($this->db->columnExists('items', 'image_path')) {
+                $itemData['image_path'] = $data['image_path'] ?? null;
+            }
+
+            $id = $this->db->insert('items', $itemData);
 
             // Save attributes
             foreach ($attributes as $name => $value) {
@@ -204,7 +212,7 @@ class ItemService
         $this->db->beginTransaction();
 
         try {
-            $this->db->update('items', [
+            $itemData = [
                 'sku' => $data['sku'],
                 'name' => $data['name'],
                 'type' => $data['type'],
@@ -212,10 +220,18 @@ class ItemService
                 'description' => $data['description'] ?? '',
                 'min_stock' => $data['min_stock'] ?? 0,
                 'reorder_point' => $data['reorder_point'] ?? 0,
-                'track_lots' => $data['track_lots'] ?? 0,
-                'image_path' => $data['image_path'] ?? $old['image_path'] ?? null,
                 'is_active' => $data['is_active'] ?? 1
-            ], ['id' => $id]);
+            ];
+
+            if ($this->db->columnExists('items', 'track_lots')) {
+                $itemData['track_lots'] = $data['track_lots'] ?? 0;
+            }
+
+            if ($this->db->columnExists('items', 'image_path')) {
+                $itemData['image_path'] = $data['image_path'] ?? $old['image_path'] ?? null;
+            }
+
+            $this->db->update('items', $itemData, ['id' => $id]);
 
             // Update attributes
             $this->db->delete('item_attributes', ['item_id' => $id]);
