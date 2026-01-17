@@ -771,6 +771,7 @@ return [
     'category_updated_success' => 'Category updated successfully',
     'category_deleted_success' => 'Category deleted successfully',
     'category_in_use' => 'Cannot delete category: it is used by products',
+    'product_categories_missing' => 'Product categories table is missing. Run migrations to create it.',
     'select_category' => 'Select category',
     'no_categories_hint' => 'No categories yet. Create one in Admin.',
     'manage_categories' => 'Manage categories',

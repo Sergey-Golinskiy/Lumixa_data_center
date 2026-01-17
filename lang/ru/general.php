@@ -770,6 +770,7 @@ return [
     'category_updated_success' => 'Категория обновлена',
     'category_deleted_success' => 'Категория удалена',
     'category_in_use' => 'Нельзя удалить категорию: она используется в продуктах',
+    'product_categories_missing' => 'Таблица категорий продуктов отсутствует. Запустите миграции для её создания.',
     'select_category' => 'Выберите категорию',
     'no_categories_hint' => 'Категорий пока нет. Создайте в админке.',
     'manage_categories' => 'Управлять категориями',

@@ -22,6 +22,7 @@
                 </div>
 
                 <div class="form-group">
+                    <?php if (($categoryMode ?? 'table') === 'table'): ?>
                     <label for="category_id">Category *</label>
                     <select id="category_id" name="category_id" required>
                         <option value=""><?= $this->__('select_category') ?></option>
@@ -40,6 +41,15 @@
                     <?php endif; ?>
                     <?php if ($this->hasError('category_id')): ?>
                     <span class="error"><?= $this->error('category_id') ?></span>
+                    <?php endif; ?>
+                    <?php else: ?>
+                    <label for="category">Category *</label>
+                    <input type="text" id="category" name="category" required
+                           value="<?= $this->e($product['category'] ?? $this->old('category')) ?>"
+                           placeholder="<?= $this->__('category') ?>">
+                    <?php if ($this->hasError('category')): ?>
+                    <span class="error"><?= $this->error('category') ?></span>
+                    <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>

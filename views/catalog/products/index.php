@@ -19,6 +19,7 @@
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
+                    <?php if (($categoryMode ?? 'table') !== 'none'): ?>
                     <select name="category">
                         <option value=""><?= $this->__('all_categories') ?></option>
                         <?php foreach ($categories as $cat): ?>
@@ -27,6 +28,7 @@
                         </option>
                         <?php endforeach; ?>
                     </select>
+                    <?php endif; ?>
                 </div>
                 <div class="filter-group">
                     <select name="status">

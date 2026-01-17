@@ -15,6 +15,9 @@ class ProductCategoriesController extends Controller
     public function index(): void
     {
         $this->requirePermission('admin.product_categories.view');
+        if (!$this->ensureCategoryTable()) {
+            return;
+        }
 
         $categories = $this->db()->fetchAll(
             "SELECT * FROM product_categories ORDER BY name"
@@ -33,6 +36,9 @@ class ProductCategoriesController extends Controller
     public function create(): void
     {
         $this->requirePermission('admin.product_categories.create');
+        if (!$this->ensureCategoryTable()) {
+            return;
+        }
         $translator = $this->app->getTranslator();
 
         $this->view('admin/product-categories/form', [
@@ -47,6 +53,9 @@ class ProductCategoriesController extends Controller
     public function store(): void
     {
         $this->requirePermission('admin.product_categories.create');
+        if (!$this->ensureCategoryTable()) {
+            return;
+        }
         $translator = $this->app->getTranslator();
 
         if (!$this->validateCsrf()) {
@@ -100,6 +109,9 @@ class ProductCategoriesController extends Controller
     public function edit(string $id): void
     {
         $this->requirePermission('admin.product_categories.edit');
+        if (!$this->ensureCategoryTable()) {
+            return;
+        }
         $translator = $this->app->getTranslator();
 
         $category = $this->db()->fetch(
@@ -123,6 +135,9 @@ class ProductCategoriesController extends Controller
     public function update(string $id): void
     {
         $this->requirePermission('admin.product_categories.edit');
+        if (!$this->ensureCategoryTable()) {
+            return;
+        }
         $translator = $this->app->getTranslator();
 
         if (!$this->validateCsrf()) {
@@ -185,6 +200,9 @@ class ProductCategoriesController extends Controller
     public function delete(string $id): void
     {
         $this->requirePermission('admin.product_categories.delete');
+        if (!$this->ensureCategoryTable()) {
+            return;
+        }
         $translator = $this->app->getTranslator();
 
         if (!$this->validateCsrf()) {
@@ -217,5 +235,17 @@ class ProductCategoriesController extends Controller
         $this->audit('product_category.deleted', 'product_categories', $id, $category, null);
         $this->session->setFlash('success', $translator->get('category_deleted_success'));
         $this->redirect('/admin/product-categories');
+    }
+
+    private function ensureCategoryTable(): bool
+    {
+        if ($this->db()->tableExists('product_categories')) {
+            return true;
+        }
+
+        $translator = $this->app->getTranslator();
+        $this->session->setFlash('error', $translator->get('product_categories_missing'));
+        $this->redirect('/admin/diagnostics');
+        return false;
     }
 }

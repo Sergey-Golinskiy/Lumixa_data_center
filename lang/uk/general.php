@@ -770,6 +770,7 @@ return [
     'category_updated_success' => 'Категорію оновлено',
     'category_deleted_success' => 'Категорію видалено',
     'category_in_use' => 'Неможливо видалити категорію: вона використовується в продуктах',
+    'product_categories_missing' => 'Таблиця категорій продуктів відсутня. Запустіть міграції для її створення.',
     'select_category' => 'Оберіть категорію',
     'no_categories_hint' => 'Категорій поки немає. Створіть їх в адмінці.',
     'manage_categories' => 'Керувати категоріями',
