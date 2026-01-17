@@ -123,6 +123,7 @@ return function (Router $router) {
 
         // Documents
         $router->get('/documents', 'Warehouse\\DocumentsController@index', 'warehouse.documents');
+        $router->get('/documents/create/{type}', 'Warehouse\\DocumentsController@create', 'warehouse.documents.create.type');
         $router->get('/documents/create', 'Warehouse\\DocumentsController@create', 'warehouse.documents.create');
         $router->post('/documents', 'Warehouse\\DocumentsController@store');
         $router->get('/documents/{id}', 'Warehouse\\DocumentsController@show', 'warehouse.documents.show');

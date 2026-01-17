@@ -39,11 +39,13 @@ class DocumentsController extends Controller
             'search' => $this->get('search', '')
         ]);
 
+        $types = $this->getDocumentTypes();
+
         $this->view('warehouse/documents/index', [
             'title' => 'Documents',
             'documents' => $result['documents'],
             'pagination' => $result['pagination'],
-            'types' => $this->documentService->getTypes(),
+            'types' => $types,
             'filters' => [
                 'type' => $this->get('type', ''),
                 'status' => $this->get('status', ''),
@@ -55,12 +57,16 @@ class DocumentsController extends Controller
     /**
      * Show create form
      */
-    public function create(): void
+    public function create(?string $type = null): void
     {
         $this->requireAuth();
         $this->authorize('warehouse.documents.create');
 
-        $types = $this->documentService->getTypes();
+        $types = $this->getDocumentTypes();
+        $selectedType = $type ?? $this->get('type', '');
+        if ($selectedType && !array_key_exists($selectedType, $types)) {
+            $selectedType = '';
+        }
 
         // Get items for dropdown
         $items = $this->db()->fetchAll(
@@ -78,7 +84,9 @@ class DocumentsController extends Controller
             'lines' => [],
             'items' => $items,
             'partners' => $partners,
-            'csrfToken' => $this->csrfToken()
+            'csrfToken' => $this->csrfToken(),
+            'types' => $types,
+            'selectedType' => $selectedType
         ]);
     }
 
@@ -97,7 +105,7 @@ class DocumentsController extends Controller
         }
 
         $type = $this->post('type', 'receipt');
-        $types = $this->documentService->getTypes();
+        $types = $this->getDocumentTypes();
 
         if (!isset($types[$type])) {
             $this->session->setFlash('error', 'Invalid document type');
@@ -193,13 +201,17 @@ class DocumentsController extends Controller
             "SELECT id, name, type FROM partners WHERE is_active = 1 ORDER BY name"
         );
 
+        $types = $this->getDocumentTypes();
+
         $this->view('warehouse/documents/form', [
             'title' => 'Edit ' . $document['document_number'],
             'document' => $document,
             'lines' => $lines,
             'items' => $items,
             'partners' => $partners,
-            'csrfToken' => $this->csrfToken()
+            'csrfToken' => $this->csrfToken(),
+            'types' => $types,
+            'selectedType' => $document['type'] ?? ''
         ]);
     }
 
@@ -327,5 +339,18 @@ class DocumentsController extends Controller
         }
 
         return $result;
+    }
+
+    private function getDocumentTypes(): array
+    {
+        $translator = $this->app->getTranslator();
+
+        return [
+            'receipt' => $translator->get('receipt'),
+            'issue' => $translator->get('issue'),
+            'transfer' => $translator->get('transfer'),
+            'stocktake' => $translator->get('stocktake'),
+            'adjustment' => $translator->get('adjustment')
+        ];
     }
 }

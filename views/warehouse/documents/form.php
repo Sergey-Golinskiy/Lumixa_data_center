@@ -13,14 +13,15 @@
             <div class="card-header">Document Information</div>
             <div class="card-body">
                 <div class="form-group">
-                    <label for="type">Document Type *</label>
+                    <label for="type"><?= $this->__('document_type') ?> *</label>
+                    <?php $currentType = $document['type'] ?? $selectedType ?? $this->old('type'); ?>
                     <select id="type" name="type" required <?= $document ? 'disabled' : '' ?>>
-                        <option value="">Select Type</option>
-                        <option value="receipt" <?= ($document['type'] ?? $this->old('type')) === 'receipt' ? 'selected' : '' ?>>Receipt (Incoming)</option>
-                        <option value="shipment" <?= ($document['type'] ?? $this->old('type')) === 'shipment' ? 'selected' : '' ?>>Shipment (Outgoing)</option>
-                        <option value="transfer" <?= ($document['type'] ?? $this->old('type')) === 'transfer' ? 'selected' : '' ?>>Internal Transfer</option>
-                        <option value="adjustment" <?= ($document['type'] ?? $this->old('type')) === 'adjustment' ? 'selected' : '' ?>>Adjustment</option>
-                        <option value="write_off" <?= ($document['type'] ?? $this->old('type')) === 'write_off' ? 'selected' : '' ?>>Write-Off</option>
+                        <option value=""><?= $this->__('select_type') ?></option>
+                        <?php foreach ($types as $value => $label): ?>
+                        <option value="<?= $this->e($value) ?>" <?= $currentType === $value ? 'selected' : '' ?>>
+                            <?= $this->e($label) ?>
+                        </option>
+                        <?php endforeach; ?>
                     </select>
                     <?php if ($document): ?>
                     <input type="hidden" name="type" value="<?= $this->e($document['type']) ?>">

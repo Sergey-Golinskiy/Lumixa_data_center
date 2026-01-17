@@ -210,9 +210,11 @@ return [
     'document_number' => 'Номер документа',
     'document_type' => 'Тип документа',
     'receipt' => 'Надходження',
+    'issue' => 'Видача',
     'shipment' => 'Відвантаження',
     'transfer' => 'Переміщення',
     'adjustment' => 'Коригування',
+    'stocktake' => 'Інвентаризація',
 
     // Partners
     'partners' => 'Партнери',

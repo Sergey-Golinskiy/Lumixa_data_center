@@ -210,9 +210,11 @@ return [
     'document_number' => 'Document Number',
     'document_type' => 'Document Type',
     'receipt' => 'Receipt',
+    'issue' => 'Issue',
     'shipment' => 'Shipment',
     'transfer' => 'Transfer',
     'adjustment' => 'Adjustment',
+    'stocktake' => 'Stocktake',
 
     // Partners
     'partners' => 'Partners',
