@@ -106,6 +106,14 @@ return function (Router $router) {
         $router->post('/item-options/{group}/{id}', 'Admin\\ItemOptionsController@update');
         $router->post('/item-options/{group}/{id}/delete', 'Admin\\ItemOptionsController@delete');
 
+        // Printers
+        $router->get('/printers', 'Admin\\PrintersController@index', 'admin.printers');
+        $router->get('/printers/create', 'Admin\\PrintersController@create', 'admin.printers.create');
+        $router->post('/printers', 'Admin\\PrintersController@store');
+        $router->get('/printers/{id}/edit', 'Admin\\PrintersController@edit', 'admin.printers.edit');
+        $router->post('/printers/{id}', 'Admin\\PrintersController@update');
+        $router->post('/printers/{id}/delete', 'Admin\\PrintersController@delete');
+
     }, ['AdminMiddleware', 'CSRFMiddleware']);
 
     // ========================================
@@ -171,6 +179,16 @@ return function (Router $router) {
         $router->get('/details/{id}', 'Catalog\\DetailsController@show', 'catalog.details.show');
         $router->get('/details/{id}/edit', 'Catalog\\DetailsController@edit', 'catalog.details.edit');
         $router->post('/details/{id}', 'Catalog\\DetailsController@update');
+
+        // Detail Routing
+        $router->get('/detail-routing', 'Catalog\\DetailRoutingController@index', 'catalog.detail-routing');
+        $router->get('/detail-routing/create', 'Catalog\\DetailRoutingController@create', 'catalog.detail-routing.create');
+        $router->post('/detail-routing', 'Catalog\\DetailRoutingController@store');
+        $router->get('/detail-routing/{id}', 'Catalog\\DetailRoutingController@show', 'catalog.detail-routing.show');
+        $router->get('/detail-routing/{id}/edit', 'Catalog\\DetailRoutingController@edit', 'catalog.detail-routing.edit');
+        $router->post('/detail-routing/{id}', 'Catalog\\DetailRoutingController@update');
+        $router->post('/detail-routing/{id}/activate', 'Catalog\\DetailRoutingController@activate');
+        $router->post('/detail-routing/{id}/archive', 'Catalog\\DetailRoutingController@archive');
 
         // Variants
         $router->get('/variants', 'Catalog\\VariantsController@index', 'catalog.variants');

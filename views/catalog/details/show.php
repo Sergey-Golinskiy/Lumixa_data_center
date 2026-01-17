@@ -40,10 +40,19 @@
 
 <div class="card">
     <div class="card-body">
+        <?php if ($detail['detail_type'] === 'printed'): ?>
         <div class="detail-row">
             <strong><?= $this->__('material') ?>:</strong>
             <?php if (!empty($detail['material_item_id'])): ?>
             <?= $this->e($detail['material_sku'] ?? '') ?> <?= !empty($detail['material_name']) ? ' - ' . $this->e($detail['material_name']) : '' ?>
+            <?php else: ?>
+            <span class="text-muted">-</span>
+            <?php endif; ?>
+        </div>
+        <div class="detail-row">
+            <strong><?= $this->__('printer') ?>:</strong>
+            <?php if (!empty($detail['printer_id'])): ?>
+            <?= $this->e($detail['printer_name'] ?? '') ?><?= !empty($detail['printer_model']) ? ' - ' . $this->e($detail['printer_model']) : '' ?>
             <?php else: ?>
             <span class="text-muted">-</span>
             <?php endif; ?>
@@ -60,6 +69,7 @@
             <strong><?= $this->__('print_parameters') ?>:</strong>
             <?= $detail['print_parameters'] ? $this->e($detail['print_parameters']) : '-' ?>
         </div>
+        <?php endif; ?>
         <div class="detail-row">
             <strong><?= $this->__('model_file') ?>:</strong>
             <?php if (!empty($detail['model_path'])): ?>
@@ -70,6 +80,54 @@
             <span class="text-muted">-</span>
             <?php endif; ?>
         </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header"><?= $this->__('detail_routing') ?></div>
+    <div class="card-body">
+        <?php if (!empty($activeRouting)): ?>
+        <div class="routing-header" style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+                <strong><?= $this->e($activeRouting['version']) ?></strong>
+                <?php if ($activeRouting['name']): ?>
+                <span class="text-muted">- <?= $this->e($activeRouting['name']) ?></span>
+                <?php endif; ?>
+            </div>
+            <a href="/catalog/detail-routing/<?= $activeRouting['id'] ?>" class="btn btn-sm btn-outline"><?= $this->__('view_details') ?></a>
+        </div>
+        <div class="table-container" style="margin-top: 12px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th><?= $this->__('operation') ?></th>
+                        <th><?= $this->__('work_center') ?></th>
+                        <th><?= $this->__('setup_time_minutes') ?></th>
+                        <th><?= $this->__('run_time_minutes') ?></th>
+                        <th class="text-right"><?= $this->__('labor_cost') ?></th>
+                        <th class="text-right"><?= $this->__('overhead_cost') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($routingOperations as $op): ?>
+                    <tr>
+                        <td><?= $this->e($op['operation_number']) ?> - <?= $this->e($op['name']) ?></td>
+                        <td><?= $this->e($op['work_center'] ?? '-') ?></td>
+                        <td><?= $this->e($op['setup_time_minutes']) ?></td>
+                        <td><?= $this->e($op['run_time_minutes']) ?></td>
+                        <td class="text-right"><?= number_format($op['labor_cost'] ?? 0, 2) ?></td>
+                        <td class="text-right"><?= number_format($op['overhead_cost'] ?? 0, 2) ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php else: ?>
+        <p class="text-muted"><?= $this->__('no_active_routing') ?></p>
+        <?php if ($this->can('catalog.detail_routing.create')): ?>
+        <a href="/catalog/detail-routing/create?detail_id=<?= $detail['id'] ?>" class="btn btn-primary btn-sm">+ <?= $this->__('create_detail_routing') ?></a>
+        <?php endif; ?>
+        <?php endif; ?>
     </div>
 </div>
 

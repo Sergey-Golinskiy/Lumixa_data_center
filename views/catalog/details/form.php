@@ -43,38 +43,63 @@
                 <?php endif; ?>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="material_item_id"><?= $this->__('material') ?></label>
-                    <select id="material_item_id" name="material_item_id">
-                        <option value=""><?= $this->__('select_material') ?></option>
-                        <?php foreach ($materials as $material): ?>
-                        <option value="<?= $material['id'] ?>" <?= (string)$this->old('material_item_id', $detail['material_item_id'] ?? '') === (string)$material['id'] ? 'selected' : '' ?>>
-                            <?= $this->e($material['sku']) ?> - <?= $this->e($material['name']) ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <?php if ($this->hasError('material_item_id')): ?>
-                    <span class="error"><?= $this->e($this->error('material_item_id')) ?></span>
-                    <?php endif; ?>
+            <div class="detail-printing-fields">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="material_item_id"><?= $this->__('material') ?></label>
+                        <select id="material_item_id" name="material_item_id">
+                            <option value=""><?= $this->__('select_material') ?></option>
+                            <?php foreach ($materials as $material): ?>
+                            <option value="<?= $material['id'] ?>" <?= (string)$this->old('material_item_id', $detail['material_item_id'] ?? '') === (string)$material['id'] ? 'selected' : '' ?>>
+                                <?= $this->e($material['sku']) ?> - <?= $this->e($material['name']) ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if ($this->hasError('material_item_id')): ?>
+                        <span class="error"><?= $this->e($this->error('material_item_id')) ?></span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="printer_id"><?= $this->__('printer') ?></label>
+                        <select id="printer_id" name="printer_id">
+                            <option value=""><?= $this->__('select_printer') ?></option>
+                            <?php foreach ($printers as $printer): ?>
+                            <option value="<?= $printer['id'] ?>" <?= (string)$this->old('printer_id', $detail['printer_id'] ?? '') === (string)$printer['id'] ? 'selected' : '' ?>>
+                                <?= $this->e($printer['name']) ?><?= $printer['model'] ? ' - ' . $this->e($printer['model']) : '' ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if ($this->hasError('printer_id')): ?>
+                        <span class="error"><?= $this->e($this->error('printer_id')) ?></span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="material_qty_grams"><?= $this->__('material_qty_grams') ?></label>
+                        <input type="number" id="material_qty_grams" name="material_qty_grams" step="0.01"
+                               value="<?= $this->e($this->old('material_qty_grams', $detail['material_qty_grams'] ?? 0)) ?>">
+                        <?php if ($this->hasError('material_qty_grams')): ?>
+                        <span class="error"><?= $this->e($this->error('material_qty_grams')) ?></span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="print_time_minutes"><?= $this->__('print_time_minutes') ?></label>
+                        <input type="number" id="print_time_minutes" name="print_time_minutes" step="1" min="0"
+                               value="<?= $this->e($this->old('print_time_minutes', $detail['print_time_minutes'] ?? 0)) ?>">
+                        <?php if ($this->hasError('print_time_minutes')): ?>
+                        <span class="error"><?= $this->e($this->error('print_time_minutes')) ?></span>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="material_qty_grams"><?= $this->__('material_qty_grams') ?></label>
-                    <input type="number" id="material_qty_grams" name="material_qty_grams" step="0.01"
-                           value="<?= $this->e($this->old('material_qty_grams', $detail['material_qty_grams'] ?? 0)) ?>">
+                    <label for="print_parameters"><?= $this->__('print_parameters') ?></label>
+                    <textarea id="print_parameters" name="print_parameters" rows="3"><?= $this->e($this->old('print_parameters', $detail['print_parameters'] ?? '')) ?></textarea>
                 </div>
-
-                <div class="form-group">
-                    <label for="print_time_minutes"><?= $this->__('print_time_minutes') ?></label>
-                    <input type="number" id="print_time_minutes" name="print_time_minutes" step="1" min="0"
-                           value="<?= $this->e($this->old('print_time_minutes', $detail['print_time_minutes'] ?? 0)) ?>">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="print_parameters"><?= $this->__('print_parameters') ?></label>
-                <textarea id="print_parameters" name="print_parameters" rows="3"><?= $this->e($this->old('print_parameters', $detail['print_parameters'] ?? '')) ?></textarea>
             </div>
 
             <div class="form-group">
@@ -121,5 +146,24 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const typeSelect = document.getElementById('detail_type');
+    const printingFields = document.querySelector('.detail-printing-fields');
+
+    const updatePrintingFields = () => {
+        const isPrinted = typeSelect?.value === 'printed';
+        printingFields?.classList.toggle('is-hidden', !isPrinted);
+    };
+
+    typeSelect?.addEventListener('change', updatePrintingFields);
+    updatePrintingFields();
+});
+</script>
+
+<style>
+.detail-printing-fields.is-hidden { display: none; }
+</style>
 
 <?php $this->endSection(); ?>

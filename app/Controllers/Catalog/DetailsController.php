@@ -83,9 +83,11 @@ class DetailsController extends Controller
         $this->requirePermission('catalog.details.view');
 
         $detail = $this->db()->fetch(
-            "SELECT d.*, m.sku AS material_sku, m.name AS material_name
+            "SELECT d.*, m.sku AS material_sku, m.name AS material_name,
+                    p.name AS printer_name, p.model AS printer_model
              FROM details d
              LEFT JOIN items m ON d.material_item_id = m.id
+             LEFT JOIN printers p ON d.printer_id = p.id
              WHERE d.id = ?",
             [$id]
         );
@@ -94,9 +96,23 @@ class DetailsController extends Controller
             $this->notFound();
         }
 
+        $activeRouting = $this->db()->fetch(
+            "SELECT * FROM detail_routing WHERE detail_id = ? AND status = 'active' LIMIT 1",
+            [$id]
+        );
+        $routingOperations = [];
+        if ($activeRouting) {
+            $routingOperations = $this->db()->fetchAll(
+                "SELECT * FROM detail_routing_operations WHERE routing_id = ? ORDER BY sort_order",
+                [$activeRouting['id']]
+            );
+        }
+
         $this->render('catalog/details/show', [
             'title' => $detail['name'],
-            'detail' => $detail
+            'detail' => $detail,
+            'activeRouting' => $activeRouting,
+            'routingOperations' => $routingOperations
         ]);
     }
 
@@ -108,11 +124,13 @@ class DetailsController extends Controller
         $this->requirePermission('catalog.details.create');
 
         $materials = $this->getMaterials();
+        $printers = $this->getPrinters();
 
         $this->render('catalog/details/form', [
             'title' => $this->app->getTranslator()->get('create_detail'),
             'detail' => null,
-            'materials' => $materials
+            'materials' => $materials,
+            'printers' => $printers
         ]);
     }
 
@@ -171,11 +189,13 @@ class DetailsController extends Controller
         }
 
         $materials = $this->getMaterials();
+        $printers = $this->getPrinters();
 
         $this->render('catalog/details/form', [
             'title' => $this->app->getTranslator()->get('edit_detail'),
             'detail' => $detail,
-            'materials' => $materials
+            'materials' => $materials,
+            'printers' => $printers
         ]);
     }
 
@@ -234,6 +254,20 @@ class DetailsController extends Controller
         );
     }
 
+    private function getPrinters(): array
+    {
+        if (!$this->db()->tableExists('printers')) {
+            return [];
+        }
+
+        return $this->db()->fetchAll(
+            "SELECT id, name, model
+             FROM printers
+             WHERE is_active = 1
+             ORDER BY name"
+        );
+    }
+
     private function getDetailPayload(bool $isUpdate = false, ?array $existing = null): array
     {
         $data = [
@@ -241,6 +275,7 @@ class DetailsController extends Controller
             'name' => trim($_POST['name'] ?? ''),
             'detail_type' => $_POST['detail_type'] ?? '',
             'material_item_id' => (int)($_POST['material_item_id'] ?? 0),
+            'printer_id' => (int)($_POST['printer_id'] ?? 0),
             'material_qty_grams' => (float)($_POST['material_qty_grams'] ?? 0),
             'print_time_minutes' => (int)($_POST['print_time_minutes'] ?? 0),
             'print_parameters' => trim($_POST['print_parameters'] ?? ''),
@@ -249,11 +284,16 @@ class DetailsController extends Controller
 
         if ($data['detail_type'] === 'purchased') {
             $data['material_item_id'] = null;
+            $data['printer_id'] = null;
             $data['material_qty_grams'] = 0;
             $data['print_time_minutes'] = 0;
             $data['print_parameters'] = '';
         } elseif (empty($data['material_item_id'])) {
             $data['material_item_id'] = null;
+        }
+
+        if (empty($data['printer_id'])) {
+            $data['printer_id'] = null;
         }
 
         $imagePath = $this->storeImageUpload('image', 'details');
@@ -302,6 +342,28 @@ class DetailsController extends Controller
 
         if ($data['detail_type'] === 'printed' && empty($data['material_item_id'])) {
             $errors['material_item_id'] = 'Material is required';
+        }
+
+        if ($data['detail_type'] === 'printed' && empty($data['printer_id'])) {
+            $errors['printer_id'] = 'Printer is required';
+        }
+
+        if ($data['detail_type'] === 'printed') {
+            if ($data['material_qty_grams'] <= 0) {
+                $errors['material_qty_grams'] = 'Material grams must be greater than 0';
+            }
+
+            if ($data['print_time_minutes'] <= 0) {
+                $errors['print_time_minutes'] = 'Print time must be greater than 0';
+            }
+        } else {
+            if ($data['material_qty_grams'] < 0) {
+                $errors['material_qty_grams'] = 'Material grams cannot be negative';
+            }
+
+            if ($data['print_time_minutes'] < 0) {
+                $errors['print_time_minutes'] = 'Print time cannot be negative';
+            }
         }
 
         return $errors;

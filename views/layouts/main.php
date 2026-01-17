@@ -53,6 +53,9 @@
                             <?php if ($this->can('catalog.details.view')): ?>
                             <li><a href="/catalog/details" class="nav-link"><?= $this->__('nav_details') ?></a></li>
                             <?php endif; ?>
+                            <?php if ($this->can('catalog.detail_routing.view')): ?>
+                            <li><a href="/catalog/detail-routing" class="nav-link"><?= $this->__('nav_detail_routing') ?></a></li>
+                            <?php endif; ?>
                             <li><a href="/catalog/variants" class="nav-link"><?= $this->__('nav_variants') ?></a></li>
                             <li><a href="/catalog/bom" class="nav-link"><?= $this->__('nav_bom') ?></a></li>
                             <li><a href="/catalog/routing" class="nav-link"><?= $this->__('nav_routing') ?></a></li>
@@ -106,6 +109,9 @@
                             <li><a href="/admin/item-options/manufacturers" class="nav-link"><?= $this->__('nav_manufacturers') ?></a></li>
                             <li><a href="/admin/item-options/plastic-types" class="nav-link"><?= $this->__('nav_plastic_types') ?></a></li>
                             <li><a href="/admin/item-options/filament-aliases" class="nav-link"><?= $this->__('nav_filament_aliases') ?></a></li>
+                            <?php endif; ?>
+                            <?php if ($this->can('admin.printers.view')): ?>
+                            <li><a href="/admin/printers" class="nav-link"><?= $this->__('nav_printers') ?></a></li>
                             <?php endif; ?>
                             <li><a href="/admin/backups" class="nav-link"><?= $this->__('nav_backups') ?></a></li>
                             <li><a href="/admin/diagnostics" class="nav-link"><?= $this->__('nav_diagnostics') ?></a></li>
