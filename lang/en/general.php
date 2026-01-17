@@ -82,7 +82,7 @@ return [
     'nav_items' => 'Items (SKU)',
     'nav_stock' => 'Stock',
     'nav_documents' => 'Documents',
-    'nav_partners' => 'Partners',
+    'nav_partners' => 'Suppliers',
 
     // Navigation - Catalog
     'nav_catalog' => 'Catalog',
@@ -217,10 +217,10 @@ return [
     'stocktake' => 'Stocktake',
 
     // Partners
-    'partners' => 'Partners',
-    'partner' => 'Partner',
-    'new_partner' => 'New Partner',
-    'partner_type' => 'Partner Type',
+    'partners' => 'Suppliers',
+    'partner' => 'Supplier',
+    'new_partner' => 'New Supplier',
+    'partner_type' => 'Supplier Type',
     'contact_person' => 'Contact Person',
     'phone' => 'Phone',
     'address' => 'Address',
@@ -465,13 +465,13 @@ return [
     'no_documents_found' => 'No documents found',
 
     // Partners
-    'new_partner' => 'New Partner',
+    'new_partner' => 'New Supplier',
     'suppliers' => 'Suppliers',
     'customers' => 'Customers',
     'both' => 'Both',
     'contact' => 'Contact',
-    'no_partners_found' => 'No partners found',
-    'search_partner' => 'Search name, code, email...',
+    'no_partners_found' => 'No suppliers found',
+    'search_partner' => 'Search supplier name, code, email...',
 
     // Stock
     'stock_balances' => 'Stock Balances',

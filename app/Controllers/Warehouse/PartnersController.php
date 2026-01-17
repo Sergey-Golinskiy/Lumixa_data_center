@@ -59,7 +59,7 @@ class PartnersController extends Controller
         );
 
         $this->render('warehouse/partners/index', [
-            'title' => 'Partners',
+            'title' => 'Suppliers',
             'partners' => $partners,
             'search' => $search,
             'type' => $type,
@@ -124,7 +124,7 @@ class PartnersController extends Controller
         $this->requirePermission('warehouse.partners.create');
 
         $this->render('warehouse/partners/form', [
-            'title' => 'Create Partner',
+            'title' => 'Create Supplier',
             'partner' => null
         ]);
     }
@@ -158,7 +158,7 @@ class PartnersController extends Controller
         }
 
         if (!in_array($data['type'], ['supplier', 'customer', 'both'])) {
-            $errors['type'] = 'Invalid partner type';
+            $errors['type'] = 'Invalid supplier type';
         }
 
         if ($data['code']) {
@@ -195,7 +195,7 @@ class PartnersController extends Controller
         ]));
 
         $this->audit('partner.created', 'partners', $id, null, $data);
-        $this->session->setFlash('success', 'Partner created successfully');
+        $this->session->setFlash('success', 'Supplier created successfully');
         $this->redirect("/warehouse/partners/{$id}");
     }
 
@@ -255,7 +255,7 @@ class PartnersController extends Controller
         }
 
         if (!in_array($data['type'], ['supplier', 'customer', 'both'])) {
-            $errors['type'] = 'Invalid partner type';
+            $errors['type'] = 'Invalid supplier type';
         }
 
         if ($data['code']) {
@@ -285,7 +285,7 @@ class PartnersController extends Controller
         ]), ['id' => $id]);
 
         $this->audit('partner.updated', 'partners', $id, $partner, $data);
-        $this->session->setFlash('success', 'Partner updated successfully');
+        $this->session->setFlash('success', 'Supplier updated successfully');
         $this->redirect("/warehouse/partners/{$id}");
     }
 
@@ -309,14 +309,14 @@ class PartnersController extends Controller
         );
 
         if ($docCount > 0) {
-            $this->session->setFlash('error', "Cannot delete partner: {$docCount} documents are linked to this partner");
+            $this->session->setFlash('error', "Cannot delete supplier: {$docCount} documents are linked to this supplier");
             $this->redirect("/warehouse/partners/{$id}");
             return;
         }
 
         $this->db()->delete('partners', ['id' => $id]);
         $this->audit('partner.deleted', 'partners', $id, $partner, null);
-        $this->session->setFlash('success', 'Partner deleted successfully');
+        $this->session->setFlash('success', 'Supplier deleted successfully');
         $this->redirect('/warehouse/partners');
     }
 }

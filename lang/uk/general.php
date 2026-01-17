@@ -82,7 +82,7 @@ return [
     'nav_items' => 'Товари (SKU)',
     'nav_stock' => 'Залишки',
     'nav_documents' => 'Документи',
-    'nav_partners' => 'Партнери',
+    'nav_partners' => 'Постачальники',
 
     // Navigation - Catalog
     'nav_catalog' => 'Каталог',
@@ -217,10 +217,10 @@ return [
     'stocktake' => 'Інвентаризація',
 
     // Partners
-    'partners' => 'Партнери',
-    'partner' => 'Партнер',
-    'new_partner' => 'Новий партнер',
-    'partner_type' => 'Тип партнера',
+    'partners' => 'Постачальники',
+    'partner' => 'Постачальник',
+    'new_partner' => 'Новий постачальник',
+    'partner_type' => 'Тип постачальника',
     'contact_person' => 'Контактна особа',
     'phone' => 'Телефон',
     'address' => 'Адреса',
@@ -464,13 +464,13 @@ return [
     'no_documents_found' => 'Документи не знайдено',
 
     // Partners
-    'new_partner' => 'Новий партнер',
+    'new_partner' => 'Новий постачальник',
     'suppliers' => 'Постачальники',
     'customers' => 'Покупці',
     'both' => 'Обидва',
     'contact' => 'Контакт',
-    'no_partners_found' => 'Партнерів не знайдено',
-    'search_partner' => 'Пошук за назвою, кодом, email...',
+    'no_partners_found' => 'Постачальників не знайдено',
+    'search_partner' => 'Пошук за назвою постачальника, кодом, email...',
 
     // Stock
     'stock_balances' => 'Залишки на складі',
