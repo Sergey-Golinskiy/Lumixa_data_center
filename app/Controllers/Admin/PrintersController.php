@@ -19,8 +19,9 @@ class PrintersController extends Controller
             return;
         }
 
+        $columns = $this->getPrinterColumns();
         $printers = $this->db()->fetchAll(
-            "SELECT * FROM printers ORDER BY name"
+            "SELECT " . implode(', ', $columns) . " FROM printers ORDER BY name"
         );
 
         $this->view('admin/printers/index', [
@@ -92,8 +93,9 @@ class PrintersController extends Controller
             return;
         }
 
+        $columns = $this->getPrinterColumns();
         $printer = $this->db()->fetch(
-            "SELECT * FROM printers WHERE id = ?",
+            "SELECT " . implode(', ', $columns) . " FROM printers WHERE id = ?",
             [$id]
         );
 
@@ -199,9 +201,8 @@ class PrintersController extends Controller
 
     private function getPayload(): array
     {
-        return [
+        $data = [
             'name' => trim($this->post('name', '')),
-            'model' => trim($this->post('model', '')),
             'power_watts' => (float)$this->post('power_watts', 0),
             'electricity_cost_per_kwh' => (float)$this->post('electricity_cost_per_kwh', 0),
             'amortization_per_hour' => (float)$this->post('amortization_per_hour', 0),
@@ -209,6 +210,12 @@ class PrintersController extends Controller
             'notes' => trim($this->post('notes', '')),
             'is_active' => $this->post('is_active') ? 1 : 0
         ];
+
+        if ($this->hasModelColumn()) {
+            $data['model'] = trim($this->post('model', ''));
+        }
+
+        return $data;
     }
 
     private function validatePayload(array $data, ?int $id = null): array
@@ -244,5 +251,34 @@ class PrintersController extends Controller
         $this->session->setFlash('error', $translator->get('printers_missing'));
         $this->redirect('/admin/diagnostics');
         return false;
+    }
+
+    private function hasModelColumn(): bool
+    {
+        return $this->db()->columnExists('printers', 'model');
+    }
+
+    private function getPrinterColumns(): array
+    {
+        $columns = [
+            'id',
+            'name',
+            'power_watts',
+            'electricity_cost_per_kwh',
+            'amortization_per_hour',
+            'maintenance_per_hour',
+            'notes',
+            'is_active',
+            'created_at',
+            'updated_at'
+        ];
+
+        if ($this->hasModelColumn()) {
+            $columns[] = 'model';
+        } else {
+            $columns[] = 'NULL AS model';
+        }
+
+        return $columns;
     }
 }
