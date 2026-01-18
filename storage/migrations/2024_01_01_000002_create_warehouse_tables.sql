@@ -51,44 +51,18 @@ CREATE TABLE IF NOT EXISTS item_attributes (
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Lots/Batches
-CREATE TABLE IF NOT EXISTS lots (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    item_id INT UNSIGNED NOT NULL,
-    lot_number VARCHAR(100) NOT NULL,
-    color VARCHAR(100),
-    received_at DATE,
-    expiry_date DATE,
-    supplier_id INT UNSIGNED,
-    purchase_price DECIMAL(15,4) DEFAULT 0,
-    notes TEXT,
-    is_active TINYINT(1) DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_item_lot (item_id, lot_number),
-    INDEX idx_lot_number (lot_number),
-    INDEX idx_item_id (item_id),
-    INDEX idx_color (color),
-    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT,
-    FOREIGN KEY (supplier_id) REFERENCES partners(id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Stock balances (per item/lot)
+-- Stock balances (per item)
 CREATE TABLE IF NOT EXISTS stock_balances (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     item_id INT UNSIGNED NOT NULL,
-    lot_id INT UNSIGNED,
     on_hand DECIMAL(15,4) DEFAULT 0,
     reserved DECIMAL(15,4) DEFAULT 0,
     avg_cost DECIMAL(15,4) DEFAULT 0,
     last_movement_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_item_lot_stock (item_id, lot_id),
     INDEX idx_item_id (item_id),
-    INDEX idx_lot_id (lot_id),
-    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT,
-    FOREIGN KEY (lot_id) REFERENCES lots(id) ON DELETE SET NULL
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Documents
@@ -125,7 +99,6 @@ CREATE TABLE IF NOT EXISTS document_lines (
     document_id INT UNSIGNED NOT NULL,
     line_number INT UNSIGNED NOT NULL,
     item_id INT UNSIGNED NOT NULL,
-    lot_id INT UNSIGNED,
     quantity DECIMAL(15,4) NOT NULL,
     unit_price DECIMAL(15,4) DEFAULT 0,
     total_price DECIMAL(15,4) DEFAULT 0,
@@ -134,8 +107,7 @@ CREATE TABLE IF NOT EXISTS document_lines (
     INDEX idx_document_id (document_id),
     INDEX idx_item_id (item_id),
     FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
-    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT,
-    FOREIGN KEY (lot_id) REFERENCES lots(id) ON DELETE SET NULL
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Stock movements (postings - immutable log)
@@ -144,7 +116,6 @@ CREATE TABLE IF NOT EXISTS stock_movements (
     document_id INT UNSIGNED NOT NULL,
     document_line_id INT UNSIGNED NOT NULL,
     item_id INT UNSIGNED NOT NULL,
-    lot_id INT UNSIGNED,
     movement_type ENUM('in', 'out', 'reserve', 'unreserve') NOT NULL,
     quantity DECIMAL(15,4) NOT NULL,
     unit_cost DECIMAL(15,4) DEFAULT 0,
@@ -153,20 +124,17 @@ CREATE TABLE IF NOT EXISTS stock_movements (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_document_id (document_id),
     INDEX idx_item_id (item_id),
-    INDEX idx_lot_id (lot_id),
     INDEX idx_movement_type (movement_type),
     INDEX idx_created_at (created_at),
     FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE RESTRICT,
     FOREIGN KEY (document_line_id) REFERENCES document_lines(id) ON DELETE RESTRICT,
-    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT,
-    FOREIGN KEY (lot_id) REFERENCES lots(id) ON DELETE SET NULL
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Reservations (for print queue and production)
 CREATE TABLE IF NOT EXISTS reservations (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     item_id INT UNSIGNED NOT NULL,
-    lot_id INT UNSIGNED,
     quantity DECIMAL(15,4) NOT NULL,
     reserved_for_type ENUM('print_job', 'production_order', 'manual') NOT NULL,
     reserved_for_id INT UNSIGNED,
@@ -180,7 +148,6 @@ CREATE TABLE IF NOT EXISTS reservations (
     INDEX idx_status (status),
     INDEX idx_reserved_for (reserved_for_type, reserved_for_id),
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT,
-    FOREIGN KEY (lot_id) REFERENCES lots(id) ON DELETE SET NULL,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

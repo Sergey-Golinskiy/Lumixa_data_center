@@ -124,7 +124,11 @@ class MigrationService
             foreach ($statements as $statement) {
                 $statement = trim($statement);
                 if (!empty($statement)) {
-                    $this->db->exec($statement);
+                    $stmt = $this->db->query($statement);
+                    if ($stmt->columnCount() > 0) {
+                        $stmt->fetchAll();
+                    }
+                    $stmt->closeCursor();
                 }
             }
 

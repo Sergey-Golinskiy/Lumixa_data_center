@@ -121,6 +121,7 @@ class Application
                 'log_file' => dirname(__DIR__, 2) . '/storage/logs/app.log',
                 'base_path' => dirname(__DIR__, 2),
                 'storage_path' => dirname(__DIR__, 2) . '/storage',
+                'upload_path' => dirname(__DIR__, 2) . '/public/uploads',
             ];
             return;
         }
@@ -149,18 +150,28 @@ class Application
     {
         $installedFile = $this->config['storage_path'] . '/.installed';
 
-        if (!file_exists($installedFile)) {
-            return false;
-        }
-
         // Try to connect to database
         try {
             $db = $this->getDatabase();
-            $stmt = $db->query("SELECT COUNT(*) FROM users");
-            return $stmt->fetchColumn() > 0;
+            $userCount = (int)$db->fetchColumn("SELECT COUNT(*) FROM users");
+
+            if (file_exists($installedFile)) {
+                return $userCount > 0;
+            }
+
+            $appInstalled = $db->fetchColumn(
+                "SELECT value FROM settings WHERE `key` = 'app_installed' LIMIT 1"
+            );
+
+            if ($userCount > 0 && (string)$appInstalled === '1') {
+                file_put_contents($installedFile, date('Y-m-d H:i:s'));
+                return true;
+            }
         } catch (\Exception $e) {
             return false;
         }
+
+        return false;
     }
 
     /**

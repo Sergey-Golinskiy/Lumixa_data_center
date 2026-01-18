@@ -21,6 +21,8 @@ class ProductsController extends Controller
         $status = $_GET['status'] ?? '';
         $page = max(1, (int)($_GET['page'] ?? 1));
         $perPage = 25;
+        $categorySupport = $this->getCategorySupport();
+        $categoryMode = $categorySupport['useTable'] ? 'table' : ($categorySupport['categoryName'] ? 'legacy' : 'none');
 
         // Build query
         $where = ['1=1'];
@@ -32,7 +34,10 @@ class ProductsController extends Controller
             $params[] = "%{$search}%";
         }
 
-        if ($category) {
+        if ($category && $categoryMode === 'table') {
+            $where[] = "p.category_id = ?";
+            $params[] = $category;
+        } elseif ($category && $categoryMode === 'legacy') {
             $where[] = "p.category = ?";
             $params[] = $category;
         }
@@ -53,25 +58,50 @@ class ProductsController extends Controller
 
         // Get products with variant count
         $offset = ($page - 1) * $perPage;
-        $products = $this->db()->fetchAll(
-            "SELECT p.*,
-                    (SELECT COUNT(*) FROM variants WHERE product_id = p.id) as variant_count
-             FROM products p
-             WHERE {$whereClause}
-             ORDER BY p.code
-             LIMIT {$perPage} OFFSET {$offset}",
-            $params
-        );
+        if ($categoryMode === 'table') {
+            $products = $this->db()->fetchAll(
+                "SELECT p.*, COALESCE(pc.name, p.category) as category_name,
+                        (SELECT COUNT(*) FROM variants WHERE product_id = p.id) as variant_count
+                 FROM products p
+                 LEFT JOIN product_categories pc ON p.category_id = pc.id
+                 WHERE {$whereClause}
+                 ORDER BY p.code
+                 LIMIT {$perPage} OFFSET {$offset}",
+                $params
+            );
+        } else {
+            $products = $this->db()->fetchAll(
+                "SELECT p.*, p.category as category_name,
+                        (SELECT COUNT(*) FROM variants WHERE product_id = p.id) as variant_count
+                 FROM products p
+                 WHERE {$whereClause}
+                 ORDER BY p.code
+                 LIMIT {$perPage} OFFSET {$offset}",
+                $params
+            );
+        }
 
         // Get categories for filter
-        $categories = $this->db()->fetchAll(
-            "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
-        );
+        if ($categoryMode === 'table') {
+            $categories = $this->db()->fetchAll(
+                "SELECT id, name FROM product_categories WHERE is_active = 1 ORDER BY name"
+            );
+        } elseif ($categoryMode === 'legacy') {
+            $categories = $this->db()->fetchAll(
+                "SELECT DISTINCT category AS id, category AS name
+                 FROM products
+                 WHERE category IS NOT NULL AND category != ''
+                 ORDER BY category"
+            );
+        } else {
+            $categories = [];
+        }
 
         $this->render('catalog/products/index', [
             'title' => 'Products',
             'products' => $products,
             'categories' => $categories,
+            'categoryMode' => $categoryMode,
             'search' => $search,
             'category' => $category,
             'status' => $status,
@@ -88,11 +118,25 @@ class ProductsController extends Controller
     public function show(string $id): void
     {
         $this->requirePermission('catalog.products.view');
+        $categorySupport = $this->getCategorySupport();
+        $categoryMode = $categorySupport['useTable'] ? 'table' : ($categorySupport['categoryName'] ? 'legacy' : 'none');
 
-        $product = $this->db()->fetch(
-            "SELECT * FROM products WHERE id = ?",
-            [$id]
-        );
+        if ($categoryMode === 'table') {
+            $product = $this->db()->fetch(
+                "SELECT p.*, COALESCE(pc.name, p.category) as category_name
+                 FROM products p
+                 LEFT JOIN product_categories pc ON p.category_id = pc.id
+                 WHERE p.id = ?",
+                [$id]
+            );
+        } else {
+            $product = $this->db()->fetch(
+                "SELECT p.*, p.category as category_name
+                 FROM products p
+                 WHERE p.id = ?",
+                [$id]
+            );
+        }
 
         if (!$product) {
             $this->notFound();
@@ -123,14 +167,28 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.create');
 
-        $categories = $this->db()->fetchAll(
-            "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
-        );
+        $categorySupport = $this->getCategorySupport();
+        $categoryMode = $categorySupport['useTable'] ? 'table' : ($categorySupport['categoryName'] ? 'legacy' : 'none');
+        if ($categoryMode === 'table') {
+            $categories = $this->db()->fetchAll(
+                "SELECT id, name FROM product_categories WHERE is_active = 1 ORDER BY name"
+            );
+        } elseif ($categoryMode === 'legacy') {
+            $categories = $this->db()->fetchAll(
+                "SELECT DISTINCT category AS id, category AS name
+                 FROM products
+                 WHERE category IS NOT NULL AND category != ''
+                 ORDER BY category"
+            );
+        } else {
+            $categories = [];
+        }
 
         $this->render('catalog/products/form', [
             'title' => 'Create Product',
             'product' => null,
-            'categories' => $categories
+            'categories' => $categories,
+            'categoryMode' => $categoryMode
         ]);
     }
 
@@ -141,15 +199,25 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.create');
         $this->validateCSRF();
+        $categorySupport = $this->getCategorySupport();
+        $categoryMode = $categorySupport['useTable'] ? 'table' : ($categorySupport['categoryName'] ? 'legacy' : 'none');
 
         $data = [
             'code' => strtoupper(trim($_POST['code'] ?? '')),
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
-            'category' => trim($_POST['category'] ?? '') ?: null,
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
+        if ($categoryMode === 'table') {
+            $data['category_id'] = (int)($_POST['category_id'] ?? 0);
+        } elseif ($categoryMode === 'legacy') {
+            $data['category'] = trim($_POST['category'] ?? '');
+        }
+        $imagePath = $this->storeImageUpload('image', 'products');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Validation
         $errors = [];
@@ -165,6 +233,26 @@ class ProductsController extends Controller
 
         if (empty($data['name'])) {
             $errors['name'] = 'Product name is required';
+        }
+
+        if ($categoryMode === 'table') {
+            if (empty($data['category_id'])) {
+                $errors['category_id'] = 'Category is required';
+            } else {
+                $categoryRow = $this->db()->fetch(
+                    "SELECT id, name FROM product_categories WHERE id = ? AND is_active = 1",
+                    [$data['category_id']]
+                );
+                if (!$categoryRow) {
+                    $errors['category_id'] = 'Invalid category';
+                } else {
+                    $data['category'] = $categoryRow['name'];
+                }
+            }
+        } elseif ($categoryMode === 'legacy') {
+            if ($data['category'] === '') {
+                $errors['category'] = 'Category is required';
+            }
         }
 
         if ($errors) {
@@ -197,14 +285,28 @@ class ProductsController extends Controller
             $this->notFound();
         }
 
-        $categories = $this->db()->fetchAll(
-            "SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category"
-        );
+        $categorySupport = $this->getCategorySupport();
+        $categoryMode = $categorySupport['useTable'] ? 'table' : ($categorySupport['categoryName'] ? 'legacy' : 'none');
+        if ($categoryMode === 'table') {
+            $categories = $this->db()->fetchAll(
+                "SELECT id, name FROM product_categories WHERE is_active = 1 ORDER BY name"
+            );
+        } elseif ($categoryMode === 'legacy') {
+            $categories = $this->db()->fetchAll(
+                "SELECT DISTINCT category AS id, category AS name
+                 FROM products
+                 WHERE category IS NOT NULL AND category != ''
+                 ORDER BY category"
+            );
+        } else {
+            $categories = [];
+        }
 
         $this->render('catalog/products/form', [
             'title' => "Edit: {$product['name']}",
             'product' => $product,
-            'categories' => $categories
+            'categories' => $categories,
+            'categoryMode' => $categoryMode
         ]);
     }
 
@@ -215,6 +317,8 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.edit');
         $this->validateCSRF();
+        $categorySupport = $this->getCategorySupport();
+        $categoryMode = $categorySupport['useTable'] ? 'table' : ($categorySupport['categoryName'] ? 'legacy' : 'none');
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
@@ -225,10 +329,18 @@ class ProductsController extends Controller
             'code' => strtoupper(trim($_POST['code'] ?? '')),
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
-            'category' => trim($_POST['category'] ?? '') ?: null,
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
+        if ($categoryMode === 'table') {
+            $data['category_id'] = (int)($_POST['category_id'] ?? 0);
+        } elseif ($categoryMode === 'legacy') {
+            $data['category'] = trim($_POST['category'] ?? '');
+        }
+        $imagePath = $this->storeImageUpload('image', 'products');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Validation
         $errors = [];
@@ -246,6 +358,26 @@ class ProductsController extends Controller
             $errors['name'] = 'Product name is required';
         }
 
+        if ($categoryMode === 'table') {
+            if (empty($data['category_id'])) {
+                $errors['category_id'] = 'Category is required';
+            } else {
+                $categoryRow = $this->db()->fetch(
+                    "SELECT id, name FROM product_categories WHERE id = ? AND is_active = 1",
+                    [$data['category_id']]
+                );
+                if (!$categoryRow) {
+                    $errors['category_id'] = 'Invalid category';
+                } else {
+                    $data['category'] = $categoryRow['name'];
+                }
+            }
+        } elseif ($categoryMode === 'legacy') {
+            if ($data['category'] === '') {
+                $errors['category'] = 'Category is required';
+            }
+        }
+
         if ($errors) {
             $this->session->setErrors($errors);
             $this->session->flashInput($_POST);
@@ -261,5 +393,19 @@ class ProductsController extends Controller
         $this->audit('product.updated', 'products', $id, $product, $data);
         $this->session->setFlash('success', 'Product updated successfully');
         $this->redirect("/catalog/products/{$id}");
+    }
+
+    private function getCategorySupport(): array
+    {
+        $hasCategoryTable = $this->db()->tableExists('product_categories');
+        $hasCategoryId = $this->db()->columnExists('products', 'category_id');
+        $hasCategoryName = $this->db()->columnExists('products', 'category');
+
+        return [
+            'table' => $hasCategoryTable,
+            'categoryId' => $hasCategoryId,
+            'categoryName' => $hasCategoryName,
+            'useTable' => $hasCategoryTable && $hasCategoryId,
+        ];
     }
 }

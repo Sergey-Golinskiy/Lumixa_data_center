@@ -17,6 +17,16 @@
                 <span class="detail-value"><strong><?= $this->e($item['sku'] ?? '') ?></strong></span>
             </div>
             <div class="detail-row">
+                <span class="detail-label"><?= $this->__('photo') ?></span>
+                <span class="detail-value">
+                    <?php if (!empty($item['image_path'])): ?>
+                    <img src="/<?= $this->e(ltrim($item['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($item['image_path'], '/')) ?>">
+                    <?php else: ?>
+                    <span class="text-muted">-</span>
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="detail-row">
                 <span class="detail-label"><?= $this->__('name') ?></span>
                 <span class="detail-value"><?= $this->e($item['name'] ?? '') ?></span>
             </div>
@@ -75,47 +85,51 @@
                 </div>
             </div>
 
-            <?php if (count($stock ?? []) > 1): ?>
-            <h4 style="margin-top: 20px;"><?= $this->__('lots') ?></h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th><?= $this->__('lot') ?></th>
-                        <th><?= $this->__('color') ?></th>
-                        <th><?= $this->__('on_hand') ?></th>
-                        <th><?= $this->__('reserved') ?></th>
-                        <th><?= $this->__('value') ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($stock as $s): ?>
-                    <tr>
-                        <td><?= $this->e($s['lot_number'] ?? '-') ?></td>
-                        <td><?= $this->e($s['color'] ?? '-') ?></td>
-                        <td><?= $this->number($s['on_hand'] ?? 0) ?></td>
-                        <td><?= $this->number($s['reserved'] ?? 0) ?></td>
-                        <td><?= $this->currency($s['avg_cost'] ?? 0) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            <?php endif; ?>
         </div>
     </div>
 
     <!-- Attributes -->
     <?php if (!empty($attributes)): ?>
+    <?php
+        $materialAttributeOrder = [
+            'material' => $this->__('material'),
+            'manufacturer' => $this->__('manufacturer'),
+            'plastic_type' => $this->__('plastic_type'),
+            'filament_color' => $this->__('filament_color'),
+            'filament_diameter' => $this->__('filament_diameter'),
+            'filament_alias' => $this->__('filament_alias')
+        ];
+        $defaultAttributeOrder = [
+            'color' => $this->__('color'),
+            'diameter' => $this->__('diameter'),
+            'brand' => $this->__('brand')
+        ];
+        $orderedAttributes = $item['type'] === 'material'
+            ? $materialAttributeOrder
+            : $defaultAttributeOrder;
+        $displayAttributes = array_filter(
+            $orderedAttributes,
+            fn($label, $name) => !empty($attributes[$name]),
+            ARRAY_FILTER_USE_BOTH
+        );
+    ?>
+    <?php if (!empty($displayAttributes)): ?>
     <div class="card">
-        <div class="card-header"><?= $this->__('attributes_materials') ?></div>
+        <div class="card-header">
+            <?= $item['type'] === 'material' ? $this->__('attributes_materials') : $this->__('attributes') ?>
+        </div>
         <div class="card-body">
-            <?php foreach ($attributes as $name => $value): ?>
+            <?php foreach ($displayAttributes as $name => $label): ?>
+            <?php if (!empty($attributes[$name])): ?>
             <div class="detail-row">
-                <span class="detail-label"><?= $this->e(ucfirst($name)) ?></span>
-                <span class="detail-value"><?= $this->e($value) ?></span>
+                <span class="detail-label"><?= $this->e($label) ?></span>
+                <span class="detail-value"><?= $this->e($attributes[$name]) ?></span>
             </div>
+            <?php endif; ?>
             <?php endforeach; ?>
         </div>
     </div>
+    <?php endif; ?>
     <?php endif; ?>
 
     <!-- Settings -->
@@ -156,7 +170,6 @@
                         <th><?= $this->__('date') ?></th>
                         <th><?= $this->__('document') ?></th>
                         <th><?= $this->__('type') ?></th>
-                        <th><?= $this->__('lot') ?></th>
                         <th><?= $this->__('quantity') ?></th>
                         <th><?= $this->__('total') ?></th>
                     </tr>
@@ -175,7 +188,6 @@
                                 <?= $this->e(strtoupper($h['movement_type'] ?? '')) ?>
                             </span>
                         </td>
-                        <td><?= $this->e($h['lot_number'] ?? '-') ?></td>
                         <td>
                             <?= ($h['movement_type'] ?? '') === 'in' ? '+' : '-' ?><?= $this->number($h['quantity'] ?? 0) ?>
                         </td>

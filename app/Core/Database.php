@@ -51,6 +51,7 @@ class Database
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
             PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$charset} COLLATE {$charset}_unicode_ci"
         ];
 
@@ -333,6 +334,18 @@ class Database
         $sql = "SELECT COUNT(*) FROM information_schema.tables
                 WHERE table_schema = ? AND table_name = ?";
         $result = $this->fetchColumn($sql, [$dbName, $table]);
+        return (int)$result > 0;
+    }
+
+    /**
+     * Check if column exists
+     */
+    public function columnExists(string $table, string $column): bool
+    {
+        $dbName = $this->config['db_name'] ?? '';
+        $sql = "SELECT COUNT(*) FROM information_schema.columns
+                WHERE table_schema = ? AND table_name = ? AND column_name = ?";
+        $result = $this->fetchColumn($sql, [$dbName, $table, $column]);
         return (int)$result > 0;
     }
 

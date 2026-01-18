@@ -1,10 +1,10 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Variants</h1>
+    <h1><?= $this->__('variants') ?></h1>
     <div class="page-actions">
         <?php if ($this->can('catalog.variants.create')): ?>
-        <a href="/catalog/variants/create" class="btn btn-primary">+ New Variant</a>
+        <a href="/catalog/variants/create" class="btn btn-primary">+ <?= $this->__('new_variant') ?></a>
         <?php endif; ?>
     </div>
 </div>
@@ -15,12 +15,12 @@
         <form method="GET" class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
-                    <input type="text" name="search" placeholder="Search SKU or name..."
+                    <input type="text" name="search" placeholder="<?= $this->__('search_sku_name') ?>"
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
                     <select name="product_id">
-                        <option value="">All Products</option>
+                        <option value=""><?= $this->__('all_products') ?></option>
                         <?php foreach ($products as $product): ?>
                         <option value="<?= $product['id'] ?>" <?= $productId == $product['id'] ? 'selected' : '' ?>>
                             <?= $this->e($product['code']) ?> - <?= $this->e($product['name']) ?>
@@ -28,8 +28,8 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/catalog/variants" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/catalog/variants" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -42,24 +42,32 @@
             <table>
                 <thead>
                     <tr>
-                        <th>SKU</th>
-                        <th>Name</th>
-                        <th>Product</th>
-                        <th>Attributes</th>
-                        <th class="text-center">BOM</th>
-                        <th class="text-center">Routing</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('photo') ?></th>
+                        <th><?= $this->__('sku') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('product') ?></th>
+                        <th><?= $this->__('attributes') ?></th>
+                        <th class="text-center"><?= $this->__('bom') ?></th>
+                        <th class="text-center"><?= $this->__('routing') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($variants)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No variants found</td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_variants_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($variants as $variant): ?>
                     <tr>
+                        <td>
+                            <?php if (!empty($variant['image_path'])): ?>
+                            <img src="/<?= $this->e(ltrim($variant['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($variant['image_path'], '/')) ?>">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <a href="/catalog/variants/<?= $variant['id'] ?>">
                                 <strong><?= $this->e($variant['sku']) ?></strong>
@@ -82,29 +90,29 @@
                         </td>
                         <td class="text-center">
                             <?php if ($variant['has_bom']): ?>
-                            <span class="badge badge-success">Yes</span>
+                            <span class="badge badge-success"><?= $this->__('yes') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-warning">No</span>
+                            <span class="badge badge-warning"><?= $this->__('no') ?></span>
                             <?php endif; ?>
                         </td>
                         <td class="text-center">
                             <?php if ($variant['has_routing']): ?>
-                            <span class="badge badge-success">Yes</span>
+                            <span class="badge badge-success"><?= $this->__('yes') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-warning">No</span>
+                            <span class="badge badge-warning"><?= $this->__('no') ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if ($variant['is_active']): ?>
-                            <span class="badge badge-success">Active</span>
+                            <span class="badge badge-success"><?= $this->__('active') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-secondary">Inactive</span>
+                            <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="/catalog/variants/<?= $variant['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/catalog/variants/<?= $variant['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                             <?php if ($this->can('catalog.variants.edit')): ?>
-                            <a href="/catalog/variants/<?= $variant['id'] ?>/edit" class="btn btn-sm btn-outline">Edit</a>
+                            <a href="/catalog/variants/<?= $variant['id'] ?>/edit" class="btn btn-sm btn-outline"><?= $this->__('edit') ?></a>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -118,11 +126,11 @@
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; Prev</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; <?= $this->__('prev') ?></a>
             <?php endif; ?>
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?></span>
+            <span class="pagination-info"><?= $this->__('page_of', ['current' => $page, 'total' => $totalPages]) ?></span>
             <?php if ($page < $totalPages): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline">Next &raquo;</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline"><?= $this->__('next') ?> &raquo;</a>
             <?php endif; ?>
         </div>
         <?php endif; ?>

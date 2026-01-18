@@ -1,53 +1,53 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/production" class="btn btn-secondary">&laquo; Production</a>
+    <a href="/production" class="btn btn-secondary">&laquo; <?= $this->__('nav_production') ?></a>
     <?php if ($this->can('production.print-queue.create')): ?>
-    <a href="/production/print-queue/create" class="btn btn-primary">+ Add Print Job</a>
+    <a href="/production/print-queue/create" class="btn btn-primary">+ <?= $this->__('add_print_job') ?></a>
     <?php endif; ?>
 </div>
 
 <div class="filters" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px;">
     <form method="get" action="/production/print-queue" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
         <select name="status" class="form-control" style="width: 150px;">
-            <option value="">All Statuses</option>
-            <option value="queued" <?= $status === 'queued' ? 'selected' : '' ?>>Queued</option>
-            <option value="printing" <?= $status === 'printing' ? 'selected' : '' ?>>Printing</option>
-            <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>>Completed</option>
-            <option value="failed" <?= $status === 'failed' ? 'selected' : '' ?>>Failed</option>
-            <option value="cancelled" <?= $status === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+            <option value=""><?= $this->__('all_statuses') ?></option>
+            <option value="queued" <?= $status === 'queued' ? 'selected' : '' ?>><?= $this->__('queued') ?></option>
+            <option value="printing" <?= $status === 'printing' ? 'selected' : '' ?>><?= $this->__('printing') ?></option>
+            <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>><?= $this->__('completed') ?></option>
+            <option value="failed" <?= $status === 'failed' ? 'selected' : '' ?>><?= $this->__('failed') ?></option>
+            <option value="cancelled" <?= $status === 'cancelled' ? 'selected' : '' ?>><?= $this->__('cancelled') ?></option>
         </select>
         <select name="printer" class="form-control" style="width: 150px;">
-            <option value="">All Printers</option>
+            <option value=""><?= $this->__('all_printers') ?></option>
             <?php foreach ($printers as $p): ?>
             <option value="<?= h($p['printer']) ?>" <?= $printer === $p['printer'] ? 'selected' : '' ?>><?= h($p['printer']) ?></option>
             <?php endforeach; ?>
         </select>
-        <button type="submit" class="btn btn-secondary">Filter</button>
+        <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
         <?php if ($status || $printer): ?>
-        <a href="/production/print-queue" class="btn btn-outline">Clear</a>
+        <a href="/production/print-queue" class="btn btn-outline"><?= $this->__('clear') ?></a>
         <?php endif; ?>
     </form>
 </div>
 
 <?php if (empty($jobs)): ?>
 <div class="empty-state" style="text-align: center; padding: 40px; color: #666;">
-    <p>No print jobs found.</p>
+    <p><?= $this->__('no_print_jobs_found') ?></p>
 </div>
 <?php else: ?>
 
 <table class="table">
     <thead>
         <tr>
-            <th>Job #</th>
-            <th>Variant</th>
-            <th>Order</th>
-            <th>Printer</th>
-            <th>Qty</th>
-            <th>Est. Time</th>
-            <th>Priority</th>
-            <th>Status</th>
-            <th>Created</th>
+            <th><?= $this->__('job_number') ?></th>
+            <th><?= $this->__('variant') ?></th>
+            <th><?= $this->__('order') ?></th>
+            <th><?= $this->__('printer') ?></th>
+            <th><?= $this->__('quantity') ?></th>
+            <th><?= $this->__('estimated_time') ?></th>
+            <th><?= $this->__('priority') ?></th>
+            <th><?= $this->__('status') ?></th>
+            <th><?= $this->__('created') ?></th>
         </tr>
     </thead>
     <tbody>
@@ -73,12 +73,12 @@
             </td>
             <td><?= $job['printer'] ? h($job['printer']) : '-' ?></td>
             <td><?= (int)$job['quantity'] ?></td>
-            <td><?= $job['estimated_time_minutes'] ? $job['estimated_time_minutes'] . ' min' : '-' ?></td>
+            <td><?= $job['estimated_time_minutes'] ? $job['estimated_time_minutes'] . ' ' . $this->__('minutes_short') : '-' ?></td>
             <td>
                 <?php if ($job['priority'] > 0): ?>
                 <span class="badge badge-warning"><?= $job['priority'] ?></span>
                 <?php else: ?>
-                <span class="text-muted">Normal</span>
+                <span class="text-muted"><?= $this->__('normal') ?></span>
                 <?php endif; ?>
             </td>
             <td>
@@ -90,8 +90,15 @@
                     'failed' => 'danger',
                     'cancelled' => 'muted'
                 ][$job['status']] ?? 'secondary';
+                $statusLabels = [
+                    'queued' => $this->__('queued'),
+                    'printing' => $this->__('printing'),
+                    'completed' => $this->__('completed'),
+                    'failed' => $this->__('failed'),
+                    'cancelled' => $this->__('cancelled')
+                ];
                 ?>
-                <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($job['status']) ?></span>
+            <span class="badge badge-<?= $statusClass ?>"><?= $statusLabels[$job['status']] ?? $this->e($job['status']) ?></span>
             </td>
             <td><?= date('d.m.Y H:i', strtotime($job['created_at'])) ?></td>
         </tr>

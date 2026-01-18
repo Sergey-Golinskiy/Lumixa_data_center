@@ -17,12 +17,22 @@
                 <span class="detail-value"><strong><?= $this->e($product['code'] ?? '') ?></strong></span>
             </div>
             <div class="detail-row">
+                <span class="detail-label"><?= $this->__('photo') ?></span>
+                <span class="detail-value">
+                    <?php if (!empty($product['image_path'])): ?>
+                    <img src="/<?= $this->e(ltrim($product['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($product['image_path'], '/')) ?>">
+                    <?php else: ?>
+                    <span class="text-muted">-</span>
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="detail-row">
                 <span class="detail-label"><?= $this->__('name') ?></span>
                 <span class="detail-value"><?= $this->e($product['name'] ?? '') ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('category') ?></span>
-                <span class="detail-value"><?= $this->e($product['category'] ?? '-') ?></span>
+                <span class="detail-value"><?= $this->e($product['category_name'] ?? $product['category'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('base_price') ?></span>

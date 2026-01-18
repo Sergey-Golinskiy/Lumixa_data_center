@@ -51,7 +51,7 @@ class CostingController extends Controller
         }
 
         $this->render('costing/index', [
-            'title' => 'Cost Analysis',
+            'title' => $this->app->getTranslator()->get('cost_analysis'),
             'totalVariants' => $totalVariants,
             'variantsWithCost' => $variantsWithCost,
             'completedOrders' => $completedOrders,
@@ -104,7 +104,7 @@ class CostingController extends Controller
         );
 
         $this->render('costing/plan', [
-            'title' => 'Planned Costs',
+            'title' => $this->app->getTranslator()->get('planned_costs'),
             'variants' => $variants,
             'search' => $search,
             'page' => $page,
@@ -177,7 +177,7 @@ class CostingController extends Controller
         }
 
         $this->render('costing/actual', [
-            'title' => 'Actual Costs',
+            'title' => $this->app->getTranslator()->get('actual_costs'),
             'orders' => $orders,
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
@@ -252,7 +252,7 @@ class CostingController extends Controller
             : 0;
 
         $this->render('costing/compare', [
-            'title' => 'Plan vs Actual',
+            'title' => $this->app->getTranslator()->get('plan_vs_actual'),
             'comparison' => $comparison,
             'totals' => $totals,
             'dateFrom' => $dateFrom,
@@ -349,7 +349,7 @@ class CostingController extends Controller
         }
 
         $this->render('costing/variant', [
-            'title' => "Cost Analysis: {$variant['sku']}",
+            'title' => $this->app->getTranslator()->get('cost_analysis_variant', ['sku' => $variant['sku']]),
             'variant' => $variant,
             'bom' => $bom,
             'bomLines' => $bomLines,

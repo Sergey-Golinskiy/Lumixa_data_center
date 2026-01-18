@@ -8,7 +8,6 @@
 -- Issues fixed:
 -- 1. Columns referencing users(id) INT UNSIGNED - user FK columns
 -- 2. Columns referencing items(id) INT UNSIGNED - warehouse FK columns
--- 3. Columns referencing lots(id) INT UNSIGNED - warehouse FK columns
 -- =====================================================
 
 -- Disable FK checks during migration
@@ -45,13 +44,6 @@ ALTER TABLE bom_lines MODIFY COLUMN item_id INT UNSIGNED NOT NULL;
 
 -- Fix material_consumption.item_id
 ALTER TABLE material_consumption MODIFY COLUMN item_id INT UNSIGNED NOT NULL;
-
--- =====================================================
--- Fix columns referencing lots(id) INT UNSIGNED
--- =====================================================
-
--- Fix material_consumption.lot_id
-ALTER TABLE material_consumption MODIFY COLUMN lot_id INT UNSIGNED NULL;
 
 -- Re-enable FK checks
 SET FOREIGN_KEY_CHECKS = 1;

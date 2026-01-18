@@ -66,7 +66,7 @@ class TasksController extends Controller
         );
 
         $this->render('production/tasks/index', [
-            'title' => 'Production Tasks',
+            'title' => $this->app->getTranslator()->get('production_tasks'),
             'tasks' => $tasks,
             'orderId' => $orderId,
             'status' => $status,
@@ -106,7 +106,7 @@ class TasksController extends Controller
         );
 
         $this->render('production/tasks/show', [
-            'title' => "Task: {$task['name']}",
+            'title' => $this->app->getTranslator()->get('task_title', ['name' => $task['name']]),
             'task' => $task,
             'workers' => $workers
         ]);

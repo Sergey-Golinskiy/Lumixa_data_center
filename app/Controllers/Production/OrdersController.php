@@ -101,10 +101,9 @@ class OrdersController extends Controller
         );
 
         $materials = $this->db()->fetchAll(
-            "SELECT mc.*, i.sku, i.name as item_name, i.unit, l.lot_number
+            "SELECT mc.*, i.sku, i.name as item_name, i.unit
              FROM material_consumption mc
              JOIN items i ON mc.item_id = i.id
-             LEFT JOIN lots l ON mc.lot_id = l.id
              WHERE mc.order_id = ?
              ORDER BY i.sku",
             [$id]

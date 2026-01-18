@@ -35,85 +35,6 @@
     </div>
 </div>
 
-<!-- Stock by Lot -->
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-header">Stock by Lot</div>
-    <div class="card-body">
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Lot</th>
-                        <th>Status</th>
-                        <th>Expiry</th>
-                        <th class="text-right">Quantity</th>
-                        <th class="text-right">Reserved</th>
-                        <th class="text-right">Available</th>
-                        <th class="text-right">Unit Cost</th>
-                        <th class="text-right">Value</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($stockByLot)): ?>
-                    <tr>
-                        <td colspan="8" class="text-center text-muted">No stock</td>
-                    </tr>
-                    <?php else: ?>
-                    <?php foreach ($stockByLot as $stock): ?>
-                    <?php $available = $stock['quantity'] - $stock['reserved_quantity']; ?>
-                    <tr>
-                        <td>
-                            <?php if ($stock['lot_id']): ?>
-                            <a href="/warehouse/lots/<?= $stock['lot_id'] ?>">
-                                <?= $this->e($stock['lot_number']) ?>
-                            </a>
-                            <?php else: ?>
-                            <em class="text-muted">No lot</em>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($stock['lot_status']): ?>
-                            <?php
-                            $statusClass = match($stock['lot_status']) {
-                                'active' => 'success',
-                                'quarantine' => 'warning',
-                                'blocked' => 'danger',
-                                'expired' => 'secondary',
-                                default => 'secondary'
-                            };
-                            ?>
-                            <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($stock['lot_status']) ?></span>
-                            <?php else: ?>
-                            -
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($stock['expiry_date']): ?>
-                            <?= $this->date($stock['expiry_date'], 'Y-m-d') ?>
-                            <?php else: ?>
-                            -
-                            <?php endif; ?>
-                        </td>
-                        <td class="text-right"><?= number_format($stock['quantity'], 3) ?></td>
-                        <td class="text-right">
-                            <?php if ($stock['reserved_quantity'] > 0): ?>
-                            <span class="text-warning"><?= number_format($stock['reserved_quantity'], 3) ?></span>
-                            <?php else: ?>
-                            -
-                            <?php endif; ?>
-                        </td>
-                        <td class="text-right"><?= number_format($available, 3) ?></td>
-                        <td class="text-right"><?= number_format($stock['unit_cost'], 4) ?></td>
-                        <td class="text-right"><?= number_format($stock['quantity'] * $stock['unit_cost'], 2) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
 <!-- Recent Movements -->
 <div class="card">
     <div class="card-header">Recent Movements</div>
@@ -125,7 +46,6 @@
                         <th>Date</th>
                         <th>Document</th>
                         <th>Type</th>
-                        <th>Lot</th>
                         <th>Direction</th>
                         <th class="text-right">Quantity</th>
                         <th class="text-right">Unit Cost</th>
@@ -134,7 +54,7 @@
                 <tbody>
                     <?php if (empty($movements)): ?>
                     <tr>
-                        <td colspan="7" class="text-center text-muted">No movements</td>
+                        <td colspan="6" class="text-center text-muted">No movements</td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($movements as $movement): ?>
@@ -146,7 +66,6 @@
                             </a>
                         </td>
                         <td><?= ucfirst($movement['document_type']) ?></td>
-                        <td><?= $this->e($movement['lot_number'] ?? '-') ?></td>
                         <td>
                             <?php if ($movement['direction'] === 'in'): ?>
                             <span class="badge badge-success">IN</span>

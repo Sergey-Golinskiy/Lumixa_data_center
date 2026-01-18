@@ -59,13 +59,12 @@ CREATE TABLE IF NOT EXISTS production_tasks (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Material Consumption (materials used in production)
--- Note: item_id and lot_id must be INT UNSIGNED to match warehouse table IDs
+-- Note: item_id must be INT UNSIGNED to match warehouse table IDs
 CREATE TABLE IF NOT EXISTS material_consumption (
     id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
     task_id INT,
     item_id INT UNSIGNED NOT NULL,
-    lot_id INT UNSIGNED,
     planned_quantity DECIMAL(15,6) NOT NULL,
     actual_quantity DECIMAL(15,6) DEFAULT 0,
     unit_cost DECIMAL(15,4) DEFAULT 0,
@@ -75,7 +74,6 @@ CREATE TABLE IF NOT EXISTS material_consumption (
     FOREIGN KEY (order_id) REFERENCES production_orders(id) ON DELETE CASCADE,
     FOREIGN KEY (task_id) REFERENCES production_tasks(id) ON DELETE SET NULL,
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT,
-    FOREIGN KEY (lot_id) REFERENCES lots(id) ON DELETE SET NULL,
     FOREIGN KEY (consumed_by) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_order (order_id),
     INDEX idx_item (item_id)

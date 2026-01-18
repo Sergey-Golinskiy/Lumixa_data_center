@@ -60,7 +60,7 @@ class RoutingController extends Controller
         );
 
         $this->render('catalog/routing/index', [
-            'title' => 'Routing',
+            'title' => $this->app->getTranslator()->get('routing'),
             'routings' => $routings,
             'search' => $search,
             'status' => $status,
@@ -99,7 +99,10 @@ class RoutingController extends Controller
         );
 
         $this->render('catalog/routing/show', [
-            'title' => "Routing: {$routing['variant_sku']} v{$routing['version']}",
+            'title' => $this->app->getTranslator()->get('routing_title', [
+                'sku' => $routing['variant_sku'],
+                'version' => $routing['version']
+            ]),
             'routing' => $routing,
             'operations' => $operations
         ]);
@@ -123,7 +126,7 @@ class RoutingController extends Controller
         );
 
         $this->render('catalog/routing/form', [
-            'title' => 'Create Routing',
+            'title' => $this->app->getTranslator()->get('create_routing'),
             'routing' => null,
             'operations' => [],
             'variants' => $variants,
@@ -147,21 +150,25 @@ class RoutingController extends Controller
             'effective_date' => $_POST['effective_date'] ?: null,
             'notes' => trim($_POST['notes'] ?? '')
         ];
+        $imagePath = $this->storeImageUpload('image', 'routing');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Validation
         $errors = [];
 
         if (empty($data['variant_id'])) {
-            $errors['variant_id'] = 'Variant is required';
+            $errors['variant_id'] = $this->app->getTranslator()->get('variant_required');
         }
 
         if (empty($data['version'])) {
-            $errors['version'] = 'Version is required';
+            $errors['version'] = $this->app->getTranslator()->get('version_required');
         }
 
         $operations = $this->parseOperations();
         if (empty($operations)) {
-            $errors['operations'] = 'At least one operation is required';
+            $errors['operations'] = $this->app->getTranslator()->get('routing_operation_required');
         }
 
         if ($errors) {
@@ -197,12 +204,12 @@ class RoutingController extends Controller
 
             $this->db()->commit();
             $this->audit('routing.created', 'routing', $routingId, null, $data);
-            $this->session->setFlash('success', 'Routing created successfully');
+            $this->session->setFlash('success', $this->app->getTranslator()->get('routing_created_success'));
             $this->redirect("/catalog/routing/{$routingId}");
 
         } catch (\Exception $e) {
             $this->db()->rollBack();
-            $this->session->setFlash('error', 'Failed to create routing: ' . $e->getMessage());
+            $this->session->setFlash('error', $this->app->getTranslator()->get('routing_create_failed', ['error' => $e->getMessage()]));
             $this->redirect('/catalog/routing/create?variant_id=' . $data['variant_id']);
         }
     }
@@ -227,7 +234,7 @@ class RoutingController extends Controller
         }
 
         if ($routing['status'] !== 'draft') {
-            $this->session->setFlash('error', 'Only draft routings can be edited');
+            $this->session->setFlash('error', $this->app->getTranslator()->get('routing_edit_draft_only'));
             $this->redirect("/catalog/routing/{$id}");
             return;
         }
@@ -246,7 +253,10 @@ class RoutingController extends Controller
         );
 
         $this->render('catalog/routing/form', [
-            'title' => "Edit Routing: {$routing['variant_sku']} v{$routing['version']}",
+            'title' => $this->app->getTranslator()->get('routing_edit_title', [
+                'sku' => $routing['variant_sku'],
+                'version' => $routing['version']
+            ]),
             'routing' => $routing,
             'operations' => $operations,
             'variants' => $variants,
@@ -269,7 +279,7 @@ class RoutingController extends Controller
         }
 
         if ($routing['status'] !== 'draft') {
-            $this->session->setFlash('error', 'Only draft routings can be edited');
+            $this->session->setFlash('error', $this->app->getTranslator()->get('routing_edit_draft_only'));
             $this->redirect("/catalog/routing/{$id}");
             return;
         }
@@ -280,10 +290,14 @@ class RoutingController extends Controller
             'effective_date' => $_POST['effective_date'] ?: null,
             'notes' => trim($_POST['notes'] ?? '')
         ];
+        $imagePath = $this->storeImageUpload('image', 'routing');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         $operations = $this->parseOperations();
         if (empty($operations)) {
-            $this->session->setFlash('error', 'At least one operation is required');
+            $this->session->setFlash('error', $this->app->getTranslator()->get('routing_operation_required'));
             $this->redirect("/catalog/routing/{$id}/edit");
             return;
         }
@@ -315,12 +329,12 @@ class RoutingController extends Controller
 
             $this->db()->commit();
             $this->audit('routing.updated', 'routing', $id, $routing, $data);
-            $this->session->setFlash('success', 'Routing updated');
+            $this->session->setFlash('success', $this->app->getTranslator()->get('routing_updated_success'));
             $this->redirect("/catalog/routing/{$id}");
 
         } catch (\Exception $e) {
             $this->db()->rollBack();
-            $this->session->setFlash('error', 'Failed to update routing: ' . $e->getMessage());
+            $this->session->setFlash('error', $this->app->getTranslator()->get('routing_update_failed', ['error' => $e->getMessage()]));
             $this->redirect("/catalog/routing/{$id}/edit");
         }
     }
@@ -358,11 +372,11 @@ class RoutingController extends Controller
 
             $this->db()->commit();
             $this->audit('routing.activated', 'routing', $id, ['status' => $routing['status']], ['status' => 'active']);
-            $this->session->setFlash('success', 'Routing activated');
+            $this->session->setFlash('success', $this->app->getTranslator()->get('routing_activated_success'));
 
         } catch (\Exception $e) {
             $this->db()->rollBack();
-            $this->session->setFlash('error', 'Failed to activate routing: ' . $e->getMessage());
+            $this->session->setFlash('error', $this->app->getTranslator()->get('routing_activate_failed', ['error' => $e->getMessage()]));
         }
 
         $this->redirect("/catalog/routing/{$id}");
@@ -387,7 +401,7 @@ class RoutingController extends Controller
         ], ['id' => $id]);
 
         $this->audit('routing.archived', 'routing', $id, ['status' => $routing['status']], ['status' => 'archived']);
-        $this->session->setFlash('success', 'Routing archived');
+        $this->session->setFlash('success', $this->app->getTranslator()->get('routing_archived_success'));
         $this->redirect("/catalog/routing/{$id}");
     }
 

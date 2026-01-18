@@ -70,7 +70,7 @@ K) Diagnostics / Debug (must-have)
 - Сущности минимум:
   - users, roles, permissions, role_permissions, user_roles
   - audit_log
-  - items (SKU), lots/batches
+  - items (SKU)
   - stock_balances (on_hand/reserved), stock_movements или postings
   - partners
   - documents (receipt/issue/transfer/stocktake), document_lines
@@ -84,7 +84,7 @@ K) Diagnostics / Debug (must-have)
   - ui_templates
   - workflows, workflow_transitions
   - backups (metadata, manifest path, created_by, size, status)
-- Индексы на частые запросы: items.sku, lots, document status, print_jobs status, stock balances.
+- Индексы на частые запросы: items.sku, document status, print_jobs status, stock balances.
 
 6) Бизнес-логика (обязательные правила)
 Warehouse:
@@ -130,7 +130,7 @@ Admin no-code:
 10) Итерации реализации (обязательная стратегия)
 Сделай работу в этапах, и на каждом этапе проект должен запускаться:
 - Stage 1: Skeleton + routing + setup wizard + auth + diagnostics + migrations base
-- Stage 2: Warehouse (items/lots/documents/posting/stock)
+- Stage 2: Warehouse (items/documents/posting/stock)
 - Stage 3: Catalog + BOM + Routing revisions
 - Stage 4: Production orders + tasks + print queue + reservations/issues
 - Stage 5: Costing (plan/actual) + reports basic

@@ -1,7 +1,7 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1><?= $this->__('partners') ?></h1>
+    <h1><?= $this->__('suppliers') ?></h1>
     <div class="page-actions">
         <?php if ($this->can('warehouse.partners.create')): ?>
         <a href="/warehouse/partners/create" class="btn btn-primary">+ <?= $this->__('new_partner') ?></a>
@@ -37,30 +37,28 @@
 <div class="card">
     <div class="card-body">
         <div class="table-container">
-            <table>
+            <table data-sortable>
                 <thead>
                     <tr>
-                        <th><?= $this->__('code') ?></th>
-                        <th><?= $this->__('name') ?></th>
-                        <th><?= $this->__('type') ?></th>
-                        <th><?= $this->__('contact') ?></th>
-                        <th><?= $this->__('phone') ?></th>
-                        <th><?= $this->__('documents') ?></th>
-                        <th><?= $this->__('status') ?></th>
-                        <th><?= $this->__('actions') ?></th>
+                        <th data-sort="id">ID</th>
+                        <th data-sort="name"><?= $this->__('name') ?></th>
+                        <th data-sort="type"><?= $this->__('type') ?></th>
+                        <th data-sort="phone"><?= $this->__('phone') ?></th>
+                        <th data-sort="city">City</th>
+                        <th data-sort="actions"><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($partners)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_partners_found') ?></td>
+                        <td colspan="6" class="text-center text-muted"><?= $this->__('no_partners_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($partners as $partner): ?>
                     <tr>
                         <td>
                             <a href="/warehouse/partners/<?= $partner['id'] ?>">
-                                <strong><?= $this->e($partner['code']) ?></strong>
+                                <strong><?= $this->e($partner['id']) ?></strong>
                             </a>
                         </td>
                         <td>
@@ -79,26 +77,9 @@
                             ?>
                             <span class="badge badge-<?= $typeClass ?>"><?= $this->__($partner['type'] === 'supplier' ? 'suppliers' : ($partner['type'] === 'customer' ? 'customers' : 'both')) ?></span>
                         </td>
-                        <td>
-                            <?= $this->e($partner['contact_person'] ?? '-') ?>
-                            <?php if ($partner['email']): ?>
-                            <br><small class="text-muted"><?= $this->e($partner['email']) ?></small>
-                            <?php endif; ?>
-                        </td>
                         <td><?= $this->e($partner['phone'] ?? '-') ?></td>
                         <td>
-                            <?php if ($partner['document_count'] > 0): ?>
-                            <span class="badge badge-secondary"><?= $partner['document_count'] ?></span>
-                            <?php else: ?>
-                            -
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($partner['is_active']): ?>
-                            <span class="badge badge-success"><?= $this->__('active') ?></span>
-                            <?php else: ?>
-                            <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
-                            <?php endif; ?>
+                            <?= $this->e($partner['city'] ?? '-') ?>
                         </td>
                         <td>
                             <a href="/warehouse/partners/<?= $partner['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>

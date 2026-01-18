@@ -1,25 +1,25 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/catalog/routing" class="btn btn-secondary">&laquo; Back to Routings</a>
+    <a href="/catalog/routing" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('routing')]) ?></a>
 </div>
 
-<form method="POST" action="<?= $routing ? "/catalog/routing/{$routing['id']}" : '/catalog/routing' ?>" id="routing-form">
+<form method="POST" enctype="multipart/form-data" action="<?= $routing ? "/catalog/routing/{$routing['id']}" : '/catalog/routing' ?>" id="routing-form">
     <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
     <div class="detail-grid">
         <!-- Header -->
         <div class="card">
-            <div class="card-header"><?= $routing ? 'Edit Routing' : 'Create New Routing' ?></div>
+            <div class="card-header"><?= $routing ? $this->__('edit_routing') : $this->__('create_new_routing') ?></div>
             <div class="card-body">
                 <div class="form-group">
-                    <label for="variant_id">Variant *</label>
+                    <label for="variant_id"><?= $this->__('variant') ?> *</label>
                     <?php if ($routing): ?>
                     <input type="text" value="<?= $this->e($routing['variant_sku']) ?> - <?= $this->e($routing['variant_name']) ?>" disabled>
                     <input type="hidden" name="variant_id" value="<?= $routing['variant_id'] ?>">
                     <?php else: ?>
                     <select id="variant_id" name="variant_id" required>
-                        <option value="">Select Variant</option>
+                        <option value=""><?= $this->__('select_variant') ?></option>
                         <?php foreach ($variants as $v): ?>
                         <option value="<?= $v['id'] ?>" <?= $preselectedVariantId == $v['id'] ? 'selected' : '' ?>>
                             <?= $this->e($v['sku']) ?> - <?= $this->e($v['name']) ?>
@@ -31,44 +31,55 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="version">Version *</label>
+                        <label for="version"><?= $this->__('version') ?> *</label>
                         <input type="text" id="version" name="version" required
                                value="<?= $this->e($routing['version'] ?? '1.0') ?>">
                     </div>
                     <div class="form-group">
-                        <label for="effective_date">Effective Date</label>
+                        <label for="effective_date"><?= $this->__('effective_date') ?></label>
                         <input type="date" id="effective_date" name="effective_date"
                                value="<?= $this->e($routing['effective_date'] ?? '') ?>">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="name">Name</label>
+                    <label for="name"><?= $this->__('name') ?></label>
                     <input type="text" id="name" name="name"
-                           value="<?= $this->e($routing['name'] ?? '') ?>" placeholder="Optional name">
+                           value="<?= $this->e($routing['name'] ?? '') ?>" placeholder="<?= $this->__('optional_name') ?>">
                 </div>
 
                 <div class="form-group">
-                    <label for="notes">Notes</label>
+                    <label for="notes"><?= $this->__('notes') ?></label>
                     <textarea id="notes" name="notes" rows="2"><?= $this->e($routing['notes'] ?? '') ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image"><?= $this->__('photo') ?></label>
+                    <?php if (!empty($routing['image_path'])): ?>
+                    <div class="form-image-preview">
+                        <img src="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>">
+                    </div>
+                    <?php endif; ?>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <small class="text-muted"><?= $this->__('upload_photo') ?></small>
                 </div>
             </div>
         </div>
 
         <!-- Summary -->
         <div class="card">
-            <div class="card-header">Summary</div>
+            <div class="card-header"><?= $this->__('summary') ?></div>
             <div class="card-body">
                 <div class="detail-row">
-                    <span class="detail-label">Operations</span>
+                    <span class="detail-label"><?= $this->__('operations') ?></span>
                     <span class="detail-value" id="total-ops">0</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Total Time</span>
-                    <span class="detail-value" id="total-time">0 min</span>
+                    <span class="detail-label"><?= $this->__('total_time') ?></span>
+                    <span class="detail-value" id="total-time">0 <?= $this->__('minutes_short') ?></span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Total Cost</span>
+                    <span class="detail-label"><?= $this->__('total_cost') ?></span>
                     <span class="detail-value" id="total-cost">0.00</span>
                 </div>
             </div>
@@ -78,22 +89,22 @@
     <!-- Operations -->
     <div class="card" style="margin-top: 20px;">
         <div class="card-header">
-            Operations
-            <button type="button" class="btn btn-primary btn-sm" onclick="addOperation()" style="float: right;">+ Add Operation</button>
+            <?= $this->__('operations') ?>
+            <button type="button" class="btn btn-primary btn-sm" onclick="addOperation()" style="float: right;">+ <?= $this->__('add_operation') ?></button>
         </div>
         <div class="card-body">
             <div class="table-container">
                 <table id="ops-table">
                     <thead>
                         <tr>
-                            <th style="width: 60px;">Op #</th>
-                            <th style="width: 180px;">Operation Name *</th>
-                            <th style="width: 120px;">Work Center</th>
-                            <th style="width: 80px;">Setup (min)</th>
-                            <th style="width: 80px;">Run (min)</th>
-                            <th style="width: 90px;">Labor Cost</th>
-                            <th style="width: 90px;">Overhead</th>
-                            <th>Instructions</th>
+                            <th style="width: 60px;"><?= $this->__('operation_number') ?></th>
+                            <th style="width: 180px;"><?= $this->__('operation_name') ?> *</th>
+                            <th style="width: 120px;"><?= $this->__('work_center') ?></th>
+                            <th style="width: 80px;"><?= $this->__('setup_minutes') ?></th>
+                            <th style="width: 80px;"><?= $this->__('run_minutes') ?></th>
+                            <th style="width: 90px;"><?= $this->__('labor_cost') ?></th>
+                            <th style="width: 90px;"><?= $this->__('overhead') ?></th>
+                            <th><?= $this->__('instructions') ?></th>
                             <th style="width: 40px;"></th>
                         </tr>
                     </thead>
@@ -105,8 +116,8 @@
     </div>
 
     <div class="form-actions" style="margin-top: 20px;">
-        <button type="submit" class="btn btn-primary"><?= $routing ? 'Update' : 'Create' ?> Routing</button>
-        <a href="/catalog/routing" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary"><?= $routing ? $this->__('update') : $this->__('create') ?> <?= $this->__('routing') ?></button>
+        <a href="/catalog/routing" class="btn btn-secondary"><?= $this->__('cancel') ?></a>
     </div>
 </form>
 
@@ -150,13 +161,13 @@ function addOperation(data = null) {
     const opNum = data ? data.operation_number : (opNumber * 10);
     row.innerHTML = `
         <td><input type="number" name="ops[${opNumber}][op_number]" value="${opNum}" min="1" onchange="updateTotals()"></td>
-        <td><input type="text" name="ops[${opNumber}][name]" value="${data ? data.name : ''}" required placeholder="Operation name"></td>
+        <td><input type="text" name="ops[${opNumber}][name]" value="${data ? data.name : ''}" required placeholder="<?= $this->__('operation_name_placeholder') ?>"></td>
         <td><select name="ops[${opNumber}][work_center]">${wcOptions}</select></td>
         <td><input type="number" name="ops[${opNumber}][setup_time]" value="${data ? data.setup_time_minutes : 0}" min="0" onchange="updateTotals()"></td>
         <td><input type="number" name="ops[${opNumber}][run_time]" value="${data ? data.run_time_minutes : 0}" min="0" onchange="updateTotals()"></td>
         <td><input type="number" name="ops[${opNumber}][labor_cost]" step="0.01" value="${data ? data.labor_cost : 0}" min="0" onchange="updateTotals()"></td>
         <td><input type="number" name="ops[${opNumber}][overhead_cost]" step="0.01" value="${data ? data.overhead_cost : 0}" min="0" onchange="updateTotals()"></td>
-        <td><input type="text" name="ops[${opNumber}][instructions]" value="${data ? (data.instructions || '') : ''}" placeholder="Instructions"></td>
+        <td><input type="text" name="ops[${opNumber}][instructions]" value="${data ? (data.instructions || '') : ''}" placeholder="<?= $this->__('instructions_placeholder') ?>"></td>
         <td><button type="button" class="btn-remove" onclick="removeOp(${opNumber})">&times;</button></td>
     `;
     tbody.appendChild(row);
@@ -180,13 +191,13 @@ function updateTotals() {
         totalCost += labor + overhead;
     });
     document.getElementById('total-ops').textContent = rows.length;
-    document.getElementById('total-time').textContent = totalTime + ' min';
+    document.getElementById('total-time').textContent = totalTime + ' <?= $this->__('minutes_short') ?>';
     document.getElementById('total-cost').textContent = totalCost.toFixed(2);
 }
 
 document.getElementById('routing-form').addEventListener('submit', function(e) {
     const rows = document.querySelectorAll('#ops-body tr');
-    if (rows.length === 0) { e.preventDefault(); alert('Please add at least one operation.'); return false; }
+    if (rows.length === 0) { e.preventDefault(); alert('<?= $this->__('add_operation_required') ?>'); return false; }
 });
 </script>
 

@@ -90,6 +90,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Mobile sidebar toggle
+    var sidebarToggle = document.querySelector('.sidebar-toggle');
+    var sidebarBackdrop = document.querySelector('[data-sidebar-backdrop]');
+
+    function closeSidebar() {
+        document.body.classList.remove('sidebar-open');
+    }
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-open');
+        });
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', closeSidebar);
+    }
+
+    document.querySelectorAll('.nav-link').forEach(function(link) {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 1200) {
+                closeSidebar();
+            }
+        });
+    });
+
     // Language dropdown toggle
     document.querySelectorAll('.language-dropdown-toggle').forEach(function(toggle) {
         toggle.addEventListener('click', function(e) {
@@ -161,6 +187,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         });
     });
+
+    // Image preview modal
+    var imageModal = document.getElementById('image-preview-modal');
+    var imageModalImg = document.getElementById('image-preview-img');
+    if (imageModal && imageModalImg) {
+        document.querySelectorAll('[data-image-preview]').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                var src = this.getAttribute('data-image-preview') || this.getAttribute('src');
+                if (!src) return;
+                imageModalImg.src = src;
+                imageModal.classList.add('open');
+                imageModal.setAttribute('aria-hidden', 'false');
+            });
+        });
+
+        imageModal.querySelectorAll('[data-image-preview-close]').forEach(function(closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                imageModal.classList.remove('open');
+                imageModal.setAttribute('aria-hidden', 'true');
+                imageModalImg.src = '';
+            });
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && imageModal.classList.contains('open')) {
+                imageModal.classList.remove('open');
+                imageModal.setAttribute('aria-hidden', 'true');
+                imageModalImg.src = '';
+            }
+        });
+    }
 });
 
 // CSRF token for AJAX requests

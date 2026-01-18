@@ -1,11 +1,11 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/warehouse/partners" class="btn btn-secondary">&laquo; Back to Partners</a>
+    <a href="/warehouse/partners" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('suppliers')]) ?></a>
 </div>
 
 <div class="card" style="max-width: 700px;">
-    <div class="card-header"><?= $partner ? 'Edit Partner' : 'Create New Partner' ?></div>
+    <div class="card-header"><?= $partner ? 'Edit Supplier' : 'Create New Supplier' ?></div>
     <div class="card-body">
         <form method="POST" action="<?= $partner ? "/warehouse/partners/{$partner['id']}" : '/warehouse/partners' ?>">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
@@ -115,7 +115,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary"><?= $partner ? 'Update Partner' : 'Create Partner' ?></button>
+                <button type="submit" class="btn btn-primary"><?= $partner ? 'Update Supplier' : 'Create Supplier' ?></button>
                 <a href="/warehouse/partners" class="btn btn-secondary">Cancel</a>
             </div>
         </form>

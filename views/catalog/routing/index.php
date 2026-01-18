@@ -1,10 +1,10 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Routing</h1>
+    <h1><?= $this->__('routing') ?></h1>
     <div class="page-actions">
         <?php if ($this->can('catalog.routing.create')): ?>
-        <a href="/catalog/routing/create" class="btn btn-primary">+ New Routing</a>
+        <a href="/catalog/routing/create" class="btn btn-primary">+ <?= $this->__('new_routing') ?></a>
         <?php endif; ?>
     </div>
 </div>
@@ -15,19 +15,19 @@
         <form method="GET" class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
-                    <input type="text" name="search" placeholder="Search variant or name..."
+                    <input type="text" name="search" placeholder="<?= $this->__('search_variant_name') ?>"
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
                     <select name="status">
-                        <option value="">All Statuses</option>
-                        <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>>Draft</option>
-                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
-                        <option value="archived" <?= $status === 'archived' ? 'selected' : '' ?>>Archived</option>
+                        <option value=""><?= $this->__('all_statuses') ?></option>
+                        <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
+                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>><?= $this->__('active') ?></option>
+                        <option value="archived" <?= $status === 'archived' ? 'selected' : '' ?>><?= $this->__('archived') ?></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/catalog/routing" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/catalog/routing" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -40,24 +40,32 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Variant</th>
-                        <th>Version</th>
-                        <th>Name</th>
-                        <th class="text-center">Operations</th>
-                        <th class="text-right">Total Time (min)</th>
-                        <th class="text-right">Total Cost</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('photo') ?></th>
+                        <th><?= $this->__('variant') ?></th>
+                        <th><?= $this->__('version') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th class="text-center"><?= $this->__('operations') ?></th>
+                        <th class="text-right"><?= $this->__('total_time_minutes') ?></th>
+                        <th class="text-right"><?= $this->__('total_cost') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($routings)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No routings found</td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_routings_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($routings as $routing): ?>
                     <tr>
+                        <td>
+                            <?php if (!empty($routing['image_path'])): ?>
+                            <img src="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($routing['image_path'], '/')) ?>">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <a href="/catalog/variants/<?= $routing['variant_id'] ?>">
                                 <strong><?= $this->e($routing['variant_sku']) ?></strong>
@@ -77,13 +85,18 @@
                                 'archived' => 'secondary',
                                 default => 'secondary'
                             };
+                            $statusLabels = [
+                                'draft' => $this->__('draft'),
+                                'active' => $this->__('active'),
+                                'archived' => $this->__('archived')
+                            ];
                             ?>
-                            <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($routing['status']) ?></span>
+                            <span class="badge badge-<?= $statusClass ?>"><?= $statusLabels[$routing['status']] ?? $this->e($routing['status']) ?></span>
                         </td>
                         <td>
-                            <a href="/catalog/routing/<?= $routing['id'] ?>" class="btn btn-sm btn-secondary">View</a>
+                            <a href="/catalog/routing/<?= $routing['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>
                             <?php if ($routing['status'] === 'draft' && $this->can('catalog.routing.edit')): ?>
-                            <a href="/catalog/routing/<?= $routing['id'] ?>/edit" class="btn btn-sm btn-outline">Edit</a>
+                            <a href="/catalog/routing/<?= $routing['id'] ?>/edit" class="btn btn-sm btn-outline"><?= $this->__('edit') ?></a>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -96,11 +109,11 @@
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; Prev</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; <?= $this->__('prev') ?></a>
             <?php endif; ?>
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?></span>
+            <span class="pagination-info"><?= $this->__('page_of', ['current' => $page, 'total' => $totalPages]) ?></span>
             <?php if ($page < $totalPages): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline">Next &raquo;</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline"><?= $this->__('next') ?> &raquo;</a>
             <?php endif; ?>
         </div>
         <?php endif; ?>

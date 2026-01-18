@@ -25,7 +25,7 @@ class DiagnosticsController extends Controller
 
         // Gather diagnostics data
         $data = [
-            'title' => 'System Diagnostics',
+            'title' => $this->app->getTranslator()->get('diagnostics_title'),
             'csrfToken' => $this->csrfToken(),
             'isDebug' => $isDebug,
 

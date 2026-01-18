@@ -35,7 +35,6 @@
                         </button>
                         <ul class="nav-submenu" data-submenu="warehouse">
                             <li><a href="/warehouse/items" class="nav-link"><?= $this->__('nav_items') ?></a></li>
-                            <li><a href="/warehouse/lots" class="nav-link"><?= $this->__('nav_lots') ?></a></li>
                             <li><a href="/warehouse/stock" class="nav-link"><?= $this->__('nav_stock') ?></a></li>
                             <li><a href="/warehouse/documents" class="nav-link"><?= $this->__('nav_documents') ?></a></li>
                             <li><a href="/warehouse/partners" class="nav-link"><?= $this->__('nav_partners') ?></a></li>
@@ -51,6 +50,12 @@
                         </button>
                         <ul class="nav-submenu" data-submenu="catalog">
                             <li><a href="/catalog/products" class="nav-link"><?= $this->__('nav_products') ?></a></li>
+                            <?php if ($this->can('catalog.details.view')): ?>
+                            <li><a href="/catalog/details" class="nav-link"><?= $this->__('nav_details') ?></a></li>
+                            <?php endif; ?>
+                            <?php if ($this->can('catalog.detail_routing.view')): ?>
+                            <li><a href="/catalog/detail-routing" class="nav-link"><?= $this->__('nav_detail_routing') ?></a></li>
+                            <?php endif; ?>
                             <li><a href="/catalog/variants" class="nav-link"><?= $this->__('nav_variants') ?></a></li>
                             <li><a href="/catalog/bom" class="nav-link"><?= $this->__('nav_bom') ?></a></li>
                             <li><a href="/catalog/routing" class="nav-link"><?= $this->__('nav_routing') ?></a></li>
@@ -96,6 +101,18 @@
                             <li><a href="/admin/users" class="nav-link"><?= $this->__('nav_users') ?></a></li>
                             <li><a href="/admin/roles" class="nav-link"><?= $this->__('nav_roles') ?></a></li>
                             <li><a href="/admin/audit" class="nav-link"><?= $this->__('nav_audit') ?></a></li>
+                            <?php if ($this->can('admin.product_categories.view')): ?>
+                            <li><a href="/admin/product-categories" class="nav-link"><?= $this->__('nav_product_categories') ?></a></li>
+                            <?php endif; ?>
+                            <?php if ($this->can('admin.item_options.view')): ?>
+                            <li><a href="/admin/item-options/materials" class="nav-link"><?= $this->__('nav_materials') ?></a></li>
+                            <li><a href="/admin/item-options/manufacturers" class="nav-link"><?= $this->__('nav_manufacturers') ?></a></li>
+                            <li><a href="/admin/item-options/plastic-types" class="nav-link"><?= $this->__('nav_plastic_types') ?></a></li>
+                            <li><a href="/admin/item-options/filament-aliases" class="nav-link"><?= $this->__('nav_filament_aliases') ?></a></li>
+                            <?php endif; ?>
+                            <?php if ($this->can('admin.printers.view')): ?>
+                            <li><a href="/admin/printers" class="nav-link"><?= $this->__('nav_printers') ?></a></li>
+                            <?php endif; ?>
                             <li><a href="/admin/backups" class="nav-link"><?= $this->__('nav_backups') ?></a></li>
                             <li><a href="/admin/diagnostics" class="nav-link"><?= $this->__('nav_diagnostics') ?></a></li>
                         </ul>
@@ -115,11 +132,17 @@
                 </div>
             </div>
         </aside>
+        <div class="sidebar-backdrop" data-sidebar-backdrop></div>
 
         <!-- Main Content -->
         <main class="main-content">
             <header class="content-header">
-                <h1 class="page-title"><?= $this->e($title ?? 'Dashboard') ?></h1>
+                <div class="content-header-left">
+                    <button class="sidebar-toggle" type="button" aria-label="<?= $this->__('toggle_navigation') ?>">
+                        &#9776;
+                    </button>
+                    <h1 class="page-title"><?= $this->e($title ?? 'Dashboard') ?></h1>
+                </div>
                 <div class="header-right">
                     <?php if (isset($headerActions)): ?>
                     <div class="header-actions">
@@ -173,6 +196,14 @@
         </div>
     </div>
     <?php endif; ?>
+
+    <div class="image-preview-modal" id="image-preview-modal" aria-hidden="true">
+        <div class="image-preview-backdrop" data-image-preview-close></div>
+        <div class="image-preview-content">
+            <button type="button" class="image-preview-close" data-image-preview-close>&times;</button>
+            <img src="" alt="<?= $this->__('photo') ?>" id="image-preview-img">
+        </div>
+    </div>
 
     <script src="<?= $this->asset('js/app.js') ?>?v=<?= time() ?>"></script>
 </body>

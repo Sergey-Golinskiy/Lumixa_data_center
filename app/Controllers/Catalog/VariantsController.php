@@ -63,7 +63,7 @@ class VariantsController extends Controller
         $products = $this->db()->fetchAll("SELECT id, code, name FROM products ORDER BY code");
 
         $this->render('catalog/variants/index', [
-            'title' => 'Variants',
+            'title' => $this->app->getTranslator()->get('variants'),
             'variants' => $variants,
             'products' => $products,
             'search' => $search,
@@ -154,7 +154,7 @@ class VariantsController extends Controller
         $products = $this->db()->fetchAll("SELECT id, code, name FROM products WHERE is_active = 1 ORDER BY code");
 
         $this->render('catalog/variants/form', [
-            'title' => 'Create Variant',
+            'title' => $this->app->getTranslator()->get('create_variant'),
             'variant' => null,
             'products' => $products,
             'preselectedProductId' => $productId
@@ -176,6 +176,10 @@ class VariantsController extends Controller
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
+        $imagePath = $this->storeImageUpload('image', 'variants');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Parse attributes
         $attributes = [];
@@ -249,7 +253,7 @@ class VariantsController extends Controller
         $products = $this->db()->fetchAll("SELECT id, code, name FROM products ORDER BY code");
 
         $this->render('catalog/variants/form', [
-            'title' => "Edit: {$variant['sku']}",
+            'title' => $this->app->getTranslator()->get('edit_variant_title', ['sku' => $variant['sku']]),
             'variant' => $variant,
             'products' => $products,
             'preselectedProductId' => $variant['product_id']
@@ -275,6 +279,10 @@ class VariantsController extends Controller
             'base_price' => (float)($_POST['base_price'] ?? 0),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
         ];
+        $imagePath = $this->storeImageUpload('image', 'variants');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Parse attributes
         $attributes = [];

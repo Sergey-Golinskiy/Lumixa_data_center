@@ -39,11 +39,15 @@
                 <div class="filter-group">
                     <select name="category">
                         <option value=""><?= $this->__('all_categories') ?></option>
-                        <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $this->e($cat['category']) ?>" <?= $category === $cat['category'] ? 'selected' : '' ?>>
-                            <?= $this->e($cat['category']) ?>
-                        </option>
-                        <?php endforeach; ?>
+                    <?php foreach ($categories as $cat): ?>
+                        <?php $categoryValue = $cat['category'] ?? ''; ?>
+                        <?php if ($categoryValue === ''): ?>
+                            <?php continue; ?>
+                        <?php endif; ?>
+                    <option value="<?= $this->e($categoryValue) ?>" <?= $category === $categoryValue ? 'selected' : '' ?>>
+                        <?= $this->e($categoryValue) ?>
+                    </option>
+                    <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -73,14 +77,13 @@
                         <th class="text-right"><?= $this->__('reserved') ?></th>
                         <th class="text-right"><?= $this->__('available') ?></th>
                         <th class="text-right"><?= $this->__('value') ?></th>
-                        <th><?= $this->__('lots') ?></th>
                         <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($stocks)): ?>
                     <tr>
-                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_stock_found') ?></td>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_stock_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($stocks as $stock): ?>
@@ -114,13 +117,6 @@
                             <?php endif; ?>
                         </td>
                         <td class="text-right"><?= number_format($stock['total_value'], 2) ?></td>
-                        <td>
-                            <?php if ($stock['track_lots']): ?>
-                            <span class="badge badge-info"><?= $stock['lot_count'] ?></span>
-                            <?php else: ?>
-                            -
-                            <?php endif; ?>
-                        </td>
                         <td>
                             <a href="/warehouse/stock/<?= $stock['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('details') ?></a>
                         </td>

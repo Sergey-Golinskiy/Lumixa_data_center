@@ -13,14 +13,15 @@
             <div class="card-header">Document Information</div>
             <div class="card-body">
                 <div class="form-group">
-                    <label for="type">Document Type *</label>
+                    <label for="type"><?= $this->__('document_type') ?> *</label>
+                    <?php $currentType = $document['type'] ?? $selectedType ?? $this->old('type'); ?>
                     <select id="type" name="type" required <?= $document ? 'disabled' : '' ?>>
-                        <option value="">Select Type</option>
-                        <option value="receipt" <?= ($document['type'] ?? $this->old('type')) === 'receipt' ? 'selected' : '' ?>>Receipt (Incoming)</option>
-                        <option value="shipment" <?= ($document['type'] ?? $this->old('type')) === 'shipment' ? 'selected' : '' ?>>Shipment (Outgoing)</option>
-                        <option value="transfer" <?= ($document['type'] ?? $this->old('type')) === 'transfer' ? 'selected' : '' ?>>Internal Transfer</option>
-                        <option value="adjustment" <?= ($document['type'] ?? $this->old('type')) === 'adjustment' ? 'selected' : '' ?>>Adjustment</option>
-                        <option value="write_off" <?= ($document['type'] ?? $this->old('type')) === 'write_off' ? 'selected' : '' ?>>Write-Off</option>
+                        <option value=""><?= $this->__('select_type') ?></option>
+                        <?php foreach ($types as $value => $label): ?>
+                        <option value="<?= $this->e($value) ?>" <?= $currentType === $value ? 'selected' : '' ?>>
+                            <?= $this->e($label) ?>
+                        </option>
+                        <?php endforeach; ?>
                     </select>
                     <?php if ($document): ?>
                     <input type="hidden" name="type" value="<?= $this->e($document['type']) ?>">
@@ -51,6 +52,23 @@
                     </select>
                     <?php if ($this->hasError('partner_id')): ?>
                     <span class="error"><?= $this->error('partner_id') ?></span>
+                    <?php endif; ?>
+                </div>
+
+                <div class="form-group costing-method-field">
+                    <label for="costing_method"><?= $this->__('issue_costing_method') ?></label>
+                    <?php
+                    $currentCostingMethod = $document['costing_method'] ?? $this->old('costing_method', $defaultCostingMethod ?? 'FIFO');
+                    ?>
+                    <select id="costing_method" name="costing_method" <?= !($allowCostingOverride ?? true) ? 'disabled' : '' ?>>
+                        <?php foreach (($costingMethods ?? []) as $value => $label): ?>
+                        <option value="<?= $this->e($value) ?>" <?= $currentCostingMethod === $value ? 'selected' : '' ?>>
+                            <?= $this->e($label) ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <?php if (!($allowCostingOverride ?? true)): ?>
+                    <small class="text-muted"><?= $this->__('issue_costing_method_locked') ?></small>
                     <?php endif; ?>
                 </div>
 
@@ -110,10 +128,10 @@
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th style="width: 200px;">Item *</th>
-                            <th style="width: 150px;">Lot</th>
                             <th style="width: 100px;">Quantity *</th>
                             <th style="width: 120px;">Unit Price</th>
                             <th style="width: 120px;">Total</th>
+                            <th class="batch-column" style="width: 180px;"><?= $this->__('batch_allocations') ?></th>
                             <th style="width: 150px;">Notes</th>
                             <th style="width: 50px;"></th>
                         </tr>
@@ -123,7 +141,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
+                            <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
                             <td><strong id="footer-total">0.00</strong></td>
                             <td colspan="2"></td>
                         </tr>
@@ -174,6 +192,12 @@
     padding: 5px;
     vertical-align: middle;
 }
+.batch-column {
+    display: none;
+}
+.costing-method-field {
+    display: none;
+}
 .btn-remove {
     background: var(--danger);
     color: white;
@@ -192,12 +216,19 @@
 const items = <?= json_encode($items) ?>;
 const existingLines = <?= json_encode($lines ?? []) ?>;
 let lineNumber = 0;
+const batchColumns = () => document.querySelectorAll('.batch-column');
+const costingField = document.querySelector('.costing-method-field');
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     // Load existing lines if editing
     if (existingLines.length > 0) {
         existingLines.forEach(function(line) {
+            if (line.batch_allocations) {
+                line.batch_allocations_raw = line.batch_allocations.map(function(allocation) {
+                    return `${allocation.batch_id}:${allocation.quantity}`;
+                }).join(', ');
+            }
             addLine(line);
         });
     } else {
@@ -205,6 +236,17 @@ document.addEventListener('DOMContentLoaded', function() {
         addLine();
     }
     updateTotals();
+    updateCostingVisibility();
+
+    const typeSelect = document.getElementById('type');
+    if (typeSelect) {
+        typeSelect.addEventListener('change', updateCostingVisibility);
+    }
+
+    const costingSelect = document.getElementById('costing_method');
+    if (costingSelect) {
+        costingSelect.addEventListener('change', updateCostingVisibility);
+    }
 });
 
 function addLine(data = null) {
@@ -229,9 +271,6 @@ function addLine(data = null) {
             </select>
         </td>
         <td>
-            <input type="text" name="lines[${lineNumber}][lot_number]" placeholder="Lot #" value="${data ? (data.lot_number || '') : ''}">
-        </td>
-        <td>
             <input type="number" name="lines[${lineNumber}][quantity]" step="0.001" min="0.001" required
                    value="${data ? data.quantity : ''}" onchange="updateLineTotal(${lineNumber})">
         </td>
@@ -240,6 +279,10 @@ function addLine(data = null) {
                    value="${data ? data.unit_price : '0.00'}" onchange="updateLineTotal(${lineNumber})">
         </td>
         <td class="line-total">${data ? formatNumber(data.total_price || 0) : '0.00'}</td>
+        <td class="batch-column">
+            <input type="text" name="lines[${lineNumber}][batch_allocations]" placeholder="<?= $this->__('batch_allocations_hint') ?>"
+                   value="${data && data.batch_allocations_raw ? data.batch_allocations_raw : ''}">
+        </td>
         <td>
             <input type="text" name="lines[${lineNumber}][notes]" placeholder="Notes" value="${data ? (data.notes || '') : ''}">
         </td>
@@ -294,6 +337,21 @@ function updateTotals() {
 
 function formatNumber(num) {
     return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+}
+
+function updateCostingVisibility() {
+    const typeSelect = document.getElementById('type');
+    const costingSelect = document.getElementById('costing_method');
+    const typeValue = typeSelect ? typeSelect.value : '';
+    const costingValue = costingSelect ? costingSelect.value : '';
+    const isIssueType = ['issue', 'adjustment', 'stocktake'].includes(typeValue);
+    if (costingField) {
+        costingField.style.display = isIssueType ? 'block' : 'none';
+    }
+    const showBatch = isIssueType && costingValue === 'MANUAL';
+    batchColumns().forEach(function(col) {
+        col.style.display = showBatch ? '' : 'none';
+    });
 }
 
 // Form validation

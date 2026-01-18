@@ -1,7 +1,7 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Production Tasks</h1>
+    <h1><?= $this->__('production_tasks') ?></h1>
 </div>
 
 <!-- Filters -->
@@ -11,21 +11,21 @@
             <div class="filter-row">
                 <div class="filter-group">
                     <select name="status">
-                        <option value="">All Statuses</option>
-                        <option value="pending" <?= $status === 'pending' ? 'selected' : '' ?>>Pending</option>
-                        <option value="in_progress" <?= $status === 'in_progress' ? 'selected' : '' ?>>In Progress</option>
-                        <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>>Completed</option>
+                        <option value=""><?= $this->__('all_statuses') ?></option>
+                        <option value="pending" <?= $status === 'pending' ? 'selected' : '' ?>><?= $this->__('pending') ?></option>
+                        <option value="in_progress" <?= $status === 'in_progress' ? 'selected' : '' ?>><?= $this->__('in_progress') ?></option>
+                        <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>><?= $this->__('completed') ?></option>
                     </select>
                 </div>
                 <div class="filter-group">
                     <select name="assigned_to">
-                        <option value="">All Assignments</option>
-                        <option value="me" <?= $assignedTo === 'me' ? 'selected' : '' ?>>Assigned to Me</option>
-                        <option value="unassigned" <?= $assignedTo === 'unassigned' ? 'selected' : '' ?>>Unassigned</option>
+                        <option value=""><?= $this->__('all_assignments') ?></option>
+                        <option value="me" <?= $assignedTo === 'me' ? 'selected' : '' ?>><?= $this->__('assigned_to_me') ?></option>
+                        <option value="unassigned" <?= $assignedTo === 'unassigned' ? 'selected' : '' ?>><?= $this->__('unassigned') ?></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/production/tasks" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/production/tasks" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -38,20 +38,20 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Order</th>
-                        <th>Op #</th>
-                        <th>Task</th>
-                        <th>Work Center</th>
-                        <th class="text-right">Progress</th>
-                        <th>Status</th>
-                        <th>Assigned To</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('order') ?></th>
+                        <th><?= $this->__('operation_number') ?></th>
+                        <th><?= $this->__('task') ?></th>
+                        <th><?= $this->__('work_center') ?></th>
+                        <th class="text-right"><?= $this->__('progress') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('assigned_to') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($tasks)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No tasks found</td>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_results') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($tasks as $task): ?>
@@ -62,6 +62,11 @@
                         'completed' => 'success',
                         default => 'secondary'
                     };
+                    $statusLabels = [
+                        'pending' => $this->__('pending'),
+                        'in_progress' => $this->__('in_progress'),
+                        'completed' => $this->__('completed')
+                    ];
                     ?>
                     <tr>
                         <td>
@@ -72,9 +77,9 @@
                         <td><?= $this->e($task['name']) ?></td>
                         <td><?= $this->e($task['work_center'] ?? '-') ?></td>
                         <td class="text-right"><?= number_format($task['completed_quantity'], 0) ?> / <?= number_format($task['planned_quantity'], 0) ?></td>
-                        <td><span class="badge badge-<?= $statusClass ?>"><?= ucfirst(str_replace('_', ' ', $task['status'])) ?></span></td>
+                        <td><span class="badge badge-<?= $statusClass ?>"><?= $statusLabels[$task['status']] ?? $this->e($task['status']) ?></span></td>
                         <td><?= $this->e($task['assigned_name'] ?? '-') ?></td>
-                        <td><a href="/production/tasks/<?= $task['id'] ?>" class="btn btn-sm btn-secondary">View</a></td>
+                        <td><a href="/production/tasks/<?= $task['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a></td>
                     </tr>
                     <?php endforeach; ?>
                     <?php endif; ?>

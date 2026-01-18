@@ -1,16 +1,16 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/warehouse/partners" class="btn btn-secondary">&laquo; Back to Partners</a>
+    <a href="/warehouse/partners" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('suppliers')]) ?></a>
     <?php if ($this->can('warehouse.partners.edit')): ?>
     <a href="/warehouse/partners/<?= $partner['id'] ?>/edit" class="btn btn-outline">Edit</a>
     <?php endif; ?>
 </div>
 
 <div class="detail-grid">
-    <!-- Partner Information -->
+    <!-- Supplier Information -->
     <div class="card">
-        <div class="card-header">Partner Information</div>
+        <div class="card-header">Supplier Information</div>
         <div class="card-body">
             <div class="detail-row">
                 <span class="detail-label">Code</span>
@@ -165,10 +165,10 @@
     <div class="card-header" style="color: var(--danger);">Danger Zone</div>
     <div class="card-body">
         <form method="POST" action="/warehouse/partners/<?= $partner['id'] ?>/delete"
-              onsubmit="return confirm('Are you sure you want to delete this partner?');">
+              onsubmit="return confirm('Are you sure you want to delete this supplier?');">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-            <p>Delete this partner permanently. This action cannot be undone.</p>
-            <button type="submit" class="btn btn-danger">Delete Partner</button>
+            <p>Delete this supplier permanently. This action cannot be undone.</p>
+            <button type="submit" class="btn btn-danger">Delete Supplier</button>
         </form>
     </div>
 </div>
