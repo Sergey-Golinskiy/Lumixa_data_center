@@ -121,7 +121,9 @@ class DocumentsController extends Controller
             'document_date' => $this->post('document_date', date('Y-m-d')),
             'partner_id' => $this->post('partner_id') ?: null,
             'notes' => $this->post('notes', ''),
-            'costing_method' => $this->post('costing_method') ?: null
+            'costing_method' => $this->post('costing_method') ?: null,
+            'issue_source_type' => $this->resolveIssueSourceType($type),
+            'issue_source_id' => null
         ];
 
         // Parse lines
@@ -250,7 +252,9 @@ class DocumentsController extends Controller
             'document_date' => $this->post('document_date', date('Y-m-d')),
             'partner_id' => $this->post('partner_id') ?: null,
             'notes' => $this->post('notes', ''),
-            'costing_method' => $this->post('costing_method') ?: null
+            'costing_method' => $this->post('costing_method') ?: null,
+            'issue_source_type' => $this->resolveIssueSourceType($document['type'] ?? ''),
+            'issue_source_id' => $document['issue_source_id'] ?? null
         ];
 
         $lines = $this->parseLines();
@@ -410,5 +414,16 @@ class DocumentsController extends Controller
             ];
         }
         return $allocations;
+    }
+
+    private function resolveIssueSourceType(string $type): ?string
+    {
+        if (in_array($type, ['issue', 'adjustment', 'stocktake'], true)) {
+            return 'manual';
+        }
+        if ($type === 'receipt') {
+            return 'receipt';
+        }
+        return null;
     }
 }
