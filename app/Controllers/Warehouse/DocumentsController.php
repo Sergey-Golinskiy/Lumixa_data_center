@@ -86,7 +86,10 @@ class DocumentsController extends Controller
             'partners' => $partners,
             'csrfToken' => $this->csrfToken(),
             'types' => $types,
-            'selectedType' => $selectedType
+            'selectedType' => $selectedType,
+            'costingMethods' => $this->getCostingMethods(),
+            'defaultCostingMethod' => $this->getSetting('inventory_issue_method', 'FIFO'),
+            'allowCostingOverride' => $this->getSetting('inventory_allow_issue_method_override', '1') === '1'
         ]);
     }
 
@@ -117,7 +120,8 @@ class DocumentsController extends Controller
             'type' => $type,
             'document_date' => $this->post('document_date', date('Y-m-d')),
             'partner_id' => $this->post('partner_id') ?: null,
-            'notes' => $this->post('notes', '')
+            'notes' => $this->post('notes', ''),
+            'costing_method' => $this->post('costing_method') ?: null
         ];
 
         // Parse lines
@@ -158,11 +162,13 @@ class DocumentsController extends Controller
         }
 
         $lines = $this->documentService->getLines((int)$id);
+        $batchAllocations = $this->documentService->getBatchAllocations((int)$id);
 
         $this->view('warehouse/documents/show', [
             'title' => $document['document_number'],
             'document' => $document,
             'lines' => $lines,
+            'batchAllocations' => $batchAllocations,
             'csrfToken' => $this->csrfToken()
         ]);
     }
@@ -211,7 +217,10 @@ class DocumentsController extends Controller
             'partners' => $partners,
             'csrfToken' => $this->csrfToken(),
             'types' => $types,
-            'selectedType' => $document['type'] ?? ''
+            'selectedType' => $document['type'] ?? '',
+            'costingMethods' => $this->getCostingMethods(),
+            'defaultCostingMethod' => $this->getSetting('inventory_issue_method', 'FIFO'),
+            'allowCostingOverride' => $this->getSetting('inventory_allow_issue_method_override', '1') === '1'
         ]);
     }
 
@@ -240,7 +249,8 @@ class DocumentsController extends Controller
         $data = [
             'document_date' => $this->post('document_date', date('Y-m-d')),
             'partner_id' => $this->post('partner_id') ?: null,
-            'notes' => $this->post('notes', '')
+            'notes' => $this->post('notes', ''),
+            'costing_method' => $this->post('costing_method') ?: null
         ];
 
         $lines = $this->parseLines();
@@ -330,11 +340,14 @@ class DocumentsController extends Controller
                 continue;
             }
 
+            $batchAllocations = $this->parseBatchAllocations($line['batch_allocations'] ?? '');
+
             $result[] = [
                 'item_id' => (int)$line['item_id'],
                 'quantity' => (float)$line['quantity'],
                 'unit_price' => (float)($line['unit_price'] ?? 0),
-                'notes' => $line['notes'] ?? ''
+                'notes' => $line['notes'] ?? '',
+                'batch_allocations' => $batchAllocations
             ];
         }
 
@@ -352,5 +365,50 @@ class DocumentsController extends Controller
             'stocktake' => $translator->get('stocktake'),
             'adjustment' => $translator->get('adjustment')
         ];
+    }
+
+    private function getSetting(string $key, $default = null)
+    {
+        if (!$this->db()->tableExists('settings')) {
+            return $default;
+        }
+
+        $value = $this->db()->fetchColumn(
+            "SELECT value FROM settings WHERE `key` = ? LIMIT 1",
+            [$key]
+        );
+
+        if ($value === false || $value === null) {
+            return $default;
+        }
+
+        return $value;
+    }
+
+    private function getCostingMethods(): array
+    {
+        return [
+            'FIFO' => $this->__('costing_method_fifo'),
+            'LIFO' => $this->__('costing_method_lifo'),
+            'AVG' => $this->__('costing_method_avg'),
+            'MANUAL' => $this->__('costing_method_manual')
+        ];
+    }
+
+    private function parseBatchAllocations(string $raw): array
+    {
+        $allocations = [];
+        $pairs = array_filter(array_map('trim', explode(',', $raw)));
+        foreach ($pairs as $pair) {
+            [$batchId, $qty] = array_pad(array_map('trim', explode(':', $pair)), 2, null);
+            if (!$batchId || !$qty) {
+                continue;
+            }
+            $allocations[] = [
+                'batch_id' => (int)$batchId,
+                'quantity' => (float)$qty
+            ];
+        }
+        return $allocations;
     }
 }
