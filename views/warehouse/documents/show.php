@@ -57,6 +57,12 @@
                 <span class="detail-label">Partner</span>
                 <span class="detail-value"><?= $this->e($document['partner_name'] ?? '-') ?></span>
             </div>
+            <?php if (in_array($document['type'], ['issue', 'adjustment', 'stocktake'], true)): ?>
+            <div class="detail-row">
+                <span class="detail-label"><?= $this->__('issue_costing_method') ?></span>
+                <span class="detail-value"><?= $this->e($document['costing_method'] ?? $this->__('costing_method_fifo')) ?></span>
+            </div>
+            <?php endif; ?>
             <div class="detail-row">
                 <span class="detail-label">Total Amount</span>
                 <span class="detail-value"><strong><?= $this->currency($document['total_amount']) ?></strong></span>
@@ -120,7 +126,6 @@
                         <th>#</th>
                         <th>SKU</th>
                         <th>Item</th>
-                        <th>Lot</th>
                         <th>Quantity</th>
                         <th>Unit Price</th>
                         <th>Total</th>
@@ -137,7 +142,6 @@
                             </a>
                         </td>
                         <td><?= $this->e($line['item_name']) ?></td>
-                        <td><?= $this->e($line['lot_number'] ?? '-') ?></td>
                         <td><?= $this->number($line['quantity']) ?> <?= $line['unit'] ?></td>
                         <td><?= $this->currency($line['unit_price']) ?></td>
                         <td><?= $this->currency($line['total_price']) ?></td>
@@ -147,7 +151,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="6" style="text-align: right;"><strong>Total:</strong></td>
+                        <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
                         <td><strong><?= $this->currency($document['total_amount']) ?></strong></td>
                         <td></td>
                     </tr>
@@ -156,6 +160,40 @@
         </div>
     </div>
 </div>
+
+<?php if (!empty($batchAllocations)): ?>
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header"><?= $this->__('batch_allocations') ?></div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th><?= $this->__('batch') ?></th>
+                        <th><?= $this->__('sku') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('quantity') ?></th>
+                        <th><?= $this->__('unit_cost') ?></th>
+                        <th><?= $this->__('total') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($batchAllocations as $allocation): ?>
+                    <tr>
+                        <td><?= $this->e($allocation['batch_code']) ?></td>
+                        <td><?= $this->e($allocation['sku']) ?></td>
+                        <td><?= $this->e($allocation['item_name']) ?></td>
+                        <td><?= $this->number($allocation['quantity']) ?></td>
+                        <td><?= $this->currency($allocation['unit_cost']) ?></td>
+                        <td><?= $this->currency($allocation['total_cost']) ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- Cancel Modal -->
 <div id="cancel-modal" class="modal">

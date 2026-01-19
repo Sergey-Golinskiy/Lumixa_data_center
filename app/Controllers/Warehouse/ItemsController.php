@@ -58,8 +58,13 @@ class ItemsController extends Controller
         $this->view('warehouse/items/form', [
             'title' => 'Create Item',
             'item' => null,
+            'attributes' => [],
             'types' => $this->itemService->getTypes(),
             'units' => $this->itemService->getUnits(),
+            'materialOptions' => $this->itemService->getOptionValues('material'),
+            'manufacturerOptions' => $this->itemService->getOptionValues('manufacturer'),
+            'plasticTypeOptions' => $this->itemService->getOptionValues('plastic_type'),
+            'filamentAliasOptions' => $this->itemService->getOptionValues('filament_alias'),
             'csrfToken' => $this->csrfToken()
         ]);
     }
@@ -88,18 +93,12 @@ class ItemsController extends Controller
         $data['description'] = $this->post('description', '');
         $data['min_stock'] = (float)$this->post('min_stock', 0);
         $data['reorder_point'] = (float)$this->post('reorder_point', 0);
+        $imagePath = $this->storeImageUpload('image', 'items');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
-        // Attributes
-        $attributes = [];
-        if ($this->post('attr_color')) {
-            $attributes['color'] = $this->post('attr_color');
-        }
-        if ($this->post('attr_diameter')) {
-            $attributes['diameter'] = $this->post('attr_diameter');
-        }
-        if ($this->post('attr_brand')) {
-            $attributes['brand'] = $this->post('attr_brand');
-        }
+        $attributes = $this->buildAttributes($data['type']);
 
         try {
             $item = $this->itemService->create($data, $attributes, $this->user()['id']);
@@ -165,6 +164,10 @@ class ItemsController extends Controller
             'attributes' => $attributes,
             'types' => $this->itemService->getTypes(),
             'units' => $this->itemService->getUnits(),
+            'materialOptions' => $this->itemService->getOptionValues('material'),
+            'manufacturerOptions' => $this->itemService->getOptionValues('manufacturer'),
+            'plasticTypeOptions' => $this->itemService->getOptionValues('plastic_type'),
+            'filamentAliasOptions' => $this->itemService->getOptionValues('filament_alias'),
             'csrfToken' => $this->csrfToken()
         ]);
     }
@@ -202,9 +205,49 @@ class ItemsController extends Controller
         $data['min_stock'] = (float)$this->post('min_stock', 0);
         $data['reorder_point'] = (float)$this->post('reorder_point', 0);
         $data['is_active'] = $this->post('is_active') ? 1 : 0;
+        $imagePath = $this->storeImageUpload('image', 'items');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
-        // Attributes
+        $attributes = $this->buildAttributes($data['type']);
+
+        try {
+            $this->itemService->update((int)$id, $data, $attributes, $this->user()['id']);
+            $this->session->setFlash('success', 'Item updated successfully');
+            $this->redirect('/warehouse/items/' . $id);
+        } catch (\Exception $e) {
+            $this->session->setFlash('error', $e->getMessage());
+            $this->redirect('/warehouse/items/' . $id . '/edit');
+        }
+    }
+
+    private function buildAttributes(string $type): array
+    {
         $attributes = [];
+
+        if ($type === 'material') {
+            if ($this->post('attr_material')) {
+                $attributes['material'] = $this->post('attr_material');
+            }
+            if ($this->post('attr_manufacturer')) {
+                $attributes['manufacturer'] = $this->post('attr_manufacturer');
+            }
+            if ($this->post('attr_plastic_type')) {
+                $attributes['plastic_type'] = $this->post('attr_plastic_type');
+            }
+            if ($this->post('attr_filament_color')) {
+                $attributes['filament_color'] = $this->post('attr_filament_color');
+            }
+            if ($this->post('attr_filament_diameter')) {
+                $attributes['filament_diameter'] = $this->post('attr_filament_diameter');
+            }
+            if ($this->post('attr_filament_alias')) {
+                $attributes['filament_alias'] = $this->post('attr_filament_alias');
+            }
+            return $attributes;
+        }
+
         if ($this->post('attr_color')) {
             $attributes['color'] = $this->post('attr_color');
         }
@@ -215,13 +258,6 @@ class ItemsController extends Controller
             $attributes['brand'] = $this->post('attr_brand');
         }
 
-        try {
-            $this->itemService->update((int)$id, $data, $attributes, $this->user()['id']);
-            $this->session->setFlash('success', 'Item updated successfully');
-            $this->redirect('/warehouse/items/' . $id);
-        } catch (\Exception $e) {
-            $this->session->setFlash('error', $e->getMessage());
-            $this->redirect('/warehouse/items/' . $id . '/edit');
-        }
+        return $attributes;
     }
 }

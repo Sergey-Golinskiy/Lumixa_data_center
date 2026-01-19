@@ -50,7 +50,7 @@ class BackupController extends Controller
         $totalSize = array_sum(array_column($backups, 'size'));
 
         $this->view('admin/backups/index', [
-            'title' => 'Backups',
+            'title' => $this->app->getTranslator()->get('backup_title'),
             'backups' => $backups,
             'totalSize' => $this->formatBytes($totalSize),
             'backupCount' => count($backups),

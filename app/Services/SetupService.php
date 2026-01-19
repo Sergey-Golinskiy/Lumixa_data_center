@@ -155,16 +155,33 @@ class SetupService
         foreach ($this->writableDirs as $dir) {
             $fullPath = $basePath . '/' . $dir;
             $exists = is_dir($fullPath);
+            $created = false;
+
+            if (!$exists) {
+                $created = @mkdir($fullPath, 0775, true);
+                $exists = $created && is_dir($fullPath);
+            }
+
             $writable = $exists && is_writable($fullPath);
 
+            if ($exists && !$writable) {
+                @chmod($fullPath, 0775);
+                $writable = is_writable($fullPath);
+            }
+
             $status = $writable;
-            $message = $writable ? 'Writable' : ($exists ? 'Not writable' : 'Does not exist');
+            if ($writable) {
+                $message = $created ? 'Created and writable' : 'Writable';
+            } else {
+                $message = $exists ? 'Not writable' : 'Does not exist';
+            }
 
             $results[] = [
                 'name' => $dir,
                 'path' => $fullPath,
                 'exists' => $exists,
                 'writable' => $writable,
+                'created' => $created,
                 'status' => $status,
                 'required' => true,
                 'message' => $message,
@@ -192,6 +209,29 @@ class SetupService
         ];
 
         try {
+            $dbName = $config['db_name'];
+            $dsnWithDb = sprintf(
+                'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
+                $config['db_host'] ?? 'localhost',
+                $config['db_port'] ?? 3306,
+                $dbName
+            );
+
+            try {
+                $pdo = new PDO($dsnWithDb, $config['db_user'] ?? '', $config['db_pass'] ?? '', [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                ]);
+                $pdo->query('SELECT 1');
+                $result['message'] = 'Connected successfully';
+                $result['status'] = true;
+                return $result;
+            } catch (PDOException $e) {
+                $errorCode = $e->errorInfo[1] ?? null;
+                if ($errorCode !== 1049 && !str_contains($e->getMessage(), 'Unknown database')) {
+                    throw $e;
+                }
+            }
+
             $dsn = sprintf(
                 'mysql:host=%s;port=%d;charset=utf8mb4',
                 $config['db_host'] ?? 'localhost',
@@ -202,29 +242,18 @@ class SetupService
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ]);
 
-            // Test query
             $pdo->query('SELECT 1');
 
-            // Check if database exists
-            $dbName = $config['db_name'];
-            $stmt = $pdo->query("SHOW DATABASES LIKE '{$dbName}'");
-            $dbExists = $stmt->rowCount() > 0;
-
-            if (!$dbExists) {
-                // Try to create database
-                try {
-                    $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-                    $result['message'] = 'Connected, database created';
-                } catch (PDOException $e) {
-                    $result['message'] = 'Connected, but cannot create database';
-                    $result['fix'] = "CREATE DATABASE {$dbName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
-                    return $result;
-                }
-            } else {
-                $result['message'] = 'Connected successfully';
+            try {
+                $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+                $result['message'] = 'Connected, database created';
+                $result['status'] = true;
+                return $result;
+            } catch (PDOException $e) {
+                $result['message'] = 'Connected, but cannot create database';
+                $result['fix'] = "CREATE DATABASE {$dbName} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
+                return $result;
             }
-
-            $result['status'] = true;
 
         } catch (PDOException $e) {
             $result['message'] = 'Connection failed: ' . $e->getMessage();

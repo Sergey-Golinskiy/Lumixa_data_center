@@ -90,6 +90,30 @@ return function (Router $router) {
         $router->post('/backups/{id}/restore', 'Admin\\BackupController@restore');
         $router->post('/backups/{id}/delete', 'Admin\\BackupController@delete');
 
+        // Product Categories
+        $router->get('/product-categories', 'Admin\\ProductCategoriesController@index', 'admin.product-categories');
+        $router->get('/product-categories/create', 'Admin\\ProductCategoriesController@create', 'admin.product-categories.create');
+        $router->post('/product-categories', 'Admin\\ProductCategoriesController@store');
+        $router->get('/product-categories/{id}/edit', 'Admin\\ProductCategoriesController@edit', 'admin.product-categories.edit');
+        $router->post('/product-categories/{id}', 'Admin\\ProductCategoriesController@update');
+        $router->post('/product-categories/{id}/delete', 'Admin\\ProductCategoriesController@delete');
+
+        // Item Options
+        $router->get('/item-options/{group}', 'Admin\\ItemOptionsController@index', 'admin.item-options');
+        $router->get('/item-options/{group}/create', 'Admin\\ItemOptionsController@create', 'admin.item-options.create');
+        $router->post('/item-options/{group}', 'Admin\\ItemOptionsController@store');
+        $router->get('/item-options/{group}/{id}/edit', 'Admin\\ItemOptionsController@edit', 'admin.item-options.edit');
+        $router->post('/item-options/{group}/{id}', 'Admin\\ItemOptionsController@update');
+        $router->post('/item-options/{group}/{id}/delete', 'Admin\\ItemOptionsController@delete');
+
+        // Printers
+        $router->get('/printers', 'Admin\\PrintersController@index', 'admin.printers');
+        $router->get('/printers/create', 'Admin\\PrintersController@create', 'admin.printers.create');
+        $router->post('/printers', 'Admin\\PrintersController@store');
+        $router->get('/printers/{id}/edit', 'Admin\\PrintersController@edit', 'admin.printers.edit');
+        $router->post('/printers/{id}', 'Admin\\PrintersController@update');
+        $router->post('/printers/{id}/delete', 'Admin\\PrintersController@delete');
+
     }, ['AdminMiddleware', 'CSRFMiddleware']);
 
     // ========================================
@@ -106,15 +130,6 @@ return function (Router $router) {
         $router->post('/items/{id}', 'Warehouse\\ItemsController@update');
 
         // Lots
-        $router->get('/lots', 'Warehouse\\LotsController@index', 'warehouse.lots');
-        $router->get('/lots/expiring', 'Warehouse\\LotsController@expiring', 'warehouse.lots.expiring');
-        $router->get('/lots/create', 'Warehouse\\LotsController@create', 'warehouse.lots.create');
-        $router->post('/lots', 'Warehouse\\LotsController@store');
-        $router->get('/lots/{id}', 'Warehouse\\LotsController@show', 'warehouse.lots.show');
-        $router->get('/lots/{id}/edit', 'Warehouse\\LotsController@edit', 'warehouse.lots.edit');
-        $router->post('/lots/{id}', 'Warehouse\\LotsController@update');
-        $router->post('/lots/{id}/status', 'Warehouse\\LotsController@changeStatus');
-
         // Stock
         $router->get('/stock', 'Warehouse\\StockController@index', 'warehouse.stock');
         $router->get('/stock/movements', 'Warehouse\\StockController@movements', 'warehouse.stock.movements');
@@ -124,6 +139,7 @@ return function (Router $router) {
 
         // Documents
         $router->get('/documents', 'Warehouse\\DocumentsController@index', 'warehouse.documents');
+        $router->get('/documents/create/{type}', 'Warehouse\\DocumentsController@create', 'warehouse.documents.create.type');
         $router->get('/documents/create', 'Warehouse\\DocumentsController@create', 'warehouse.documents.create');
         $router->post('/documents', 'Warehouse\\DocumentsController@store');
         $router->get('/documents/{id}', 'Warehouse\\DocumentsController@show', 'warehouse.documents.show');
@@ -155,6 +171,24 @@ return function (Router $router) {
         $router->get('/products/{id}', 'Catalog\\ProductsController@show', 'catalog.products.show');
         $router->get('/products/{id}/edit', 'Catalog\\ProductsController@edit', 'catalog.products.edit');
         $router->post('/products/{id}', 'Catalog\\ProductsController@update');
+
+        // Details
+        $router->get('/details', 'Catalog\\DetailsController@index', 'catalog.details');
+        $router->get('/details/create', 'Catalog\\DetailsController@create', 'catalog.details.create');
+        $router->post('/details', 'Catalog\\DetailsController@store');
+        $router->get('/details/{id}', 'Catalog\\DetailsController@show', 'catalog.details.show');
+        $router->get('/details/{id}/edit', 'Catalog\\DetailsController@edit', 'catalog.details.edit');
+        $router->post('/details/{id}', 'Catalog\\DetailsController@update');
+
+        // Detail Routing
+        $router->get('/detail-routing', 'Catalog\\DetailRoutingController@index', 'catalog.detail-routing');
+        $router->get('/detail-routing/create', 'Catalog\\DetailRoutingController@create', 'catalog.detail-routing.create');
+        $router->post('/detail-routing', 'Catalog\\DetailRoutingController@store');
+        $router->get('/detail-routing/{id}', 'Catalog\\DetailRoutingController@show', 'catalog.detail-routing.show');
+        $router->get('/detail-routing/{id}/edit', 'Catalog\\DetailRoutingController@edit', 'catalog.detail-routing.edit');
+        $router->post('/detail-routing/{id}', 'Catalog\\DetailRoutingController@update');
+        $router->post('/detail-routing/{id}/activate', 'Catalog\\DetailRoutingController@activate');
+        $router->post('/detail-routing/{id}/archive', 'Catalog\\DetailRoutingController@archive');
 
         // Variants
         $router->get('/variants', 'Catalog\\VariantsController@index', 'catalog.variants');

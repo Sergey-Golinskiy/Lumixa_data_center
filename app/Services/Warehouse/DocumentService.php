@@ -130,10 +130,9 @@ class DocumentService
     public function getLines(int $documentId): array
     {
         return $this->db->fetchAll(
-            "SELECT dl.*, i.sku, i.name as item_name, i.unit, l.lot_number, l.color
+            "SELECT dl.*, i.sku, i.name as item_name, i.unit
              FROM document_lines dl
              JOIN items i ON dl.item_id = i.id
-             LEFT JOIN lots l ON dl.lot_id = l.id
              WHERE dl.document_id = ?
              ORDER BY dl.line_number",
             [$documentId]
@@ -191,6 +190,9 @@ class DocumentService
                 'partner_id' => $data['partner_id'] ?? null,
                 'document_date' => $data['document_date'],
                 'notes' => $data['notes'] ?? '',
+                'costing_method' => $data['costing_method'] ?? null,
+                'issue_source_type' => $data['issue_source_type'] ?? null,
+                'issue_source_id' => $data['issue_source_id'] ?? null,
                 'created_by' => $userId
             ]);
 
@@ -205,7 +207,6 @@ class DocumentService
                     'document_id' => $docId,
                     'line_number' => $lineNum++,
                     'item_id' => $line['item_id'],
-                    'lot_id' => $line['lot_id'] ?? null,
                     'quantity' => $line['quantity'],
                     'unit_price' => $line['unit_price'] ?? 0,
                     'total_price' => $lineTotal,
@@ -253,7 +254,10 @@ class DocumentService
             $this->db->update('documents', [
                 'partner_id' => $data['partner_id'] ?? null,
                 'document_date' => $data['document_date'],
-                'notes' => $data['notes'] ?? ''
+                'notes' => $data['notes'] ?? '',
+                'costing_method' => $data['costing_method'] ?? ($doc['costing_method'] ?? null),
+                'issue_source_type' => $data['issue_source_type'] ?? ($doc['issue_source_type'] ?? null),
+                'issue_source_id' => $data['issue_source_id'] ?? ($doc['issue_source_id'] ?? null)
             ], ['id' => $id]);
 
             // Delete existing lines
@@ -270,7 +274,6 @@ class DocumentService
                     'document_id' => $id,
                     'line_number' => $lineNum++,
                     'item_id' => $line['item_id'],
-                    'lot_id' => $line['lot_id'] ?? null,
                     'quantity' => $line['quantity'],
                     'unit_price' => $line['unit_price'] ?? 0,
                     'total_price' => $lineTotal,
@@ -320,6 +323,16 @@ class DocumentService
                 $this->processLine($doc, $line);
             }
 
+            if (in_array($doc['type'], ['issue', 'adjustment', 'stocktake'], true)) {
+                $totalAmount = (float)$this->db->fetchColumn(
+                    "SELECT SUM(total_price) FROM document_lines WHERE document_id = ?",
+                    [$doc['id']]
+                );
+                $this->db->update('documents', [
+                    'total_amount' => $totalAmount
+                ], ['id' => $doc['id']]);
+            }
+
             // Update document status
             $this->db->update('documents', [
                 'status' => 'posted',
@@ -347,13 +360,16 @@ class DocumentService
     private function processLine(array $doc, array $line): void
     {
         $itemId = $line['item_id'];
-        $lotId = $line['lot_id'];
         $quantity = (float)$line['quantity'];
         $unitPrice = (float)$line['unit_price'];
 
         // Get current balance
-        $balance = $this->getOrCreateBalance($itemId, $lotId);
+        $balance = $this->getOrCreateBalance($itemId);
         $balanceBefore = (float)$balance['on_hand'];
+        $balanceAfter = $balanceBefore;
+        $movementType = 'in';
+        $movementQuantity = $quantity;
+        $movementUnitCost = $unitPrice;
 
         switch ($doc['type']) {
             case 'receipt':
@@ -361,6 +377,8 @@ class DocumentService
                 $balanceAfter = $balanceBefore + $quantity;
                 $this->updateBalance($balance['id'], $quantity, 0, $unitPrice, 'in');
                 $movementType = 'in';
+                $batchId = $this->createBatch($itemId, $quantity, $unitPrice, $doc, $line);
+                $this->recordBatchMovement($batchId, $itemId, $doc, $line, 'in', $quantity, $unitPrice);
                 break;
 
             case 'issue':
@@ -368,27 +386,43 @@ class DocumentService
                 if ($balanceBefore < $quantity) {
                     throw new \Exception("Insufficient stock for item {$line['item_name']}");
                 }
+                [$unitCost, $totalCost] = $this->issueWithCosting($itemId, $quantity, $doc, $line);
                 $balanceAfter = $balanceBefore - $quantity;
-                $this->updateBalance($balance['id'], -$quantity, 0, $unitPrice, 'out');
+                $this->updateBalance($balance['id'], -$quantity, 0, $unitCost, 'out');
                 $movementType = 'out';
+                $movementUnitCost = $unitCost;
+                $this->updateLineCost((int)$line['id'], $unitCost, $totalCost);
                 break;
 
             case 'adjustment':
+            case 'stocktake':
                 // Set to absolute value (quantity is the new balance)
                 $diff = $quantity - $balanceBefore;
                 $balanceAfter = $quantity;
-                $this->setBalance($balance['id'], $quantity);
-                $movementType = $diff >= 0 ? 'in' : 'out';
-                $quantity = abs($diff);
-                break;
-
-            case 'stocktake':
-                // Same as adjustment
-                $diff = $quantity - $balanceBefore;
-                $balanceAfter = $quantity;
-                $this->setBalance($balance['id'], $quantity);
-                $movementType = $diff >= 0 ? 'in' : 'out';
-                $quantity = abs($diff);
+                if ($diff > 0) {
+                    $this->updateBalance($balance['id'], $diff, 0, $unitPrice, 'in');
+                    $batchId = $this->createBatch($itemId, $diff, $unitPrice, $doc, $line);
+                    $this->recordBatchMovement($batchId, $itemId, $doc, $line, 'in', $diff, $unitPrice);
+                    $movementType = 'in';
+                    $movementQuantity = $diff;
+                    $movementUnitCost = $unitPrice;
+                    $this->updateLineCost((int)$line['id'], $unitPrice, $diff * $unitPrice);
+                } elseif ($diff < 0) {
+                    $issueQty = abs($diff);
+                    if ($balanceBefore < $issueQty) {
+                        throw new \Exception("Insufficient stock for item {$line['item_name']}");
+                    }
+                    [$unitCost, $totalCost] = $this->issueWithCosting($itemId, $issueQty, $doc, $line);
+                    $this->updateBalance($balance['id'], -$issueQty, 0, $unitCost, 'out');
+                    $movementType = 'out';
+                    $movementQuantity = $issueQty;
+                    $movementUnitCost = $unitCost;
+                    $this->updateLineCost((int)$line['id'], $unitCost, $totalCost);
+                } else {
+                    $movementQuantity = 0;
+                    $movementType = 'adjust';
+                    $movementUnitCost = $balance['avg_cost'] ?? 0;
+                }
                 break;
 
             default:
@@ -396,38 +430,33 @@ class DocumentService
         }
 
         // Create movement record
-        $this->db->insert('stock_movements', [
-            'document_id' => $doc['id'],
-            'document_line_id' => $line['id'],
-            'item_id' => $itemId,
-            'lot_id' => $lotId,
-            'movement_type' => $movementType,
-            'quantity' => $quantity,
-            'unit_cost' => $unitPrice,
-            'balance_before' => $balanceBefore,
-            'balance_after' => $balanceAfter
-        ]);
+        if ($movementQuantity > 0 || $movementType === 'adjust') {
+            $this->db->insert('stock_movements', [
+                'document_id' => $doc['id'],
+                'document_line_id' => $line['id'],
+                'item_id' => $itemId,
+                'movement_type' => $movementType,
+                'quantity' => $movementQuantity,
+                'unit_cost' => $movementUnitCost,
+                'balance_before' => $balanceBefore,
+                'balance_after' => $balanceAfter
+            ]);
+        }
     }
 
     /**
      * Get or create stock balance
      */
-    private function getOrCreateBalance(int $itemId, ?int $lotId): array
+    private function getOrCreateBalance(int $itemId): array
     {
-        $where = $lotId
-            ? "item_id = ? AND lot_id = ?"
-            : "item_id = ? AND lot_id IS NULL";
-        $params = $lotId ? [$itemId, $lotId] : [$itemId];
-
         $balance = $this->db->fetch(
-            "SELECT * FROM stock_balances WHERE {$where} FOR UPDATE",
-            $params
+            "SELECT * FROM stock_balances WHERE item_id = ? FOR UPDATE",
+            [$itemId]
         );
 
         if (!$balance) {
             $id = $this->db->insert('stock_balances', [
                 'item_id' => $itemId,
-                'lot_id' => $lotId,
                 'on_hand' => 0,
                 'reserved' => 0,
                 'avg_cost' => 0
@@ -528,14 +557,270 @@ class DocumentService
         );
 
         foreach ($movements as $movement) {
-            $balance = $this->getOrCreateBalance($movement['item_id'], $movement['lot_id']);
+            $balance = $this->getOrCreateBalance($movement['item_id']);
 
             // Reverse the movement
+            if ($movement['movement_type'] === 'adjust') {
+                continue;
+            }
             if ($movement['movement_type'] === 'in') {
                 $this->updateBalance($balance['id'], -$movement['quantity'], 0, 0, 'out');
             } else {
                 $this->updateBalance($balance['id'], $movement['quantity'], 0, $movement['unit_cost'], 'in');
             }
         }
+
+        $this->reverseBatchMovements($doc['id']);
+    }
+
+    private function getSetting(string $key, $default = null)
+    {
+        if (!$this->db->tableExists('settings')) {
+            return $default;
+        }
+
+        $value = $this->db->fetchColumn(
+            "SELECT value FROM settings WHERE `key` = ? LIMIT 1",
+            [$key]
+        );
+
+        if ($value === false || $value === null) {
+            return $default;
+        }
+
+        return $value;
+    }
+
+    private function resolveCostingMethod(array $doc): string
+    {
+        $default = strtoupper((string)$this->getSetting('inventory_issue_method', 'FIFO'));
+        $allowOverride = (string)$this->getSetting('inventory_allow_issue_method_override', '1') === '1';
+        $method = $default;
+
+        if ($allowOverride && !empty($doc['costing_method'])) {
+            $method = strtoupper(trim((string)$doc['costing_method']));
+        }
+
+        $allowed = ['FIFO', 'LIFO', 'AVG', 'MANUAL'];
+        if (!in_array($method, $allowed, true)) {
+            $method = 'FIFO';
+        }
+
+        return $method;
+    }
+
+    private function issueWithCosting(int $itemId, float $quantity, array $doc, array $line): array
+    {
+        if (!$this->db->tableExists('inventory_batches')) {
+            return [(float)$line['unit_price'], $quantity * (float)$line['unit_price']];
+        }
+
+        $method = $this->resolveCostingMethod($doc);
+        $remaining = $quantity;
+        $allocations = [];
+
+        if ($method === 'MANUAL') {
+            $manual = $line['batch_allocations'] ?? [];
+            if (empty($manual)) {
+                throw new \Exception('Manual batch selection required for this issue');
+            }
+
+            $manualTotal = 0;
+            foreach ($manual as $allocation) {
+                $manualTotal += (float)$allocation['quantity'];
+            }
+            if (abs($manualTotal - $quantity) > 0.0001) {
+                throw new \Exception('Manual batch quantities must match issued quantity');
+            }
+
+            foreach ($manual as $allocation) {
+                $batchId = (int)$allocation['batch_id'];
+                $qty = (float)$allocation['quantity'];
+                $batch = $this->db->fetch(
+                    "SELECT * FROM inventory_batches WHERE id = ? AND item_id = ? FOR UPDATE",
+                    [$batchId, $itemId]
+                );
+                if (!$batch) {
+                    throw new \Exception('Batch not found for manual selection');
+                }
+                if ((float)$batch['qty_available'] < $qty) {
+                    throw new \Exception('Insufficient quantity in selected batch');
+                }
+
+                $this->updateBatchQuantity($batch, -$qty);
+                $this->recordBatchMovement((int)$batch['id'], $itemId, $doc, $line, 'out', $qty, (float)$batch['unit_cost']);
+                $this->recordIssueAllocation($doc, $line, (int)$batch['id'], $qty, (float)$batch['unit_cost']);
+                $allocations[] = [
+                    'quantity' => $qty,
+                    'unit_cost' => (float)$batch['unit_cost']
+                ];
+                $remaining -= $qty;
+            }
+        } else {
+            $orderBy = $method === 'LIFO' ? 'received_date DESC, id DESC' : 'received_date ASC, id ASC';
+            $batches = $this->db->fetchAll(
+                "SELECT * FROM inventory_batches WHERE item_id = ? AND qty_available > 0 ORDER BY {$orderBy} FOR UPDATE",
+                [$itemId]
+            );
+
+            $totalAvailable = 0;
+            $totalValue = 0;
+            foreach ($batches as $batch) {
+                $totalAvailable += (float)$batch['qty_available'];
+                $totalValue += (float)$batch['qty_available'] * (float)$batch['unit_cost'];
+            }
+
+            if ($totalAvailable + 0.0001 < $quantity) {
+                throw new \Exception('Insufficient batch stock for issue');
+            }
+
+            $avgCost = $totalAvailable > 0 ? $totalValue / $totalAvailable : 0;
+
+            foreach ($batches as $batch) {
+                if ($remaining <= 0) {
+                    break;
+                }
+                $available = (float)$batch['qty_available'];
+                if ($available <= 0) {
+                    continue;
+                }
+
+                $issueQty = min($remaining, $available);
+                $unitCost = $method === 'AVG' ? $avgCost : (float)$batch['unit_cost'];
+                $this->updateBatchQuantity($batch, -$issueQty);
+                $this->recordBatchMovement((int)$batch['id'], $itemId, $doc, $line, 'out', $issueQty, $unitCost);
+                $this->recordIssueAllocation($doc, $line, (int)$batch['id'], $issueQty, $unitCost);
+                $allocations[] = [
+                    'quantity' => $issueQty,
+                    'unit_cost' => $unitCost
+                ];
+                $remaining -= $issueQty;
+            }
+        }
+
+        $totalCost = 0;
+        foreach ($allocations as $allocation) {
+            $totalCost += $allocation['quantity'] * $allocation['unit_cost'];
+        }
+        $unitCost = $quantity > 0 ? $totalCost / $quantity : 0;
+
+        return [$unitCost, $totalCost];
+    }
+
+    private function updateLineCost(int $lineId, float $unitCost, float $totalCost): void
+    {
+        $this->db->update('document_lines', [
+            'unit_price' => $unitCost,
+            'total_price' => $totalCost
+        ], ['id' => $lineId]);
+    }
+
+    private function createBatch(int $itemId, float $quantity, float $unitCost, array $doc, array $line): int
+    {
+        $batchCode = $this->generateBatchCode($doc, $line);
+        return (int)$this->db->insert('inventory_batches', [
+            'item_id' => $itemId,
+            'batch_code' => $batchCode,
+            'received_date' => $doc['document_date'] ?? date('Y-m-d'),
+            'supplier_id' => $doc['partner_id'] ?? null,
+            'source_type' => $doc['type'] ?? 'receipt',
+            'source_id' => $doc['id'] ?? null,
+            'qty_received' => $quantity,
+            'qty_available' => $quantity,
+            'unit_cost' => $unitCost
+        ]);
+    }
+
+    private function generateBatchCode(array $doc, array $line): string
+    {
+        $docNumber = $doc['document_number'] ?? 'DOC';
+        $lineNumber = $line['line_number'] ?? $line['id'] ?? '1';
+        return strtoupper($docNumber . '-' . $lineNumber);
+    }
+
+    private function updateBatchQuantity(array $batch, float $qtyChange): void
+    {
+        $newQty = (float)$batch['qty_available'] + $qtyChange;
+        if ($newQty < -0.0001) {
+            throw new \Exception('Batch quantity cannot be negative');
+        }
+        $this->db->update('inventory_batches', [
+            'qty_available' => $newQty
+        ], ['id' => $batch['id']]);
+    }
+
+    private function recordBatchMovement(int $batchId, int $itemId, array $doc, array $line, string $type, float $quantity, float $unitCost): void
+    {
+        $batch = $this->db->fetch("SELECT qty_available FROM inventory_batches WHERE id = ?", [$batchId]);
+        $balanceAfter = (float)($batch['qty_available'] ?? 0);
+        $balanceBefore = $type === 'in' ? $balanceAfter - $quantity : $balanceAfter + $quantity;
+
+        $this->db->insert('inventory_batch_movements', [
+            'batch_id' => $batchId,
+            'item_id' => $itemId,
+            'document_id' => $doc['id'] ?? null,
+            'document_line_id' => $line['id'] ?? null,
+            'movement_type' => $type,
+            'quantity' => $quantity,
+            'unit_cost' => $unitCost,
+            'balance_before' => $balanceBefore,
+            'balance_after' => $balanceAfter
+        ]);
+    }
+
+    private function recordIssueAllocation(array $doc, array $line, int $batchId, float $quantity, float $unitCost): void
+    {
+        $this->db->insert('inventory_issue_allocations', [
+            'document_id' => $doc['id'],
+            'document_line_id' => $line['id'],
+            'batch_id' => $batchId,
+            'quantity' => $quantity,
+            'unit_cost' => $unitCost,
+            'total_cost' => $quantity * $unitCost
+        ]);
+    }
+
+    private function reverseBatchMovements(int $documentId): void
+    {
+        if (!$this->db->tableExists('inventory_batch_movements')) {
+            return;
+        }
+
+        $movements = $this->db->fetchAll(
+            "SELECT * FROM inventory_batch_movements WHERE document_id = ? ORDER BY id DESC",
+            [$documentId]
+        );
+
+        foreach ($movements as $movement) {
+            $batch = $this->db->fetch("SELECT * FROM inventory_batches WHERE id = ? FOR UPDATE", [$movement['batch_id']]);
+            if (!$batch) {
+                continue;
+            }
+
+            $qtyChange = $movement['movement_type'] === 'in'
+                ? -(float)$movement['quantity']
+                : (float)$movement['quantity'];
+
+            $this->updateBatchQuantity($batch, $qtyChange);
+        }
+
+        $this->db->delete('inventory_issue_allocations', ['document_id' => $documentId]);
+    }
+
+    public function getBatchAllocations(int $documentId): array
+    {
+        if (!$this->db->tableExists('inventory_issue_allocations')) {
+            return [];
+        }
+
+        return $this->db->fetchAll(
+            "SELECT ia.*, b.batch_code, i.sku, i.name as item_name
+             FROM inventory_issue_allocations ia
+             JOIN inventory_batches b ON ia.batch_id = b.id
+             JOIN items i ON b.item_id = i.id
+             WHERE ia.document_id = ?
+             ORDER BY ia.document_line_id, ia.id",
+            [$documentId]
+        );
     }
 }

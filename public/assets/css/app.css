@@ -56,6 +56,61 @@ a:hover {
     text-decoration: underline;
 }
 
+/* === Image Preview === */
+.image-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+}
+.form-image-preview {
+    margin-bottom: 8px;
+}
+.image-preview-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.image-preview-modal.open {
+    display: flex;
+}
+.image-preview-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+.image-preview-content {
+    position: relative;
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    max-width: 90vw;
+    max-height: 90vh;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.image-preview-content img {
+    max-width: 85vw;
+    max-height: 80vh;
+}
+.image-preview-close {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text);
+}
+
 /* === Layout === */
 .app-container {
     display: flex;
@@ -73,6 +128,7 @@ a:hover {
     height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
+    transition: transform 0.2s ease;
 }
 
 /* Custom Scrollbar for Sidebar */
@@ -337,6 +393,34 @@ a:hover {
     z-index: 100;
 }
 
+.content-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-toggle {
+    display: none;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 999;
+}
+
 .page-title {
     font-size: 20px;
     font-weight: 600;
@@ -597,6 +681,14 @@ a:hover {
     display: flex;
     gap: 10px;
     margin-top: 20px;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
 /* === Buttons === */
@@ -1205,14 +1297,55 @@ small {
 }
 
 /* === Responsive === */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
+    .content-header {
+        padding: 12px 20px;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
     .sidebar {
         transform: translateX(-100%);
         z-index: 1000;
     }
 
-    .main-content {
-        margin-left: 0;
+    body.sidebar-open .sidebar {
+        transform: translateX(0);
+    }
+
+    body.sidebar-open .sidebar-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    body.sidebar-open {
+        overflow: hidden;
+    }
+
+    .sidebar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 992px) {
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .header-right {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .page-title {
+        font-size: 18px;
     }
 
     .form-row {
@@ -1224,10 +1357,51 @@ small {
     }
 
     .stats-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .content-header {
+        padding: 10px 16px;
+    }
+
+    .header-right {
+        gap: 8px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn,
+    .btn-sm {
+        width: 100%;
+    }
+
+    th,
+    td {
+        padding: 10px 12px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
     }
 
     .quick-actions {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-header-left {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .language-dropdown-toggle {
+        width: 100%;
+        justify-content: space-between;
     }
 }

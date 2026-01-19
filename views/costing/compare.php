@@ -1,40 +1,40 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/costing" class="btn btn-secondary">&laquo; Cost Analysis</a>
+    <a href="/costing" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('costing')]) ?></a>
 </div>
 
 <div class="filters" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 4px;">
     <form method="get" action="/costing/compare" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <label>Period:</label>
+        <label><?= $this->__('period') ?>:</label>
         <input type="date" name="from" value="<?= h($dateFrom) ?>" class="form-control" style="width: 150px;">
-        <span>to</span>
+        <span><?= $this->__('to') ?></span>
         <input type="date" name="to" value="<?= h($dateTo) ?>" class="form-control" style="width: 150px;">
-        <button type="submit" class="btn btn-secondary">Apply</button>
+        <button type="submit" class="btn btn-secondary"><?= $this->__('apply') ?></button>
     </form>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h4 style="margin: 0;">Plan vs Actual Comparison</h4>
+        <h4 style="margin: 0;"><?= $this->__('plan_vs_actual_comparison') ?></h4>
     </div>
     <div class="card-body">
         <?php if (empty($comparison)): ?>
-        <p class="text-muted">No completed production in this period.</p>
+        <p class="text-muted"><?= $this->__('no_completed_production_period') ?></p>
         <?php else: ?>
 
         <table class="table">
             <thead>
                 <tr>
-                    <th>Variant</th>
-                    <th style="text-align: right;">Produced</th>
-                    <th style="text-align: right;">Unit Planned</th>
-                    <th style="text-align: right;">Unit Actual</th>
-                    <th style="text-align: right;">Total Planned</th>
-                    <th style="text-align: right;">Material</th>
-                    <th style="text-align: right;">Labor</th>
-                    <th style="text-align: right;">Total Actual</th>
-                    <th style="text-align: right;">Variance</th>
+                    <th><?= $this->__('variant') ?></th>
+                    <th style="text-align: right;"><?= $this->__('produced') ?></th>
+                    <th style="text-align: right;"><?= $this->__('unit_planned') ?></th>
+                    <th style="text-align: right;"><?= $this->__('unit_actual') ?></th>
+                    <th style="text-align: right;"><?= $this->__('total_planned') ?></th>
+                    <th style="text-align: right;"><?= $this->__('material_cost') ?></th>
+                    <th style="text-align: right;"><?= $this->__('labor_cost') ?></th>
+                    <th style="text-align: right;"><?= $this->__('total_actual') ?></th>
+                    <th style="text-align: right;"><?= $this->__('variance') ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -67,7 +67,7 @@
             </tbody>
             <tfoot style="font-weight: bold; background: #f8f9fa;">
                 <tr>
-                    <td>TOTAL</td>
+                    <td><?= $this->__('total') ?></td>
                     <td style="text-align: right;"><?= number_format($totals['produced'], 2) ?></td>
                     <td colspan="2"></td>
                     <td style="text-align: right;"><?= number_format($totals['planned'], 2) ?></td>
@@ -90,19 +90,19 @@
         </table>
 
         <div class="summary" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
-            <h5>Summary</h5>
+            <h5><?= $this->__('summary') ?></h5>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
                 <div>
-                    <strong>Total Produced:</strong> <?= number_format($totals['produced'], 2) ?> units
+                    <strong><?= $this->__('total_produced') ?>:</strong> <?= number_format($totals['produced'], 2) ?> <?= $this->__('units') ?>
                 </div>
                 <div>
-                    <strong>Planned Cost:</strong> <?= number_format($totals['planned'], 2) ?>
+                    <strong><?= $this->__('planned_cost') ?>:</strong> <?= number_format($totals['planned'], 2) ?>
                 </div>
                 <div>
-                    <strong>Actual Cost:</strong> <?= number_format($totals['actual'], 2) ?>
+                    <strong><?= $this->__('actual_cost') ?>:</strong> <?= number_format($totals['actual'], 2) ?>
                 </div>
                 <div>
-                    <strong>Total Variance:</strong>
+                    <strong><?= $this->__('total_variance') ?>:</strong>
                     <span class="<?= $totals['variance'] > 0 ? 'text-danger' : 'text-success' ?>">
                         <?= $totals['variance'] > 0 ? '+' : '' ?><?= number_format($totals['variance'], 2) ?>
                         (<?= $totals['variance'] > 0 ? '+' : '' ?><?= number_format($totals['variance_percent'], 1) ?>%)

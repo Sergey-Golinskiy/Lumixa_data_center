@@ -21,7 +21,7 @@ class AdminController extends Controller
         $stats = $this->getAdminStats();
 
         $this->view('admin/index', [
-            'title' => 'Admin Dashboard',
+            'title' => $this->app->getTranslator()->get('admin_dashboard'),
             'stats' => $stats
         ]);
     }

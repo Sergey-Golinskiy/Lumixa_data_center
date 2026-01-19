@@ -195,7 +195,6 @@
                 <thead>
                     <tr>
                         <th>Item</th>
-                        <th>Lot</th>
                         <th class="text-right">Planned</th>
                         <th class="text-right">Actual</th>
                         <th class="text-right">Unit Cost</th>
@@ -205,7 +204,7 @@
                 <tbody>
                     <?php if (empty($materials)): ?>
                     <tr>
-                        <td colspan="6" class="text-center text-muted">No materials</td>
+                        <td colspan="5" class="text-center text-muted">No materials</td>
                     </tr>
                     <?php else: ?>
                     <?php $totalValue = 0; foreach ($materials as $mat): ?>
@@ -215,7 +214,6 @@
                             <a href="/warehouse/items/<?= $mat['item_id'] ?>"><?= $this->e($mat['sku']) ?></a>
                             <br><small class="text-muted"><?= $this->e($mat['item_name']) ?></small>
                         </td>
-                        <td><?= $this->e($mat['lot_number'] ?? '-') ?></td>
                         <td class="text-right"><?= number_format($mat['planned_quantity'], 4) ?> <?= $this->e($mat['unit']) ?></td>
                         <td class="text-right"><?= number_format($mat['actual_quantity'], 4) ?> <?= $this->e($mat['unit']) ?></td>
                         <td class="text-right"><?= number_format($mat['unit_cost'], 4) ?></td>
@@ -227,7 +225,7 @@
                 <?php if (!empty($materials)): ?>
                 <tfoot>
                     <tr>
-                        <td colspan="5" class="text-right"><strong>Total Material Cost:</strong></td>
+                        <td colspan="4" class="text-right"><strong>Total Material Cost:</strong></td>
                         <td class="text-right"><strong><?= number_format($totalValue, 2) ?></strong></td>
                     </tr>
                 </tfoot>

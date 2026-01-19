@@ -57,8 +57,7 @@ class StockController extends Controller
             "SELECT i.id, i.sku, i.name, i.unit, i.type,
                     COALESCE(SUM(sb.on_hand), 0) as total_quantity,
                     COALESCE(SUM(sb.reserved), 0) as total_reserved,
-                    COALESCE(SUM(sb.on_hand * sb.avg_cost), 0) as total_value,
-                    COUNT(DISTINCT sb.lot_id) as lot_count
+                    COALESCE(SUM(sb.on_hand * sb.avg_cost), 0) as total_value
              FROM items i
              LEFT JOIN stock_balances sb ON i.id = sb.item_id
              WHERE {$whereClause}
@@ -114,22 +113,11 @@ class StockController extends Controller
             $this->notFound();
         }
 
-        // Get stock by lot
-        $stockByLot = $this->db()->fetchAll(
-            "SELECT sb.*, l.lot_number, l.expiry_date, l.status as lot_status
-             FROM stock_balances sb
-             LEFT JOIN lots l ON sb.lot_id = l.id
-             WHERE sb.item_id = ?
-             ORDER BY sb.on_hand DESC",
-            [$id]
-        );
-
         // Get recent movements
         $movements = $this->db()->fetchAll(
-            "SELECT sm.*, d.document_number, d.type as document_type, l.lot_number
+            "SELECT sm.*, d.document_number, d.type as document_type
              FROM stock_movements sm
              JOIN documents d ON sm.document_id = d.id
-             LEFT JOIN lots l ON sm.lot_id = l.id
              WHERE sm.item_id = ?
              ORDER BY sm.created_at DESC
              LIMIT 100",
@@ -149,7 +137,6 @@ class StockController extends Controller
         $this->render('warehouse/stock/show', [
             'title' => "Stock: {$item['sku']}",
             'item' => $item,
-            'stockByLot' => $stockByLot,
             'movements' => $movements,
             'totals' => $totals
         ]);
@@ -195,12 +182,10 @@ class StockController extends Controller
         $offset = ($page - 1) * $perPage;
         $movements = $this->db()->fetchAll(
             "SELECT sm.*, i.sku, i.name as item_name, i.unit,
-                    d.document_number, d.type as document_type,
-                    l.lot_number
+                    d.document_number, d.type as document_type
              FROM stock_movements sm
              JOIN items i ON sm.item_id = i.id
              JOIN documents d ON sm.document_id = d.id
-             LEFT JOIN lots l ON sm.lot_id = l.id
              WHERE {$whereClause}
              ORDER BY sm.created_at DESC
              LIMIT {$perPage} OFFSET {$offset}",

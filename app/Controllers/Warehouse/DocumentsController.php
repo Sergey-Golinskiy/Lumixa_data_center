@@ -39,11 +39,13 @@ class DocumentsController extends Controller
             'search' => $this->get('search', '')
         ]);
 
+        $types = $this->getDocumentTypes();
+
         $this->view('warehouse/documents/index', [
             'title' => 'Documents',
             'documents' => $result['documents'],
             'pagination' => $result['pagination'],
-            'types' => $this->documentService->getTypes(),
+            'types' => $types,
             'filters' => [
                 'type' => $this->get('type', ''),
                 'status' => $this->get('status', ''),
@@ -55,12 +57,16 @@ class DocumentsController extends Controller
     /**
      * Show create form
      */
-    public function create(): void
+    public function create(?string $type = null): void
     {
         $this->requireAuth();
         $this->authorize('warehouse.documents.create');
 
-        $types = $this->documentService->getTypes();
+        $types = $this->getDocumentTypes();
+        $selectedType = $type ?? $this->get('type', '');
+        if ($selectedType && !array_key_exists($selectedType, $types)) {
+            $selectedType = '';
+        }
 
         // Get items for dropdown
         $items = $this->db()->fetchAll(
@@ -78,7 +84,12 @@ class DocumentsController extends Controller
             'lines' => [],
             'items' => $items,
             'partners' => $partners,
-            'csrfToken' => $this->csrfToken()
+            'csrfToken' => $this->csrfToken(),
+            'types' => $types,
+            'selectedType' => $selectedType,
+            'costingMethods' => $this->getCostingMethods(),
+            'defaultCostingMethod' => $this->getSetting('inventory_issue_method', 'FIFO'),
+            'allowCostingOverride' => $this->getSetting('inventory_allow_issue_method_override', '1') === '1'
         ]);
     }
 
@@ -97,7 +108,7 @@ class DocumentsController extends Controller
         }
 
         $type = $this->post('type', 'receipt');
-        $types = $this->documentService->getTypes();
+        $types = $this->getDocumentTypes();
 
         if (!isset($types[$type])) {
             $this->session->setFlash('error', 'Invalid document type');
@@ -109,7 +120,10 @@ class DocumentsController extends Controller
             'type' => $type,
             'document_date' => $this->post('document_date', date('Y-m-d')),
             'partner_id' => $this->post('partner_id') ?: null,
-            'notes' => $this->post('notes', '')
+            'notes' => $this->post('notes', ''),
+            'costing_method' => $this->post('costing_method') ?: null,
+            'issue_source_type' => $this->resolveIssueSourceType($type),
+            'issue_source_id' => null
         ];
 
         // Parse lines
@@ -150,11 +164,13 @@ class DocumentsController extends Controller
         }
 
         $lines = $this->documentService->getLines((int)$id);
+        $batchAllocations = $this->documentService->getBatchAllocations((int)$id);
 
         $this->view('warehouse/documents/show', [
             'title' => $document['document_number'],
             'document' => $document,
             'lines' => $lines,
+            'batchAllocations' => $batchAllocations,
             'csrfToken' => $this->csrfToken()
         ]);
     }
@@ -193,13 +209,20 @@ class DocumentsController extends Controller
             "SELECT id, name, type FROM partners WHERE is_active = 1 ORDER BY name"
         );
 
+        $types = $this->getDocumentTypes();
+
         $this->view('warehouse/documents/form', [
             'title' => 'Edit ' . $document['document_number'],
             'document' => $document,
             'lines' => $lines,
             'items' => $items,
             'partners' => $partners,
-            'csrfToken' => $this->csrfToken()
+            'csrfToken' => $this->csrfToken(),
+            'types' => $types,
+            'selectedType' => $document['type'] ?? '',
+            'costingMethods' => $this->getCostingMethods(),
+            'defaultCostingMethod' => $this->getSetting('inventory_issue_method', 'FIFO'),
+            'allowCostingOverride' => $this->getSetting('inventory_allow_issue_method_override', '1') === '1'
         ]);
     }
 
@@ -228,7 +251,10 @@ class DocumentsController extends Controller
         $data = [
             'document_date' => $this->post('document_date', date('Y-m-d')),
             'partner_id' => $this->post('partner_id') ?: null,
-            'notes' => $this->post('notes', '')
+            'notes' => $this->post('notes', ''),
+            'costing_method' => $this->post('costing_method') ?: null,
+            'issue_source_type' => $this->resolveIssueSourceType($document['type'] ?? ''),
+            'issue_source_id' => $document['issue_source_id'] ?? null
         ];
 
         $lines = $this->parseLines();
@@ -318,15 +344,86 @@ class DocumentsController extends Controller
                 continue;
             }
 
+            $batchAllocations = $this->parseBatchAllocations($line['batch_allocations'] ?? '');
+
             $result[] = [
                 'item_id' => (int)$line['item_id'],
-                'lot_number' => $line['lot_number'] ?? null,
                 'quantity' => (float)$line['quantity'],
                 'unit_price' => (float)($line['unit_price'] ?? 0),
-                'notes' => $line['notes'] ?? ''
+                'notes' => $line['notes'] ?? '',
+                'batch_allocations' => $batchAllocations
             ];
         }
 
         return $result;
+    }
+
+    private function getDocumentTypes(): array
+    {
+        $translator = $this->app->getTranslator();
+
+        return [
+            'receipt' => $translator->get('receipt'),
+            'issue' => $translator->get('issue'),
+            'transfer' => $translator->get('transfer'),
+            'stocktake' => $translator->get('stocktake'),
+            'adjustment' => $translator->get('adjustment')
+        ];
+    }
+
+    private function getSetting(string $key, $default = null)
+    {
+        if (!$this->db()->tableExists('settings')) {
+            return $default;
+        }
+
+        $value = $this->db()->fetchColumn(
+            "SELECT value FROM settings WHERE `key` = ? LIMIT 1",
+            [$key]
+        );
+
+        if ($value === false || $value === null) {
+            return $default;
+        }
+
+        return $value;
+    }
+
+    private function getCostingMethods(): array
+    {
+        return [
+            'FIFO' => $this->__('costing_method_fifo'),
+            'LIFO' => $this->__('costing_method_lifo'),
+            'AVG' => $this->__('costing_method_avg'),
+            'MANUAL' => $this->__('costing_method_manual')
+        ];
+    }
+
+    private function parseBatchAllocations(string $raw): array
+    {
+        $allocations = [];
+        $pairs = array_filter(array_map('trim', explode(',', $raw)));
+        foreach ($pairs as $pair) {
+            [$batchId, $qty] = array_pad(array_map('trim', explode(':', $pair)), 2, null);
+            if (!$batchId || !$qty) {
+                continue;
+            }
+            $allocations[] = [
+                'batch_id' => (int)$batchId,
+                'quantity' => (float)$qty
+            ];
+        }
+        return $allocations;
+    }
+
+    private function resolveIssueSourceType(string $type): ?string
+    {
+        if (in_array($type, ['issue', 'adjustment', 'stocktake'], true)) {
+            return 'manual';
+        }
+        if ($type === 'receipt') {
+            return 'receipt';
+        }
+        return null;
     }
 }

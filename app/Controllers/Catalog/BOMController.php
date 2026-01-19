@@ -65,7 +65,7 @@ class BOMController extends Controller
         );
 
         $this->render('catalog/bom/index', [
-            'title' => 'Bill of Materials',
+            'title' => $this->app->getTranslator()->get('bom'),
             'boms' => $boms,
             'search' => $search,
             'status' => $status,
@@ -109,7 +109,10 @@ class BOMController extends Controller
         );
 
         $this->render('catalog/bom/show', [
-            'title' => "BOM: {$bom['variant_sku']} v{$bom['version']}",
+            'title' => $this->app->getTranslator()->get('bom_title', [
+                'sku' => $bom['variant_sku'],
+                'version' => $bom['version']
+            ]),
             'bom' => $bom,
             'lines' => $lines
         ]);
@@ -137,7 +140,7 @@ class BOMController extends Controller
         );
 
         $this->render('catalog/bom/form', [
-            'title' => 'Create BOM',
+            'title' => $this->app->getTranslator()->get('create_bom'),
             'bom' => null,
             'lines' => [],
             'variants' => $variants,
@@ -161,22 +164,26 @@ class BOMController extends Controller
             'effective_date' => $_POST['effective_date'] ?: null,
             'notes' => trim($_POST['notes'] ?? '')
         ];
+        $imagePath = $this->storeImageUpload('image', 'bom');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         // Validation
         $errors = [];
 
         if (empty($data['variant_id'])) {
-            $errors['variant_id'] = 'Variant is required';
+            $errors['variant_id'] = $this->app->getTranslator()->get('variant_required');
         }
 
         if (empty($data['version'])) {
-            $errors['version'] = 'Version is required';
+            $errors['version'] = $this->app->getTranslator()->get('version_required');
         }
 
         // Parse lines
         $lines = $this->parseLines();
         if (empty($lines)) {
-            $errors['lines'] = 'At least one material line is required';
+            $errors['lines'] = $this->app->getTranslator()->get('bom_lines_required');
         }
 
         if ($errors) {
@@ -211,12 +218,12 @@ class BOMController extends Controller
 
             $this->db()->commit();
             $this->audit('bom.created', 'bom', $bomId, null, $data);
-            $this->session->setFlash('success', 'BOM created successfully');
+            $this->session->setFlash('success', $this->app->getTranslator()->get('bom_created_success'));
             $this->redirect("/catalog/bom/{$bomId}");
 
         } catch (\Exception $e) {
             $this->db()->rollBack();
-            $this->session->setFlash('error', 'Failed to create BOM: ' . $e->getMessage());
+            $this->session->setFlash('error', $this->app->getTranslator()->get('bom_create_failed', ['error' => $e->getMessage()]));
             $this->redirect('/catalog/bom/create?variant_id=' . $data['variant_id']);
         }
     }
@@ -241,7 +248,7 @@ class BOMController extends Controller
         }
 
         if ($bom['status'] !== 'draft') {
-            $this->session->setFlash('error', 'Only draft BOMs can be edited');
+            $this->session->setFlash('error', $this->app->getTranslator()->get('bom_edit_draft_only'));
             $this->redirect("/catalog/bom/{$id}");
             return;
         }
@@ -264,7 +271,10 @@ class BOMController extends Controller
         );
 
         $this->render('catalog/bom/form', [
-            'title' => "Edit BOM: {$bom['variant_sku']} v{$bom['version']}",
+            'title' => $this->app->getTranslator()->get('bom_edit_title', [
+                'sku' => $bom['variant_sku'],
+                'version' => $bom['version']
+            ]),
             'bom' => $bom,
             'lines' => $lines,
             'variants' => $variants,
@@ -287,7 +297,7 @@ class BOMController extends Controller
         }
 
         if ($bom['status'] !== 'draft') {
-            $this->session->setFlash('error', 'Only draft BOMs can be edited');
+            $this->session->setFlash('error', $this->app->getTranslator()->get('bom_edit_draft_only'));
             $this->redirect("/catalog/bom/{$id}");
             return;
         }
@@ -298,10 +308,14 @@ class BOMController extends Controller
             'effective_date' => $_POST['effective_date'] ?: null,
             'notes' => trim($_POST['notes'] ?? '')
         ];
+        $imagePath = $this->storeImageUpload('image', 'bom');
+        if ($imagePath) {
+            $data['image_path'] = $imagePath;
+        }
 
         $lines = $this->parseLines();
         if (empty($lines)) {
-            $this->session->setFlash('error', 'At least one material line is required');
+            $this->session->setFlash('error', $this->app->getTranslator()->get('bom_lines_required'));
             $this->redirect("/catalog/bom/{$id}/edit");
             return;
         }
@@ -331,12 +345,12 @@ class BOMController extends Controller
 
             $this->db()->commit();
             $this->audit('bom.updated', 'bom', $id, $bom, $data);
-            $this->session->setFlash('success', 'BOM updated successfully');
+            $this->session->setFlash('success', $this->app->getTranslator()->get('bom_updated_success'));
             $this->redirect("/catalog/bom/{$id}");
 
         } catch (\Exception $e) {
             $this->db()->rollBack();
-            $this->session->setFlash('error', 'Failed to update BOM: ' . $e->getMessage());
+            $this->session->setFlash('error', $this->app->getTranslator()->get('bom_update_failed', ['error' => $e->getMessage()]));
             $this->redirect("/catalog/bom/{$id}/edit");
         }
     }
@@ -355,7 +369,7 @@ class BOMController extends Controller
         }
 
         if ($bom['status'] === 'active') {
-            $this->session->setFlash('info', 'BOM is already active');
+            $this->session->setFlash('info', $this->app->getTranslator()->get('bom_already_active'));
             $this->redirect("/catalog/bom/{$id}");
             return;
         }
@@ -380,11 +394,11 @@ class BOMController extends Controller
 
             $this->db()->commit();
             $this->audit('bom.activated', 'bom', $id, ['status' => $bom['status']], ['status' => 'active']);
-            $this->session->setFlash('success', 'BOM activated successfully');
+            $this->session->setFlash('success', $this->app->getTranslator()->get('bom_activate_success'));
 
         } catch (\Exception $e) {
             $this->db()->rollBack();
-            $this->session->setFlash('error', 'Failed to activate BOM: ' . $e->getMessage());
+            $this->session->setFlash('error', $this->app->getTranslator()->get('bom_activate_failed', ['error' => $e->getMessage()]));
         }
 
         $this->redirect("/catalog/bom/{$id}");
@@ -409,7 +423,7 @@ class BOMController extends Controller
         ], ['id' => $id]);
 
         $this->audit('bom.archived', 'bom', $id, ['status' => $bom['status']], ['status' => 'archived']);
-        $this->session->setFlash('success', 'BOM archived');
+        $this->session->setFlash('success', $this->app->getTranslator()->get('bom_archived_success'));
         $this->redirect("/catalog/bom/{$id}");
     }
 

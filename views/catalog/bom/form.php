@@ -1,25 +1,25 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/catalog/bom" class="btn btn-secondary">&laquo; Back to BOMs</a>
+    <a href="/catalog/bom" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('bom_list')]) ?></a>
 </div>
 
-<form method="POST" action="<?= $bom ? "/catalog/bom/{$bom['id']}" : '/catalog/bom' ?>" id="bom-form">
+<form method="POST" enctype="multipart/form-data" action="<?= $bom ? "/catalog/bom/{$bom['id']}" : '/catalog/bom' ?>" id="bom-form">
     <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
     <div class="detail-grid">
         <!-- BOM Header -->
         <div class="card">
-            <div class="card-header"><?= $bom ? 'Edit BOM' : 'Create New BOM' ?></div>
+            <div class="card-header"><?= $bom ? $this->__('edit_bom') : $this->__('create_new_bom') ?></div>
             <div class="card-body">
                 <div class="form-group">
-                    <label for="variant_id">Variant *</label>
+                    <label for="variant_id"><?= $this->__('variant') ?> *</label>
                     <?php if ($bom): ?>
                     <input type="text" value="<?= $this->e($bom['variant_sku']) ?> - <?= $this->e($bom['variant_name']) ?>" disabled>
                     <input type="hidden" name="variant_id" value="<?= $bom['variant_id'] ?>">
                     <?php else: ?>
                     <select id="variant_id" name="variant_id" required>
-                        <option value="">Select Variant</option>
+                        <option value=""><?= $this->__('select_variant') ?></option>
                         <?php foreach ($variants as $variant): ?>
                         <option value="<?= $variant['id'] ?>" <?= $preselectedVariantId == $variant['id'] ? 'selected' : '' ?>>
                             <?= $this->e($variant['sku']) ?> - <?= $this->e($variant['name']) ?>
@@ -31,42 +31,53 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="version">Version *</label>
+                        <label for="version"><?= $this->__('version') ?> *</label>
                         <input type="text" id="version" name="version" required
                                value="<?= $this->e($bom['version'] ?? $this->old('version', '1.0')) ?>"
-                               placeholder="e.g., 1.0">
+                               placeholder="<?= $this->__('version_placeholder') ?>">
                     </div>
                     <div class="form-group">
-                        <label for="effective_date">Effective Date</label>
+                        <label for="effective_date"><?= $this->__('effective_date') ?></label>
                         <input type="date" id="effective_date" name="effective_date"
                                value="<?= $this->e($bom['effective_date'] ?? $this->old('effective_date')) ?>">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="name">Name</label>
+                    <label for="name"><?= $this->__('name') ?></label>
                     <input type="text" id="name" name="name"
                            value="<?= $this->e($bom['name'] ?? $this->old('name')) ?>"
-                           placeholder="Optional descriptive name">
+                           placeholder="<?= $this->__('optional_description') ?>">
                 </div>
 
                 <div class="form-group">
-                    <label for="notes">Notes</label>
+                    <label for="notes"><?= $this->__('notes') ?></label>
                     <textarea id="notes" name="notes" rows="3"><?= $this->e($bom['notes'] ?? $this->old('notes')) ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="image"><?= $this->__('photo') ?></label>
+                    <?php if (!empty($bom['image_path'])): ?>
+                    <div class="form-image-preview">
+                        <img src="/<?= $this->e(ltrim($bom['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($bom['image_path'], '/')) ?>">
+                    </div>
+                    <?php endif; ?>
+                    <input type="file" id="image" name="image" accept="image/*">
+                    <small class="text-muted"><?= $this->__('upload_photo') ?></small>
                 </div>
             </div>
         </div>
 
         <!-- Summary -->
         <div class="card">
-            <div class="card-header">Summary</div>
+            <div class="card-header"><?= $this->__('summary') ?></div>
             <div class="card-body">
                 <div class="detail-row">
-                    <span class="detail-label">Total Lines</span>
+                    <span class="detail-label"><?= $this->__('total_lines') ?></span>
                     <span class="detail-value" id="total-lines">0</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Total Cost</span>
+                    <span class="detail-label"><?= $this->__('total_cost') ?></span>
                     <span class="detail-value" id="total-cost">0.00</span>
                 </div>
             </div>
@@ -76,8 +87,8 @@
     <!-- Materials Lines -->
     <div class="card" style="margin-top: 20px;">
         <div class="card-header">
-            Materials
-            <button type="button" class="btn btn-primary btn-sm" onclick="addLine()" style="float: right;">+ Add Material</button>
+            <?= $this->__('materials') ?>
+            <button type="button" class="btn btn-primary btn-sm" onclick="addLine()" style="float: right;">+ <?= $this->__('add_material') ?></button>
         </div>
         <div class="card-body">
             <div class="table-container">
@@ -85,23 +96,23 @@
                     <thead>
                         <tr>
                             <th style="width: 50px;">#</th>
-                            <th style="width: 200px;">Item *</th>
-                            <th style="width: 100px;">Quantity *</th>
-                            <th style="width: 100px;">Unit Cost</th>
-                            <th style="width: 80px;">Waste %</th>
-                            <th style="width: 100px;">Total</th>
-                            <th>Notes</th>
+                            <th style="width: 200px;"><?= $this->__('item') ?> *</th>
+                            <th style="width: 100px;"><?= $this->__('quantity') ?> *</th>
+                            <th style="width: 100px;"><?= $this->__('unit_cost') ?></th>
+                            <th style="width: 80px;"><?= $this->__('waste_percent') ?></th>
+                            <th style="width: 100px;"><?= $this->__('total') ?></th>
+                            <th><?= $this->__('notes') ?></th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
                     <tbody id="lines-body">
                     </tbody>
                     <tfoot>
-                        <tr>
-                            <td colspan="5" class="text-right"><strong>Total:</strong></td>
-                            <td><strong id="footer-total">0.00</strong></td>
-                            <td colspan="2"></td>
-                        </tr>
+                    <tr>
+                        <td colspan="5" class="text-right"><strong><?= $this->__('total') ?>:</strong></td>
+                        <td><strong id="footer-total">0.00</strong></td>
+                        <td colspan="2"></td>
+                    </tr>
                     </tfoot>
                 </table>
             </div>
@@ -109,8 +120,8 @@
     </div>
 
     <div class="form-actions" style="margin-top: 20px;">
-        <button type="submit" class="btn btn-primary"><?= $bom ? 'Update BOM' : 'Create BOM' ?></button>
-        <a href="/catalog/bom" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary"><?= $bom ? $this->__('update_bom') : $this->__('create_bom') ?></button>
+        <a href="/catalog/bom" class="btn btn-secondary"><?= $this->__('cancel') ?></a>
     </div>
 </form>
 
@@ -146,7 +157,7 @@ function addLine(data = null) {
     const row = document.createElement('tr');
     row.id = 'line-' + lineNumber;
 
-    let itemOptions = '<option value="">Select Item</option>';
+    let itemOptions = '<option value=""><?= $this->__('select_item') ?></option>';
     items.forEach(function(item) {
         const selected = data && data.item_id == item.id ? 'selected' : '';
         itemOptions += `<option value="${item.id}" ${selected}>${item.sku} - ${item.name} (${item.unit})</option>`;
@@ -189,7 +200,7 @@ function updateTotals() {
 
 document.getElementById('bom-form').addEventListener('submit', function(e) {
     const rows = document.querySelectorAll('#lines-body tr');
-    if (rows.length === 0) { e.preventDefault(); alert('Please add at least one material.'); return false; }
+    if (rows.length === 0) { e.preventDefault(); alert('<?= $this->__('add_material_required') ?>'); return false; }
 });
 </script>
 

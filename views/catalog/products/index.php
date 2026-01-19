@@ -19,14 +19,16 @@
                            value="<?= $this->e($search) ?>">
                 </div>
                 <div class="filter-group">
+                    <?php if (($categoryMode ?? 'table') !== 'none'): ?>
                     <select name="category">
                         <option value=""><?= $this->__('all_categories') ?></option>
                         <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $this->e($cat['category']) ?>" <?= $category === $cat['category'] ? 'selected' : '' ?>>
-                            <?= $this->e($cat['category']) ?>
+                        <option value="<?= $this->e($cat['id']) ?>" <?= (string)$category === (string)$cat['id'] ? 'selected' : '' ?>>
+                            <?= $this->e($cat['name']) ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
+                    <?php endif; ?>
                 </div>
                 <div class="filter-group">
                     <select name="status">
@@ -49,6 +51,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th><?= $this->__('photo') ?></th>
                         <th><?= $this->__('code') ?></th>
                         <th><?= $this->__('name') ?></th>
                         <th><?= $this->__('category') ?></th>
@@ -61,18 +64,25 @@
                 <tbody>
                     <?php if (empty($products)): ?>
                     <tr>
-                        <td colspan="7" class="text-center text-muted"><?= $this->__('no_products_found') ?></td>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_products_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($products as $product): ?>
                     <tr>
+                        <td>
+                            <?php if (!empty($product['image_path'])): ?>
+                            <img src="/<?= $this->e(ltrim($product['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($product['image_path'], '/')) ?>">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <a href="/catalog/products/<?= $product['id'] ?>">
                                 <strong><?= $this->e($product['code']) ?></strong>
                             </a>
                         </td>
                         <td><?= $this->e($product['name']) ?></td>
-                        <td><?= $this->e($product['category'] ?? '-') ?></td>
+                        <td><?= $this->e($product['category_name'] ?? '-') ?></td>
                         <td class="text-right"><?= number_format($product['base_price'], 2) ?></td>
                         <td class="text-center">
                             <?php if ($product['variant_count'] > 0): ?>

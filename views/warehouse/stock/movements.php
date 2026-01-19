@@ -75,7 +75,6 @@
                         <th>Document</th>
                         <th>Type</th>
                         <th>Item</th>
-                        <th>Lot</th>
                         <th>Direction</th>
                         <th class="text-right">Quantity</th>
                         <th class="text-right">Unit Cost</th>
@@ -85,7 +84,7 @@
                 <tbody>
                     <?php if (empty($movements)): ?>
                     <tr>
-                        <td colspan="9" class="text-center text-muted">No movements found</td>
+                        <td colspan="8" class="text-center text-muted">No movements found</td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($movements as $movement): ?>
@@ -102,7 +101,6 @@
                                 <?= $this->e($movement['sku']) ?>
                             </a>
                         </td>
-                        <td><?= $this->e($movement['lot_number'] ?? '-') ?></td>
                         <td>
                             <?php if ($movement['direction'] === 'in'): ?>
                             <span class="badge badge-success">IN</span>

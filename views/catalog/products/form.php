@@ -7,7 +7,7 @@
 <div class="card" style="max-width: 700px;">
     <div class="card-header"><?= $product ? 'Edit Product' : 'Create New Product' ?></div>
     <div class="card-body">
-        <form method="POST" action="<?= $product ? "/catalog/products/{$product['id']}" : '/catalog/products' ?>">
+        <form method="POST" enctype="multipart/form-data" action="<?= $product ? "/catalog/products/{$product['id']}" : '/catalog/products' ?>">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
             <div class="form-row">
@@ -22,17 +22,34 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="category">Category</label>
-                    <input type="text" id="category" name="category" list="categories"
-                           value="<?= $this->e($product['category'] ?? $this->old('category')) ?>"
-                           placeholder="e.g., Electronics">
-                    <datalist id="categories">
+                    <?php if (($categoryMode ?? 'table') === 'table'): ?>
+                    <label for="category_id">Category *</label>
+                    <select id="category_id" name="category_id" required>
+                        <option value=""><?= $this->__('select_category') ?></option>
                         <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $this->e($cat['category']) ?>">
+                        <option value="<?= $this->e($cat['id']) ?>"
+                                <?= (string)$this->old('category_id', $product['category_id'] ?? '') === (string)$cat['id'] ? 'selected' : '' ?>>
+                            <?= $this->e($cat['name']) ?>
+                        </option>
                         <?php endforeach; ?>
-                    </datalist>
+                    </select>
+                    <?php if (empty($categories)): ?>
+                    <small class="text-muted">
+                        <?= $this->__('no_categories_hint') ?>
+                        <a href="/admin/product-categories"><?= $this->__('manage_categories') ?></a>
+                    </small>
+                    <?php endif; ?>
+                    <?php if ($this->hasError('category_id')): ?>
+                    <span class="error"><?= $this->error('category_id') ?></span>
+                    <?php endif; ?>
+                    <?php else: ?>
+                    <label for="category">Category *</label>
+                    <input type="text" id="category" name="category" required
+                           value="<?= $this->e($product['category'] ?? $this->old('category')) ?>"
+                           placeholder="<?= $this->__('category') ?>">
                     <?php if ($this->hasError('category')): ?>
                     <span class="error"><?= $this->error('category') ?></span>
+                    <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -54,6 +71,17 @@
                 <?php if ($this->hasError('description')): ?>
                 <span class="error"><?= $this->error('description') ?></span>
                 <?php endif; ?>
+            </div>
+
+            <div class="form-group">
+                <label for="image"><?= $this->__('photo') ?></label>
+                <?php if (!empty($product['image_path'])): ?>
+                <div class="form-image-preview">
+                    <img src="/<?= $this->e(ltrim($product['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($product['image_path'], '/')) ?>">
+                </div>
+                <?php endif; ?>
+                <input type="file" id="image" name="image" accept="image/*">
+                <small class="text-muted"><?= $this->__('upload_photo') ?></small>
             </div>
 
             <div class="form-group">

@@ -169,7 +169,15 @@ class RolesController extends Controller
                 'admin.backups.create' => 'Create Backups',
                 'admin.backups.restore' => 'Restore Backups',
                 'admin.backups.delete' => 'Delete Backups',
-                'admin.audit.view' => 'View Audit Log'
+                'admin.audit.view' => 'View Audit Log',
+                'admin.item_options.view' => 'View Item Options',
+                'admin.item_options.create' => 'Create Item Options',
+                'admin.item_options.edit' => 'Edit Item Options',
+                'admin.item_options.delete' => 'Delete Item Options',
+                'admin.printers.view' => 'View Printers',
+                'admin.printers.create' => 'Create Printers',
+                'admin.printers.edit' => 'Edit Printers',
+                'admin.printers.delete' => 'Delete Printers'
             ],
             'warehouse' => [
                 'warehouse.items.view' => 'View Items',
@@ -180,9 +188,6 @@ class RolesController extends Controller
                 'warehouse.documents.edit' => 'Edit Documents',
                 'warehouse.documents.post' => 'Post Documents',
                 'warehouse.documents.cancel' => 'Cancel Documents',
-                'warehouse.lots.view' => 'View Lots',
-                'warehouse.lots.create' => 'Create Lots',
-                'warehouse.lots.edit' => 'Edit Lots',
                 'warehouse.stock.view' => 'View Stock',
                 'warehouse.partners.view' => 'View Partners',
                 'warehouse.partners.create' => 'Create Partners',
@@ -200,7 +205,11 @@ class RolesController extends Controller
                 'catalog.bom.edit' => 'Edit BOM',
                 'catalog.routing.view' => 'View Routing',
                 'catalog.routing.create' => 'Create Routing',
-                'catalog.routing.edit' => 'Edit Routing'
+                'catalog.routing.edit' => 'Edit Routing',
+                'catalog.detail_routing.view' => 'View Detail Routing',
+                'catalog.detail_routing.create' => 'Create Detail Routing',
+                'catalog.detail_routing.edit' => 'Edit Detail Routing',
+                'catalog.detail_routing.activate' => 'Activate Detail Routing'
             ],
             'production' => [
                 'production.orders.view' => 'View Production Orders',

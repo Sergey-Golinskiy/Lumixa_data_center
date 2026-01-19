@@ -22,6 +22,7 @@
         <table>
             <thead>
                 <tr>
+                    <th><?= $this->__('photo') ?></th>
                     <th><?= $this->__('sku') ?></th>
                     <th><?= $this->__('name') ?></th>
                     <th><?= $this->__('type') ?></th>
@@ -36,13 +37,20 @@
             <tbody>
                 <?php if (empty($items)): ?>
                 <tr>
-                    <td colspan="9" class="text-muted" style="text-align: center; padding: 40px;">
+                    <td colspan="10" class="text-muted" style="text-align: center; padding: 40px;">
                         <?= $this->__('no_items_found') ?>
                     </td>
                 </tr>
                 <?php else: ?>
                     <?php foreach ($items as $item): ?>
                     <tr data-href="/warehouse/items/<?= $item['id'] ?>">
+                        <td>
+                            <?php if (!empty($item['image_path'])): ?>
+                            <img src="/<?= $this->e(ltrim($item['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" data-image-preview="/<?= $this->e(ltrim($item['image_path'], '/')) ?>">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td><strong><?= $this->e($item['sku']) ?></strong></td>
                         <td><?= $this->e($item['name']) ?></td>
                         <td><?= $this->e($types[$item['type']] ?? $item['type']) ?></td>
