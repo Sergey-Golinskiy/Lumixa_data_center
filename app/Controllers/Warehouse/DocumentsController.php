@@ -392,10 +392,10 @@ class DocumentsController extends Controller
     private function getCostingMethods(): array
     {
         return [
-            'FIFO' => $this->__('costing_method_fifo'),
-            'LIFO' => $this->__('costing_method_lifo'),
-            'AVG' => $this->__('costing_method_avg'),
-            'MANUAL' => $this->__('costing_method_manual')
+            'FIFO' => 'FIFO (First In, First Out)',
+            'LIFO' => 'LIFO (Last In, First Out)',
+            'AVG' => 'Weighted Average',
+            'MANUAL' => 'Manual Allocation'
         ];
     }
 
