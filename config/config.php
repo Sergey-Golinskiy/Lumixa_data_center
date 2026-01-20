@@ -8,8 +8,8 @@
 
 return [
     // === Application ===
-    'app_env' => 'prod',  // 'prod' or 'dev' - Default to production for security
-    'app_debug' => false, // NEVER enable in production! Use 'dev' env for debugging
+    'app_env' => 'dev',  // 'prod' or 'dev'
+    'app_debug' => true, // Set to false in production!
     'app_url' => 'http://localhost',
     'app_name' => 'Lumixa LMS',
     'app_version' => '1.0.0',

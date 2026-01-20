@@ -1,0 +1,82 @@
+<?php $this->section('content'); ?>
+
+<div class="page-header">
+    <h2><?= h($title) ?></h2>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="filter-form" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <select name="user_id" class="form-control" style="max-width: 150px;">
+                <option value=""><?= $this->__('all_users') ?></option>
+                <?php foreach ($users as $user): ?>
+                <option value="<?= $user['id'] ?>" <?= $filters['user_id'] == $user['id'] ? 'selected' : '' ?>>
+                    <?= h($user['name']) ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+            <select name="action" class="form-control" style="max-width: 150px;">
+                <option value=""><?= $this->__('all_actions') ?></option>
+                <?php foreach ($actions as $action): ?>
+                <option value="<?= h($action) ?>" <?= $filters['action'] == $action ? 'selected' : '' ?>>
+                    <?= h($action) ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+            <select name="table" class="form-control" style="max-width: 150px;">
+                <option value=""><?= $this->__('all_tables') ?></option>
+                <?php foreach ($tables as $table): ?>
+                <option value="<?= h($table) ?>" <?= $filters['table'] == $table ? 'selected' : '' ?>>
+                    <?= h($table) ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+            <input type="date" name="from" value="<?= h($filters['from']) ?>" class="form-control" style="max-width: 150px;">
+            <input type="date" name="to" value="<?= h($filters['to']) ?>" class="form-control" style="max-width: 150px;">
+            <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+        </form>
+
+        <?php if (empty($entries)): ?>
+        <p class="text-muted"><?= $this->__('no_audit_entries') ?></p>
+        <?php else: ?>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><?= $this->__('time') ?></th>
+                    <th><?= $this->__('user') ?></th>
+                    <th><?= $this->__('action') ?></th>
+                    <th><?= $this->__('table') ?></th>
+                    <th><?= $this->__('record') ?></th>
+                    <th><?= $this->__('ip_address') ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($entries as $entry): ?>
+                <tr>
+                    <td>
+                        <a href="/admin/audit/<?= $entry['id'] ?>">
+                            <?= h($entry['created_at']) ?>
+                        </a>
+                    </td>
+                    <td><?= h($entry['name'] ?? $this->__('system')) ?></td>
+                    <td><code><?= h($entry['action']) ?></code></td>
+                    <td><?= h($entry['entity_type']) ?></td>
+                    <td><?= h($entry['record_id'] ?? '-') ?></td>
+                    <td><?= h($entry['ip_address'] ?? '-') ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <?php if ($totalPages > 1): ?>
+        <div class="pagination">
+            <?php for ($i = max(1, $page - 5); $i <= min($totalPages, $page + 5); $i++): ?>
+            <a href="?page=<?= $i ?>" class="btn btn-sm <?= $i == $page ? 'btn-primary' : 'btn-outline' ?>"><?= $i ?></a>
+            <?php endfor; ?>
+        </div>
+        <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</div>
+
+<?php $this->endSection(); ?>

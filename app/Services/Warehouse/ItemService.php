@@ -105,10 +105,7 @@ class ItemService
         $page = min($page, $totalPages);
         $offset = ($page - 1) * $perPage;
 
-        // Get items - use parameterized LIMIT/OFFSET for security
-        $params[] = (int)$perPage;
-        $params[] = (int)$offset;
-
+        // Get items
         $items = $this->db->fetchAll(
             "SELECT i.*,
                     COALESCE(SUM(sb.on_hand), 0) as total_on_hand,
@@ -118,7 +115,7 @@ class ItemService
              WHERE {$whereStr}
              GROUP BY i.id
              ORDER BY i.name ASC
-             LIMIT ? OFFSET ?",
+             LIMIT {$perPage} OFFSET {$offset}",
             $params
         );
 
@@ -330,8 +327,8 @@ class ItemService
              JOIN documents d ON sm.document_id = d.id
              WHERE sm.item_id = ?
              ORDER BY sm.created_at DESC
-             LIMIT ?",
-            [$itemId, (int)$limit]
+             LIMIT {$limit}",
+            [$itemId]
         );
     }
 
@@ -345,8 +342,8 @@ class ItemService
              FROM items
              WHERE is_active = 1 AND (sku LIKE ? OR name LIKE ?)
              ORDER BY name
-             LIMIT ?",
-            ["%{$term}%", "%{$term}%", (int)$limit]
+             LIMIT {$limit}",
+            ["%{$term}%", "%{$term}%"]
         );
     }
 }

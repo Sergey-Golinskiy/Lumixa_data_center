@@ -137,14 +137,10 @@ class Database
         $columns = array_keys($data);
         $placeholders = array_fill(0, count($columns), '?');
 
-        // Escape table and column names to prevent SQL injection
-        $escapedTable = $this->quoteIdentifier($table);
-        $escapedColumns = array_map([$this, 'quoteIdentifier'], $columns);
-
         $sql = sprintf(
             "INSERT INTO %s (%s) VALUES (%s)",
-            $escapedTable,
-            implode(', ', $escapedColumns),
+            $table,
+            implode(', ', $columns),
             implode(', ', $placeholders)
         );
 
@@ -162,19 +158,19 @@ class Database
         $params = [];
 
         foreach ($data as $column => $value) {
-            $setClauses[] = $this->quoteIdentifier($column) . " = ?";
+            $setClauses[] = "{$column} = ?";
             $params[] = $value;
         }
 
         $whereClauses = [];
         foreach ($where as $column => $value) {
-            $whereClauses[] = $this->quoteIdentifier($column) . " = ?";
+            $whereClauses[] = "{$column} = ?";
             $params[] = $value;
         }
 
         $sql = sprintf(
             "UPDATE %s SET %s WHERE %s",
-            $this->quoteIdentifier($table),
+            $table,
             implode(', ', $setClauses),
             implode(' AND ', $whereClauses)
         );
@@ -192,13 +188,13 @@ class Database
         $params = [];
 
         foreach ($where as $column => $value) {
-            $whereClauses[] = $this->quoteIdentifier($column) . " = ?";
+            $whereClauses[] = "{$column} = ?";
             $params[] = $value;
         }
 
         $sql = sprintf(
             "DELETE FROM %s WHERE %s",
-            $this->quoteIdentifier($table),
+            $table,
             implode(' AND ', $whereClauses)
         );
 

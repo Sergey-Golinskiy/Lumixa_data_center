@@ -52,7 +52,7 @@ if (!function_exists('csrf_field')) {
      */
     function csrf_field(): string
     {
-        return '<input type="hidden" name="_csrf_token" value="' . h(csrf_token()) . '">';
+        return '<input type="hidden" name="_token" value="' . h(csrf_token()) . '">';
     }
 }
 
@@ -84,8 +84,7 @@ if (!function_exists('config')) {
         static $config = null;
 
         if ($config === null) {
-            $basePath = defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__);
-            $configFile = $basePath . '/config/config.php';
+            $configFile = BASE_PATH . '/config/app.php';
             $config = file_exists($configFile) ? require $configFile : [];
         }
 

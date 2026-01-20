@@ -89,11 +89,10 @@ abstract class Controller
 
     /**
      * Get request input
-     * POST takes precedence over GET to prevent parameter override attacks
      */
     protected function input(?string $key = null, $default = null)
     {
-        $input = array_merge($_GET, $_POST);  // POST overrides GET
+        $input = array_merge($_GET, $_POST);
 
         if ($key === null) {
             return $input;
@@ -440,12 +439,7 @@ abstract class Controller
      */
     private function checkUnique(string $table, string $column, $value, ?int $exceptId = null): bool
     {
-        $db = $this->db();
-        $sql = sprintf(
-            "SELECT COUNT(*) FROM %s WHERE %s = ?",
-            $db->quoteIdentifier($table),
-            $db->quoteIdentifier($column)
-        );
+        $sql = "SELECT COUNT(*) FROM {$table} WHERE {$column} = ?";
         $params = [$value];
 
         if ($exceptId) {
@@ -453,7 +447,7 @@ abstract class Controller
             $params[] = $exceptId;
         }
 
-        return $db->fetchColumn($sql, $params) > 0;
+        return $this->db()->fetchColumn($sql, $params) > 0;
     }
 
     /**
