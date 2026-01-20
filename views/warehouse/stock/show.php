@@ -67,14 +67,14 @@
                         </td>
                         <td><?= ucfirst($movement['document_type']) ?></td>
                         <td>
-                            <?php if ($movement['direction'] === 'in'): ?>
+                            <?php if ($movement['movement_type'] === 'in'): ?>
                             <span class="badge badge-success">IN</span>
                             <?php else: ?>
                             <span class="badge badge-danger">OUT</span>
                             <?php endif; ?>
                         </td>
                         <td class="text-right">
-                            <?php if ($movement['direction'] === 'in'): ?>
+                            <?php if ($movement['movement_type'] === 'in'): ?>
                             <span class="text-success">+<?= number_format($movement['quantity'], 3) ?></span>
                             <?php else: ?>
                             <span class="text-danger">-<?= number_format($movement['quantity'], 3) ?></span>
