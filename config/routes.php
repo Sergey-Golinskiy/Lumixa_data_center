@@ -129,7 +129,15 @@ return function (Router $router) {
         $router->get('/items/{id}/edit', 'Warehouse\\ItemsController@edit', 'warehouse.items.edit');
         $router->post('/items/{id}', 'Warehouse\\ItemsController@update');
 
-        // Lots
+        // Batches
+        $router->get('/batches', 'Warehouse\\BatchesController@index', 'warehouse.batches');
+        $router->get('/batches/create', 'Warehouse\\BatchesController@create', 'warehouse.batches.create');
+        $router->post('/batches', 'Warehouse\\BatchesController@store');
+        $router->get('/batches/{id}', 'Warehouse\\BatchesController@show', 'warehouse.batches.show');
+        $router->post('/batches/{id}/status', 'Warehouse\\BatchesController@updateStatus');
+        $router->get('/batches/api/available', 'Warehouse\\BatchesController@getAvailableForAllocation');
+        $router->post('/batches/api/preview', 'Warehouse\\BatchesController@previewAllocation');
+
         // Stock
         $router->get('/stock', 'Warehouse\\StockController@index', 'warehouse.stock');
         $router->get('/stock/movements', 'Warehouse\\StockController@movements', 'warehouse.stock.movements');

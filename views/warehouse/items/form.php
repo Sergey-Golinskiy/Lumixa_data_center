@@ -63,6 +63,39 @@
                 </div>
             </div>
 
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="costing_method"><?= $this->__('costing_method') ?> *</label>
+                    <select id="costing_method" name="costing_method" required>
+                        <?php
+                        $costingMethods = [
+                            'FIFO' => 'FIFO (First In, First Out)',
+                            'LIFO' => 'LIFO (Last In, First Out)',
+                            'WEIGHTED_AVG' => 'Weighted Average',
+                            'MANUAL' => 'Manual Allocation'
+                        ];
+                        $selectedMethod = $this->old('costing_method', $item['costing_method'] ?? 'FIFO');
+                        ?>
+                        <?php foreach ($costingMethods as $value => $label): ?>
+                        <option value="<?= $this->e($value) ?>"
+                                <?= $selectedMethod === $value ? 'selected' : '' ?>>
+                            <?= $this->e($label) ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="text-muted"><?= $this->__('costing_method_help') ?></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="allow_method_override">
+                        <input type="checkbox" id="allow_method_override" name="allow_method_override" value="1"
+                               <?= $this->old('allow_method_override', $item['allow_method_override'] ?? 1) ? 'checked' : '' ?>>
+                        <?= $this->__('allow_method_override') ?>
+                    </label>
+                    <small class="text-muted"><?= $this->__('allow_method_override_help') ?></small>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="description"><?= $this->__('description') ?></label>
                 <textarea id="description" name="description" rows="3"><?= $this->e($this->old('description', $item['description'] ?? '')) ?></textarea>

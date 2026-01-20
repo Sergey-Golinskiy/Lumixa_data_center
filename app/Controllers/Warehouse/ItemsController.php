@@ -93,6 +93,8 @@ class ItemsController extends Controller
         $data['description'] = $this->post('description', '');
         $data['min_stock'] = (float)$this->post('min_stock', 0);
         $data['reorder_point'] = (float)$this->post('reorder_point', 0);
+        $data['costing_method'] = $this->post('costing_method', 'FIFO');
+        $data['allow_method_override'] = $this->post('allow_method_override') ? 1 : 0;
         $imagePath = $this->storeImageUpload('image', 'items');
         if ($imagePath) {
             $data['image_path'] = $imagePath;
@@ -204,6 +206,8 @@ class ItemsController extends Controller
         $data['description'] = $this->post('description', '');
         $data['min_stock'] = (float)$this->post('min_stock', 0);
         $data['reorder_point'] = (float)$this->post('reorder_point', 0);
+        $data['costing_method'] = $this->post('costing_method', 'FIFO');
+        $data['allow_method_override'] = $this->post('allow_method_override') ? 1 : 0;
         $data['is_active'] = $this->post('is_active') ? 1 : 0;
         $imagePath = $this->storeImageUpload('image', 'items');
         if ($imagePath) {
