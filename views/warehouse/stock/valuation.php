@@ -56,8 +56,8 @@
                     <select name="category" onchange="this.form.submit()">
                         <option value="">All Categories</option>
                         <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $this->e($cat['category']) ?>" <?= $category === $cat['category'] ? 'selected' : '' ?>>
-                            <?= $this->e($cat['category']) ?>
+                        <option value="<?= $this->e($cat['type']) ?>" <?= $category === $cat['type'] ? 'selected' : '' ?>>
+                            <?= $this->e(ucfirst($cat['type'])) ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
@@ -98,7 +98,7 @@
                             </a>
                         </td>
                         <td><?= $this->e($item['name']) ?></td>
-                        <td><?= $this->e($item['category'] ?? '-') ?></td>
+                        <td><?= $this->e(ucfirst($item['type'] ?? '-')) ?></td>
                         <td class="text-right">
                             <?= number_format($item['quantity'], 3) ?>
                             <small class="text-muted"><?= $this->e($item['unit']) ?></small>
