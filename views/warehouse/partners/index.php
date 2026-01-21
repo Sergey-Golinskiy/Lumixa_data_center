@@ -40,11 +40,11 @@
             <table data-sortable>
                 <thead>
                     <tr>
-                        <th data-sort="id">ID</th>
+                        <th data-sort="id"><?= $this->__('id') ?></th>
                         <th data-sort="name"><?= $this->__('name') ?></th>
                         <th data-sort="type"><?= $this->__('type') ?></th>
                         <th data-sort="phone"><?= $this->__('phone') ?></th>
-                        <th data-sort="city">City</th>
+                        <th data-sort="city"><?= $this->__('city') ?></th>
                         <th data-sort="actions"><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>

@@ -1,9 +1,9 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Inventory Valuation</h1>
+    <h1><?= $this->__('inventory_valuation') ?></h1>
     <div class="page-actions">
-        <a href="/warehouse/stock" class="btn btn-secondary">&laquo; Back to Stock</a>
+        <a href="/warehouse/stock" class="btn btn-secondary">&laquo; <?= $this->__('back_to_stock') ?></a>
     </div>
 </div>
 
@@ -11,22 +11,22 @@
 <div class="summary-cards" style="margin-bottom: 20px;">
     <div class="summary-card">
         <div class="summary-value"><?= number_format($grandTotal, 2) ?></div>
-        <div class="summary-label">Total Inventory Value</div>
+        <div class="summary-label"><?= $this->__('total_inventory_value') ?></div>
     </div>
     <div class="summary-card">
         <div class="summary-value"><?= count($valuation) ?></div>
-        <div class="summary-label">Items with Stock</div>
+        <div class="summary-label"><?= $this->__('items_with_stock') ?></div>
     </div>
     <div class="summary-card">
         <div class="summary-value"><?= count($byCategory) ?></div>
-        <div class="summary-label">Categories</div>
+        <div class="summary-label"><?= $this->__('categories') ?></div>
     </div>
 </div>
 
 <!-- Category Breakdown -->
 <?php if (!empty($byCategory)): ?>
 <div class="card" style="margin-bottom: 20px;">
-    <div class="card-header">Value by Category</div>
+    <div class="card-header"><?= $this->__('value_by_category') ?></div>
     <div class="card-body">
         <div class="category-grid">
             <?php foreach ($byCategory as $cat => $data): ?>
@@ -54,7 +54,7 @@
             <div class="filter-row">
                 <div class="filter-group">
                     <select name="category" onchange="this.form.submit()">
-                        <option value="">All Categories</option>
+                        <option value=""><?= $this->__('all_categories') ?></option>
                         <?php foreach ($categories as $cat): ?>
                         <option value="<?= $this->e($cat['type']) ?>" <?= $category === $cat['type'] ? 'selected' : '' ?>>
                             <?= $this->e(ucfirst($cat['type'])) ?>
@@ -74,19 +74,19 @@
             <table>
                 <thead>
                     <tr>
-                        <th>SKU</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th class="text-right">Quantity</th>
-                        <th class="text-right">Avg Cost</th>
-                        <th class="text-right">Total Value</th>
-                        <th class="text-right">% of Total</th>
+                        <th><?= $this->__('sku') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('category') ?></th>
+                        <th class="text-right"><?= $this->__('quantity') ?></th>
+                        <th class="text-right"><?= $this->__('avg_cost') ?></th>
+                        <th class="text-right"><?= $this->__('total_value') ?></th>
+                        <th class="text-right"><?= $this->__('percent_of_total') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($valuation)): ?>
                     <tr>
-                        <td colspan="7" class="text-center text-muted">No inventory</td>
+                        <td colspan="7" class="text-center text-muted"><?= $this->__('no_inventory') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($valuation as $item): ?>
@@ -117,7 +117,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="5" class="text-right"><strong>Grand Total:</strong></td>
+                        <td colspan="5" class="text-right"><strong><?= $this->__('grand_total') ?>:</strong></td>
                         <td class="text-right"><strong><?= number_format($grandTotal, 2) ?></strong></td>
                         <td class="text-right"><strong>100%</strong></td>
                     </tr>

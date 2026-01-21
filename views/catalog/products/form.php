@@ -1,21 +1,21 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/catalog/products" class="btn btn-secondary">&laquo; Back to Products</a>
+    <a href="/catalog/products" class="btn btn-secondary">&laquo; <?= $this->__('back_to_products') ?></a>
 </div>
 
 <div class="card" style="max-width: 700px;">
-    <div class="card-header"><?= $product ? 'Edit Product' : 'Create New Product' ?></div>
+    <div class="card-header"><?= $product ? $this->__('edit_product') : $this->__('create_new_product') ?></div>
     <div class="card-body">
         <form method="POST" enctype="multipart/form-data" action="<?= $product ? "/catalog/products/{$product['id']}" : '/catalog/products' ?>">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="code">Product Code *</label>
+                    <label for="code"><?= $this->__('product_code') ?> *</label>
                     <input type="text" id="code" name="code" required
                            value="<?= $this->e($product['code'] ?? $this->old('code')) ?>"
-                           placeholder="e.g., PROD-001" style="text-transform: uppercase;">
+                           placeholder="<?= $this->__('product_code_placeholder') ?>" style="text-transform: uppercase;">
                     <?php if ($this->hasError('code')): ?>
                     <span class="error"><?= $this->error('code') ?></span>
                     <?php endif; ?>
@@ -23,7 +23,7 @@
 
                 <div class="form-group">
                     <?php if (($categoryMode ?? 'table') === 'table'): ?>
-                    <label for="category_id">Category *</label>
+                    <label for="category_id"><?= $this->__('category') ?> *</label>
                     <select id="category_id" name="category_id" required>
                         <option value=""><?= $this->__('select_category') ?></option>
                         <?php foreach ($categories as $cat): ?>
@@ -43,7 +43,7 @@
                     <span class="error"><?= $this->error('category_id') ?></span>
                     <?php endif; ?>
                     <?php else: ?>
-                    <label for="category">Category *</label>
+                    <label for="category"><?= $this->__('category') ?> *</label>
                     <input type="text" id="category" name="category" required
                            value="<?= $this->e($product['category'] ?? $this->old('category')) ?>"
                            placeholder="<?= $this->__('category') ?>">
@@ -55,19 +55,19 @@
             </div>
 
             <div class="form-group">
-                <label for="name">Product Name *</label>
+                <label for="name"><?= $this->__('product_name') ?> *</label>
                 <input type="text" id="name" name="name" required
                        value="<?= $this->e($product['name'] ?? $this->old('name')) ?>"
-                       placeholder="Full product name">
+                       placeholder="<?= $this->__('full_product_name') ?>">
                 <?php if ($this->hasError('name')): ?>
                 <span class="error"><?= $this->error('name') ?></span>
                 <?php endif; ?>
             </div>
 
             <div class="form-group">
-                <label for="description">Description</label>
+                <label for="description"><?= $this->__('description') ?></label>
                 <textarea id="description" name="description" rows="4"
-                          placeholder="Product description"><?= $this->e($product['description'] ?? $this->old('description')) ?></textarea>
+                          placeholder="<?= $this->__('product_description') ?>"><?= $this->e($product['description'] ?? $this->old('description')) ?></textarea>
                 <?php if ($this->hasError('description')): ?>
                 <span class="error"><?= $this->error('description') ?></span>
                 <?php endif; ?>
@@ -85,7 +85,7 @@
             </div>
 
             <div class="form-group">
-                <label for="base_price">Base Price</label>
+                <label for="base_price"><?= $this->__('base_price') ?></label>
                 <input type="number" id="base_price" name="base_price" step="0.01" min="0"
                        value="<?= $this->e($product['base_price'] ?? $this->old('base_price', '0.00')) ?>"
                        placeholder="0.00">
@@ -98,13 +98,13 @@
                 <label class="checkbox-label">
                     <input type="checkbox" name="is_active" value="1"
                            <?= ($product['is_active'] ?? $this->old('is_active', 1)) ? 'checked' : '' ?>>
-                    Active
+                    <?= $this->__('active') ?>
                 </label>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary"><?= $product ? 'Update Product' : 'Create Product' ?></button>
-                <a href="/catalog/products" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary"><?= $product ? $this->__('update_product') : $this->__('create_product') ?></button>
+                <a href="/catalog/products" class="btn btn-secondary"><?= $this->__('cancel') ?></a>
             </div>
         </form>
     </div>

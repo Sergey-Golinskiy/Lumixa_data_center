@@ -1,15 +1,15 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Low Stock Report</h1>
+    <h1><?= $this->__('low_stock_report') ?></h1>
     <div class="page-actions">
-        <a href="/warehouse/stock" class="btn btn-secondary">&laquo; Back to Stock</a>
+        <a href="/warehouse/stock" class="btn btn-secondary">&laquo; <?= $this->__('back_to_stock') ?></a>
     </div>
 </div>
 
 <?php if (!empty($items)): ?>
 <div class="alert alert-warning" style="margin-bottom: 20px;">
-    <strong>Attention!</strong> <?= count($items) ?> item(s) are at or below minimum stock level.
+    <strong><?= $this->__('attention') ?>!</strong> <?= $this->__('items_below_min_stock', ['count' => count($items)]) ?>
 </div>
 <?php endif; ?>
 
@@ -19,22 +19,22 @@
             <table>
                 <thead>
                     <tr>
-                        <th>SKU</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th class="text-right">Min Stock</th>
-                        <th class="text-right">Current</th>
-                        <th class="text-right">Reserved</th>
-                        <th class="text-right">Available</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th><?= $this->__('sku') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('category') ?></th>
+                        <th class="text-right"><?= $this->__('min_stock') ?></th>
+                        <th class="text-right"><?= $this->__('current') ?></th>
+                        <th class="text-right"><?= $this->__('reserved') ?></th>
+                        <th class="text-right"><?= $this->__('available') ?></th>
+                        <th><?= $this->__('status') ?></th>
+                        <th><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($items)): ?>
                     <tr>
                         <td colspan="9" class="text-center text-muted">
-                            All items are above minimum stock levels.
+                            <?= $this->__('all_items_above_min_stock') ?>
                         </td>
                     </tr>
                     <?php else: ?>
@@ -43,17 +43,17 @@
                     $available = $item['current_stock'] - $item['reserved'];
                     $percentage = $item['min_stock'] > 0 ? ($item['current_stock'] / $item['min_stock']) * 100 : 0;
                     $statusClass = 'danger';
-                    $statusText = 'Critical';
+                    $statusText = $this->__('critical');
                     if ($percentage >= 75) {
                         $statusClass = 'warning';
-                        $statusText = 'Low';
+                        $statusText = $this->__('low');
                     } elseif ($percentage >= 50) {
                         $statusClass = 'warning';
-                        $statusText = 'Warning';
+                        $statusText = $this->__('warning');
                     }
                     if ($item['current_stock'] <= 0) {
                         $statusClass = 'danger';
-                        $statusText = 'Out of Stock';
+                        $statusText = $this->__('out_of_stock');
                     }
                     ?>
                     <tr>
@@ -93,8 +93,8 @@
                             </div>
                         </td>
                         <td>
-                            <a href="/warehouse/stock/<?= $item['id'] ?>" class="btn btn-sm btn-secondary">View Stock</a>
-                            <a href="/warehouse/documents/create?type=receipt&item=<?= $item['id'] ?>" class="btn btn-sm btn-primary">+ Receipt</a>
+                            <a href="/warehouse/stock/<?= $item['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view_stock') ?></a>
+                            <a href="/warehouse/documents/create?type=receipt&item=<?= $item['id'] ?>" class="btn btn-sm btn-primary">+ <?= $this->__('receipt') ?></a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

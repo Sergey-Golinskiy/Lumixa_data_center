@@ -1,9 +1,9 @@
 <?php $this->section('content'); ?>
 
 <div class="page-header">
-    <h1>Stock Movements</h1>
+    <h1><?= $this->__('stock_movements') ?></h1>
     <div class="page-actions">
-        <a href="/warehouse/stock" class="btn btn-secondary">&laquo; Back to Stock</a>
+        <a href="/warehouse/stock" class="btn btn-secondary">&laquo; <?= $this->__('back_to_stock') ?></a>
     </div>
 </div>
 
@@ -11,17 +11,17 @@
 <div class="summary-cards" style="margin-bottom: 20px;">
     <div class="summary-card summary-in">
         <div class="summary-value">+<?= number_format($inTotal['qty'] ?? 0, 0) ?></div>
-        <div class="summary-label">Total IN</div>
+        <div class="summary-label"><?= $this->__('total_in') ?></div>
         <div class="summary-sub"><?= number_format($inTotal['value'] ?? 0, 2) ?></div>
     </div>
     <div class="summary-card summary-out">
         <div class="summary-value">-<?= number_format($outTotal['qty'] ?? 0, 0) ?></div>
-        <div class="summary-label">Total OUT</div>
+        <div class="summary-label"><?= $this->__('total_out') ?></div>
         <div class="summary-sub"><?= number_format($outTotal['value'] ?? 0, 2) ?></div>
     </div>
     <div class="summary-card">
         <div class="summary-value"><?= number_format(($inTotal['qty'] ?? 0) - ($outTotal['qty'] ?? 0), 0) ?></div>
-        <div class="summary-label">Net Change</div>
+        <div class="summary-label"><?= $this->__('net_change') ?></div>
     </div>
 </div>
 
@@ -31,17 +31,17 @@
         <form method="GET" class="filter-form">
             <div class="filter-row">
                 <div class="filter-group">
-                    <label>From</label>
+                    <label><?= $this->__('from') ?></label>
                     <input type="date" name="date_from" value="<?= $this->e($dateFrom) ?>">
                 </div>
                 <div class="filter-group">
-                    <label>To</label>
+                    <label><?= $this->__('to') ?></label>
                     <input type="date" name="date_to" value="<?= $this->e($dateTo) ?>">
                 </div>
                 <div class="filter-group">
-                    <label>Item</label>
+                    <label><?= $this->__('item') ?></label>
                     <select name="item_id">
-                        <option value="">All Items</option>
+                        <option value=""><?= $this->__('all_items') ?></option>
                         <?php foreach ($items as $item): ?>
                         <option value="<?= $item['id'] ?>" <?= $itemId == $item['id'] ? 'selected' : '' ?>>
                             <?= $this->e($item['sku']) ?> - <?= $this->e($item['name']) ?>
@@ -50,15 +50,15 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>Direction</label>
+                    <label><?= $this->__('direction') ?></label>
                     <select name="direction">
-                        <option value="">All</option>
-                        <option value="in" <?= $direction === 'in' ? 'selected' : '' ?>>IN</option>
-                        <option value="out" <?= $direction === 'out' ? 'selected' : '' ?>>OUT</option>
+                        <option value=""><?= $this->__('all') ?></option>
+                        <option value="in" <?= $direction === 'in' ? 'selected' : '' ?>><?= $this->__('in') ?></option>
+                        <option value="out" <?= $direction === 'out' ? 'selected' : '' ?>><?= $this->__('out') ?></option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-secondary">Filter</button>
-                <a href="/warehouse/stock/movements" class="btn btn-outline">Clear</a>
+                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
+                <a href="/warehouse/stock/movements" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
         </form>
     </div>
@@ -71,20 +71,20 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Document</th>
-                        <th>Type</th>
-                        <th>Item</th>
-                        <th>Direction</th>
-                        <th class="text-right">Quantity</th>
-                        <th class="text-right">Unit Cost</th>
-                        <th class="text-right">Value</th>
+                        <th><?= $this->__('date') ?></th>
+                        <th><?= $this->__('document') ?></th>
+                        <th><?= $this->__('type') ?></th>
+                        <th><?= $this->__('item') ?></th>
+                        <th><?= $this->__('direction') ?></th>
+                        <th class="text-right"><?= $this->__('quantity') ?></th>
+                        <th class="text-right"><?= $this->__('unit_cost') ?></th>
+                        <th class="text-right"><?= $this->__('value') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($movements)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No movements found</td>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_movements_found') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($movements as $movement): ?>
@@ -103,9 +103,9 @@
                         </td>
                         <td>
                             <?php if ($movement['movement_type'] === 'in'): ?>
-                            <span class="badge badge-success">IN</span>
+                            <span class="badge badge-success"><?= $this->__('in') ?></span>
                             <?php else: ?>
-                            <span class="badge badge-danger">OUT</span>
+                            <span class="badge badge-danger"><?= $this->__('out') ?></span>
                             <?php endif; ?>
                         </td>
                         <td class="text-right">
@@ -129,11 +129,11 @@
         <?php if ($totalPages > 1): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; Previous</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page - 1])) ?>" class="btn btn-sm btn-outline">&laquo; <?= $this->__('previous') ?></a>
             <?php endif; ?>
-            <span class="pagination-info">Page <?= $page ?> of <?= $totalPages ?> (<?= $total ?> movements)</span>
+            <span class="pagination-info"><?= $this->__('page_x_of_y', ['page' => $page, 'total' => $totalPages, 'count' => $total, 'type' => $this->__('movements')]) ?></span>
             <?php if ($page < $totalPages): ?>
-            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline">Next &raquo;</a>
+            <a href="?<?= http_build_query(array_merge($_GET, ['page' => $page + 1])) ?>" class="btn btn-sm btn-outline"><?= $this->__('next') ?> &raquo;</a>
             <?php endif; ?>
         </div>
         <?php endif; ?>

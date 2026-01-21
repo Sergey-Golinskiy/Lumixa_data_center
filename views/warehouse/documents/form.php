@@ -1,7 +1,7 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/warehouse/documents" class="btn btn-secondary">&laquo; Back to Documents</a>
+    <a href="/warehouse/documents" class="btn btn-secondary">&laquo; <?= $this->__('back_to_documents') ?></a>
 </div>
 
 <form method="POST" action="<?= $document ? "/warehouse/documents/{$document['id']}" : '/warehouse/documents' ?>" id="document-form">
@@ -10,7 +10,7 @@
     <div class="detail-grid">
         <!-- Document Header -->
         <div class="card">
-            <div class="card-header">Document Information</div>
+            <div class="card-header"><?= $this->__('document_information') ?></div>
             <div class="card-body">
                 <div class="form-group">
                     <label for="type"><?= $this->__('document_type') ?> *</label>
@@ -32,7 +32,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="document_date">Document Date *</label>
+                    <label for="document_date"><?= $this->__('document_date') ?> *</label>
                     <input type="date" id="document_date" name="document_date" required
                            value="<?= $this->e($document['document_date'] ?? $this->old('document_date', date('Y-m-d'))) ?>">
                     <?php if ($this->hasError('document_date')): ?>
@@ -41,9 +41,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="partner_id">Partner</label>
+                    <label for="partner_id"><?= $this->__('partner') ?></label>
                     <select id="partner_id" name="partner_id">
-                        <option value="">-- No Partner --</option>
+                        <option value="">-- <?= $this->__('no_partner') ?> --</option>
                         <?php foreach ($partners as $partner): ?>
                         <option value="<?= $partner['id'] ?>" <?= ($document['partner_id'] ?? $this->old('partner_id')) == $partner['id'] ? 'selected' : '' ?>>
                             <?= $this->e($partner['name']) ?> (<?= $this->e($partner['type']) ?>)
@@ -73,7 +73,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="notes">Notes</label>
+                    <label for="notes"><?= $this->__('notes') ?></label>
                     <textarea id="notes" name="notes" rows="3"><?= $this->e($document['notes'] ?? $this->old('notes')) ?></textarea>
                     <?php if ($this->hasError('notes')): ?>
                     <span class="error"><?= $this->error('notes') ?></span>
@@ -84,31 +84,31 @@
 
         <!-- Summary -->
         <div class="card">
-            <div class="card-header">Summary</div>
+            <div class="card-header"><?= $this->__('summary') ?></div>
             <div class="card-body">
                 <?php if ($document): ?>
                 <div class="detail-row">
-                    <span class="detail-label">Document #</span>
+                    <span class="detail-label"><?= $this->__('document_number') ?></span>
                     <span class="detail-value"><strong><?= $this->e($document['document_number']) ?></strong></span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Status</span>
+                    <span class="detail-label"><?= $this->__('status') ?></span>
                     <span class="detail-value">
-                        <span class="badge badge-warning">Draft</span>
+                        <span class="badge badge-warning"><?= $this->__('draft') ?></span>
                     </span>
                 </div>
                 <?php else: ?>
                 <div class="detail-row">
-                    <span class="detail-label">Document #</span>
-                    <span class="detail-value"><em>Will be assigned on save</em></span>
+                    <span class="detail-label"><?= $this->__('document_number') ?></span>
+                    <span class="detail-value"><em><?= $this->__('will_be_assigned_on_save') ?></em></span>
                 </div>
                 <?php endif; ?>
                 <div class="detail-row">
-                    <span class="detail-label">Total Lines</span>
+                    <span class="detail-label"><?= $this->__('total_lines') ?></span>
                     <span class="detail-value" id="total-lines">0</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Total Amount</span>
+                    <span class="detail-label"><?= $this->__('total_amount') ?></span>
                     <span class="detail-value" id="total-amount">0.00</span>
                 </div>
             </div>
@@ -118,8 +118,8 @@
     <!-- Document Lines -->
     <div class="card" style="margin-top: 20px;">
         <div class="card-header">
-            Document Lines
-            <button type="button" class="btn btn-primary btn-sm" onclick="addLine()" style="float: right;">+ Add Line</button>
+            <?= $this->__('document_lines') ?>
+            <button type="button" class="btn btn-primary btn-sm" onclick="addLine()" style="float: right;">+ <?= $this->__('add_line') ?></button>
         </div>
         <div class="card-body">
             <div class="table-container">
@@ -127,12 +127,12 @@
                     <thead>
                         <tr>
                             <th style="width: 50px;">#</th>
-                            <th style="width: 200px;">Item *</th>
-                            <th style="width: 100px;">Quantity *</th>
-                            <th style="width: 120px;">Unit Price</th>
-                            <th style="width: 120px;">Total</th>
+                            <th style="width: 200px;"><?= $this->__('item') ?> *</th>
+                            <th style="width: 100px;"><?= $this->__('quantity') ?> *</th>
+                            <th style="width: 120px;"><?= $this->__('unit_price') ?></th>
+                            <th style="width: 120px;"><?= $this->__('total') ?></th>
                             <th class="batch-column" style="width: 180px;"><?= $this->__('batch_allocations') ?></th>
-                            <th style="width: 150px;">Notes</th>
+                            <th style="width: 150px;"><?= $this->__('notes') ?></th>
                             <th style="width: 50px;"></th>
                         </tr>
                     </thead>
@@ -141,7 +141,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
+                            <td colspan="4" style="text-align: right;"><strong><?= $this->__('total') ?>:</strong></td>
                             <td><strong id="footer-total">0.00</strong></td>
                             <td colspan="2"></td>
                         </tr>
@@ -149,14 +149,14 @@
                 </table>
             </div>
             <p class="text-muted" style="margin-top: 10px; font-size: 13px;">
-                * Required fields. Add at least one line to save the document.
+                * <?= $this->__('required_fields_add_line') ?>
             </p>
         </div>
     </div>
 
     <div class="form-actions" style="margin-top: 20px;">
-        <button type="submit" class="btn btn-primary">Save Document</button>
-        <a href="/warehouse/documents" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary"><?= $this->__('save_document') ?></button>
+        <a href="/warehouse/documents" class="btn btn-secondary"><?= $this->__('cancel') ?></a>
     </div>
 </form>
 
@@ -257,7 +257,7 @@ function addLine(data = null) {
     row.dataset.lineNumber = lineNumber;
 
     // Build item options
-    let itemOptions = '<option value="">Select Item</option>';
+    let itemOptions = '<option value=""><?= $this->__('select_item') ?></option>';
     items.forEach(function(item) {
         const selected = data && data.item_id == item.id ? 'selected' : '';
         itemOptions += `<option value="${item.id}" data-unit="${item.unit}" ${selected}>${item.sku} - ${item.name}</option>`;
@@ -284,7 +284,7 @@ function addLine(data = null) {
                    value="${data && data.batch_allocations_raw ? data.batch_allocations_raw : ''}">
         </td>
         <td>
-            <input type="text" name="lines[${lineNumber}][notes]" placeholder="Notes" value="${data ? (data.notes || '') : ''}">
+            <input type="text" name="lines[${lineNumber}][notes]" placeholder="<?= $this->__('notes') ?>" value="${data ? (data.notes || '') : ''}">
         </td>
         <td>
             <button type="button" class="btn-remove" onclick="removeLine(${lineNumber})">&times;</button>
@@ -359,7 +359,7 @@ document.getElementById('document-form').addEventListener('submit', function(e) 
     const rows = document.querySelectorAll('#lines-body tr');
     if (rows.length === 0) {
         e.preventDefault();
-        alert('Please add at least one line to the document.');
+        alert('<?= $this->__('alert_add_one_line') ?>');
         return false;
     }
 
@@ -374,7 +374,7 @@ document.getElementById('document-form').addEventListener('submit', function(e) 
 
     if (!valid) {
         e.preventDefault();
-        alert('Please select an item for all lines.');
+        alert('<?= $this->__('alert_select_item_all_lines') ?>');
         return false;
     }
 });

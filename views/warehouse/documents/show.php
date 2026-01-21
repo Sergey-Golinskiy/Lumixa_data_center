@@ -1,23 +1,23 @@
 <?php $this->section('content'); ?>
 
 <div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/warehouse/documents" class="btn btn-secondary">&laquo; Back to Documents</a>
+    <a href="/warehouse/documents" class="btn btn-secondary">&laquo; <?= $this->__('back_to_documents') ?></a>
 
     <div class="actions-right">
         <?php if ($document['status'] === 'draft'): ?>
             <?php if ($this->can('warehouse.documents.edit')): ?>
-            <a href="/warehouse/documents/<?= $document['id'] ?>/edit" class="btn btn-secondary">Edit</a>
+            <a href="/warehouse/documents/<?= $document['id'] ?>/edit" class="btn btn-secondary"><?= $this->__('edit') ?></a>
             <?php endif; ?>
             <?php if ($this->can('warehouse.documents.post')): ?>
             <form method="POST" action="/warehouse/documents/<?= $document['id'] ?>/post" style="display: inline;">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                <button type="submit" class="btn btn-success" onclick="return confirm('Post this document? This will update stock balances.')">Post Document</button>
+                <button type="submit" class="btn btn-success" onclick="return confirm('<?= $this->__('confirm_post_document') ?>')"><?= $this->__('post_document') ?></button>
             </form>
             <?php endif; ?>
         <?php endif; ?>
 
         <?php if ($document['status'] !== 'cancelled' && $this->can('warehouse.documents.cancel')): ?>
-        <button type="button" class="btn btn-danger" onclick="document.getElementById('cancel-modal').style.display='flex'">Cancel Document</button>
+        <button type="button" class="btn btn-danger" onclick="document.getElementById('cancel-modal').style.display='flex'"><?= $this->__('cancel_document') ?></button>
         <?php endif; ?>
     </div>
 </div>
@@ -25,22 +25,22 @@
 <!-- Document Info -->
 <div class="detail-grid">
     <div class="card">
-        <div class="card-header">Document Information</div>
+        <div class="card-header"><?= $this->__('document_information') ?></div>
         <div class="card-body">
             <div class="detail-row">
-                <span class="detail-label">Document #</span>
+                <span class="detail-label"><?= $this->__('document_number') ?></span>
                 <span class="detail-value"><strong><?= $this->e($document['document_number']) ?></strong></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Type</span>
+                <span class="detail-label"><?= $this->__('type') ?></span>
                 <span class="detail-value"><?= $this->e(ucfirst($document['type'])) ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Date</span>
+                <span class="detail-label"><?= $this->__('date') ?></span>
                 <span class="detail-value"><?= $this->date($document['document_date'], 'Y-m-d') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Status</span>
+                <span class="detail-label"><?= $this->__('status') ?></span>
                 <span class="detail-value">
                     <?php
                     $statusClass = match($document['status']) {
@@ -54,7 +54,7 @@
                 </span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Partner</span>
+                <span class="detail-label"><?= $this->__('partner') ?></span>
                 <span class="detail-value"><?= $this->e($document['partner_name'] ?? '-') ?></span>
             </div>
             <?php if (in_array($document['type'], ['issue', 'adjustment', 'stocktake'], true)): ?>
@@ -64,12 +64,12 @@
             </div>
             <?php endif; ?>
             <div class="detail-row">
-                <span class="detail-label">Total Amount</span>
+                <span class="detail-label"><?= $this->__('total_amount') ?></span>
                 <span class="detail-value"><strong><?= $this->currency($document['total_amount']) ?></strong></span>
             </div>
             <?php if ($document['notes']): ?>
             <div class="detail-row">
-                <span class="detail-label">Notes</span>
+                <span class="detail-label"><?= $this->__('notes') ?></span>
                 <span class="detail-value"><?= nl2br($this->e($document['notes'])) ?></span>
             </div>
             <?php endif; ?>
@@ -77,37 +77,37 @@
     </div>
 
     <div class="card">
-        <div class="card-header">Audit Information</div>
+        <div class="card-header"><?= $this->__('audit_information') ?></div>
         <div class="card-body">
             <div class="detail-row">
-                <span class="detail-label">Created By</span>
+                <span class="detail-label"><?= $this->__('created_by') ?></span>
                 <span class="detail-value"><?= $this->e($document['created_by_name'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Created At</span>
+                <span class="detail-label"><?= $this->__('created_at') ?></span>
                 <span class="detail-value"><?= $this->date($document['created_at']) ?></span>
             </div>
             <?php if ($document['posted_at']): ?>
             <div class="detail-row">
-                <span class="detail-label">Posted By</span>
+                <span class="detail-label"><?= $this->__('posted_by') ?></span>
                 <span class="detail-value"><?= $this->e($document['posted_by_name'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Posted At</span>
+                <span class="detail-label"><?= $this->__('posted_at') ?></span>
                 <span class="detail-value"><?= $this->date($document['posted_at']) ?></span>
             </div>
             <?php endif; ?>
             <?php if ($document['cancelled_at']): ?>
             <div class="detail-row">
-                <span class="detail-label">Cancelled By</span>
+                <span class="detail-label"><?= $this->__('cancelled_by') ?></span>
                 <span class="detail-value"><?= $this->e($document['cancelled_by_name'] ?? '-') ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Cancelled At</span>
+                <span class="detail-label"><?= $this->__('cancelled_at') ?></span>
                 <span class="detail-value"><?= $this->date($document['cancelled_at']) ?></span>
             </div>
             <div class="detail-row">
-                <span class="detail-label">Cancel Reason</span>
+                <span class="detail-label"><?= $this->__('cancel_reason') ?></span>
                 <span class="detail-value text-danger"><?= $this->e($document['cancel_reason']) ?></span>
             </div>
             <?php endif; ?>
@@ -117,19 +117,19 @@
 
 <!-- Document Lines -->
 <div class="card" style="margin-top: 20px;">
-    <div class="card-header">Document Lines</div>
+    <div class="card-header"><?= $this->__('document_lines') ?></div>
     <div class="card-body">
         <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>SKU</th>
-                        <th>Item</th>
-                        <th>Quantity</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
-                        <th>Notes</th>
+                        <th><?= $this->__('sku') ?></th>
+                        <th><?= $this->__('item') ?></th>
+                        <th><?= $this->__('quantity') ?></th>
+                        <th><?= $this->__('unit_price') ?></th>
+                        <th><?= $this->__('total') ?></th>
+                        <th><?= $this->__('notes') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -151,7 +151,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="5" style="text-align: right;"><strong>Total:</strong></td>
+                        <td colspan="5" style="text-align: right;"><strong><?= $this->__('total') ?>:</strong></td>
                         <td><strong><?= $this->currency($document['total_amount']) ?></strong></td>
                         <td></td>
                     </tr>
@@ -199,24 +199,24 @@
 <div id="cancel-modal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Cancel Document</h3>
+            <h3><?= $this->__('cancel_document') ?></h3>
             <button type="button" class="modal-close" onclick="document.getElementById('cancel-modal').style.display='none'">&times;</button>
         </div>
         <form method="POST" action="/warehouse/documents/<?= $document['id'] ?>/cancel">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
             <div class="modal-body">
-                <p>Are you sure you want to cancel this document?</p>
+                <p><?= $this->__('confirm_cancel_document') ?></p>
                 <?php if ($document['status'] === 'posted'): ?>
-                <p class="text-danger"><strong>Warning:</strong> This will reverse all stock movements!</p>
+                <p class="text-danger"><strong><?= $this->__('warning') ?>:</strong> <?= $this->__('cancel_will_reverse_movements') ?></p>
                 <?php endif; ?>
                 <div class="form-group">
-                    <label for="cancel_reason">Cancellation Reason *</label>
+                    <label for="cancel_reason"><?= $this->__('cancellation_reason') ?> *</label>
                     <textarea id="cancel_reason" name="cancel_reason" rows="3" required></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('cancel-modal').style.display='none'">Close</button>
-                <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('cancel-modal').style.display='none'"><?= $this->__('close') ?></button>
+                <button type="submit" class="btn btn-danger"><?= $this->__('confirm_cancellation') ?></button>
             </div>
         </form>
     </div>
