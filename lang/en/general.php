@@ -910,4 +910,24 @@ return [
     'enter_sku_manually' => 'Enter SKU manually',
     'sku_auto_format' => 'Format',
     'will_be_generated' => 'Will be generated automatically',
+
+    // Item types
+    'item_type_material' => 'Material',
+    'item_type_component' => 'Component',
+    'item_type_consumable' => 'Consumable',
+    'item_type_packaging' => 'Packaging',
+
+    // Units
+    'unit_pcs' => 'pcs',
+    'unit_g' => 'g',
+    'unit_kg' => 'kg',
+    'unit_m' => 'm',
+    'unit_l' => 'l',
+    'unit_set' => 'set',
+
+    // Costing methods (for items form)
+    'costing_method' => 'Costing Method',
+    'costing_method_help' => 'Method for calculating material costs when issuing from stock',
+    'allow_method_override' => 'Allow method override',
+    'allow_method_override_help' => 'Allow users to override the costing method on documents',
 ];

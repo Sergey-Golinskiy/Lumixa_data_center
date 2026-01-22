@@ -909,4 +909,24 @@ return [
     'enter_sku_manually' => 'Введите SKU вручную',
     'sku_auto_format' => 'Формат',
     'will_be_generated' => 'Будет сгенерирован автоматически',
+
+    // Типы товаров
+    'item_type_material' => 'Материал',
+    'item_type_component' => 'Компонент',
+    'item_type_consumable' => 'Расходный материал',
+    'item_type_packaging' => 'Упаковка',
+
+    // Единицы измерения
+    'unit_pcs' => 'шт',
+    'unit_g' => 'г',
+    'unit_kg' => 'кг',
+    'unit_m' => 'м',
+    'unit_l' => 'л',
+    'unit_set' => 'набор',
+
+    // Методы калькуляции (для формы товаров)
+    'costing_method' => 'Метод калькуляции',
+    'costing_method_help' => 'Метод расчета стоимости материалов при списании со склада',
+    'allow_method_override' => 'Разрешить переопределение метода',
+    'allow_method_override_help' => 'Разрешить пользователям переопределять метод учёта в документах',
 ];

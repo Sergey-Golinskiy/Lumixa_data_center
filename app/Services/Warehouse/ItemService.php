@@ -16,20 +16,19 @@ class ItemService
     private AuditService $audit;
 
     private array $types = [
-        'material' => 'Material (Plastic)',
-        'component' => 'Component (Purchased)',
-        'part' => 'Part (Manufactured)',
-        'consumable' => 'Consumable',
-        'packaging' => 'Packaging'
+        'material' => 'material',
+        'component' => 'component',
+        'consumable' => 'consumable',
+        'packaging' => 'packaging'
     ];
 
     private array $units = [
-        'pcs' => 'Pieces',
-        'g' => 'Grams',
-        'kg' => 'Kilograms',
-        'm' => 'Meters',
-        'l' => 'Liters',
-        'set' => 'Sets'
+        'pcs' => 'pcs',
+        'g' => 'g',
+        'kg' => 'kg',
+        'm' => 'm',
+        'l' => 'l',
+        'set' => 'set'
     ];
 
     public function __construct(Application $app)
@@ -44,7 +43,12 @@ class ItemService
      */
     public function getTypes(): array
     {
-        return $this->types;
+        $translator = \App\Core\Translator::getInstance();
+        $translated = [];
+        foreach ($this->types as $key => $value) {
+            $translated[$key] = $translator->get('item_type_' . $value);
+        }
+        return $translated;
     }
 
     /**
@@ -52,7 +56,12 @@ class ItemService
      */
     public function getUnits(): array
     {
-        return $this->units;
+        $translator = \App\Core\Translator::getInstance();
+        $translated = [];
+        foreach ($this->units as $key => $value) {
+            $translated[$key] = $translator->get('unit_' . $value);
+        }
+        return $translated;
     }
 
     /**
@@ -419,8 +428,8 @@ class ItemService
      */
     public function requiresManualSku(string $type): bool
     {
-        // Only 'part' (manufactured parts) requires manual SKU input
-        return $type === 'part';
+        // All types now auto-generate SKU (parts moved to catalog)
+        return false;
     }
 }
 

@@ -85,10 +85,10 @@
                     <select id="costing_method" name="costing_method" required>
                         <?php
                         $costingMethods = [
-                            'FIFO' => 'FIFO (First In, First Out)',
-                            'LIFO' => 'LIFO (Last In, First Out)',
-                            'WEIGHTED_AVG' => 'Weighted Average',
-                            'MANUAL' => 'Manual Allocation'
+                            'FIFO' => $this->__('costing_method_fifo'),
+                            'LIFO' => $this->__('costing_method_lifo'),
+                            'WEIGHTED_AVG' => $this->__('costing_method_weighted_avg'),
+                            'MANUAL' => $this->__('costing_method_manual')
                         ];
                         $selectedMethod = $this->old('costing_method', $item['costing_method'] ?? 'FIFO');
                         ?>
@@ -280,8 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const isEditMode = <?= $item ? 'true' : 'false' ?>;
     const itemId = <?= $item ? $item['id'] : 'null' ?>;
 
-    // Types that require manual SKU input
-    const manualSkuTypes = ['part'];
+    // Types that require manual SKU input (none - parts moved to catalog)
+    const manualSkuTypes = [];
 
     // Types that auto-generate SKU
     const autoSkuTypes = ['material', 'component', 'consumable', 'packaging'];

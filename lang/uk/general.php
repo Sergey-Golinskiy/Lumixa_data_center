@@ -909,4 +909,24 @@ return [
     'enter_sku_manually' => 'Введіть SKU вручну',
     'sku_auto_format' => 'Формат',
     'will_be_generated' => 'Буде згенеровано автоматично',
+
+    // Типи товарів
+    'item_type_material' => 'Матеріал',
+    'item_type_component' => 'Компонент',
+    'item_type_consumable' => 'Витратний матеріал',
+    'item_type_packaging' => 'Упаковка',
+
+    // Одиниці виміру
+    'unit_pcs' => 'шт',
+    'unit_g' => 'г',
+    'unit_kg' => 'кг',
+    'unit_m' => 'м',
+    'unit_l' => 'л',
+    'unit_set' => 'набір',
+
+    // Методи калькуляції (для форми товарів)
+    'costing_method' => 'Метод калькуляції',
+    'costing_method_help' => 'Метод розрахунку вартості матеріалів при списанні зі складу',
+    'allow_method_override' => 'Дозволити перевизначення методу',
+    'allow_method_override_help' => 'Дозволити користувачам перевизначати метод обліку в документах',
 ];
