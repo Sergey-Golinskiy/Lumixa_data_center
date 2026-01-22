@@ -123,9 +123,16 @@ class PartnersController extends Controller
     {
         $this->requirePermission('warehouse.partners.create');
 
+        // Get categories
+        $categories = $this->db()->fetchAll(
+            "SELECT * FROM partner_categories WHERE is_active = 1 ORDER BY name"
+        );
+
         $this->render('warehouse/partners/form', [
             'title' => 'Create Supplier',
-            'partner' => null
+            'partner' => null,
+            'categories' => $categories,
+            'contacts' => []
         ]);
     }
 
@@ -141,6 +148,7 @@ class PartnersController extends Controller
             'code' => trim($_POST['code'] ?? ''),
             'name' => trim($_POST['name'] ?? ''),
             'type' => $_POST['type'] ?? 'supplier',
+            'category_id' => !empty($_POST['category_id']) ? (int)$_POST['category_id'] : null,
             'email' => trim($_POST['email'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),
             'address' => trim($_POST['address'] ?? ''),
@@ -194,6 +202,11 @@ class PartnersController extends Controller
             'created_at' => date('Y-m-d H:i:s')
         ]));
 
+        // Save contacts
+        if (!empty($_POST['contacts']) && is_array($_POST['contacts'])) {
+            $this->savePartnerContacts($id, $_POST['contacts']);
+        }
+
         $this->audit('partner.created', 'partners', $id, null, $data);
         $this->session->setFlash('success', 'Supplier created successfully');
         $this->redirect("/warehouse/partners/{$id}");
@@ -215,9 +228,22 @@ class PartnersController extends Controller
             $this->notFound();
         }
 
+        // Get categories
+        $categories = $this->db()->fetchAll(
+            "SELECT * FROM partner_categories WHERE is_active = 1 ORDER BY name"
+        );
+
+        // Get contacts
+        $contacts = $this->db()->fetchAll(
+            "SELECT * FROM partner_contacts WHERE partner_id = ? ORDER BY is_primary DESC, id",
+            [$id]
+        );
+
         $this->render('warehouse/partners/form', [
             'title' => "Edit: {$partner['name']}",
-            'partner' => $partner
+            'partner' => $partner,
+            'categories' => $categories,
+            'contacts' => $contacts
         ]);
     }
 
@@ -238,6 +264,7 @@ class PartnersController extends Controller
             'code' => trim($_POST['code'] ?? ''),
             'name' => trim($_POST['name'] ?? ''),
             'type' => $_POST['type'] ?? 'supplier',
+            'category_id' => !empty($_POST['category_id']) ? (int)$_POST['category_id'] : null,
             'email' => trim($_POST['email'] ?? ''),
             'phone' => trim($_POST['phone'] ?? ''),
             'address' => trim($_POST['address'] ?? ''),
@@ -284,6 +311,11 @@ class PartnersController extends Controller
             'updated_at' => date('Y-m-d H:i:s')
         ]), ['id' => $id]);
 
+        // Save contacts
+        if (isset($_POST['contacts']) && is_array($_POST['contacts'])) {
+            $this->savePartnerContacts($id, $_POST['contacts']);
+        }
+
         $this->audit('partner.updated', 'partners', $id, $partner, $data);
         $this->session->setFlash('success', 'Supplier updated successfully');
         $this->redirect("/warehouse/partners/{$id}");
@@ -318,5 +350,60 @@ class PartnersController extends Controller
         $this->audit('partner.deleted', 'partners', $id, $partner, null);
         $this->session->setFlash('success', 'Supplier deleted successfully');
         $this->redirect('/warehouse/partners');
+    }
+
+    /**
+     * Save partner contacts
+     */
+    private function savePartnerContacts(int $partnerId, array $contacts): void
+    {
+        // Get existing contact IDs
+        $existingIds = [];
+        foreach ($contacts as $contact) {
+            if (!empty($contact['id'])) {
+                $existingIds[] = (int)$contact['id'];
+            }
+        }
+
+        // Delete contacts that are not in the submitted list
+        if (!empty($existingIds)) {
+            $placeholders = implode(',', array_fill(0, count($existingIds), '?'));
+            $this->db()->query(
+                "DELETE FROM partner_contacts WHERE partner_id = ? AND id NOT IN ($placeholders)",
+                array_merge([$partnerId], $existingIds)
+            );
+        } else {
+            // Delete all contacts if none submitted
+            $this->db()->delete('partner_contacts', ['partner_id' => $partnerId]);
+        }
+
+        // Insert or update contacts
+        foreach ($contacts as $contact) {
+            $contactData = [
+                'partner_id' => $partnerId,
+                'name' => trim($contact['name'] ?? ''),
+                'position' => trim($contact['position'] ?? ''),
+                'phone' => trim($contact['phone'] ?? ''),
+                'email' => trim($contact['email'] ?? ''),
+                'website' => trim($contact['website'] ?? ''),
+                'social_media' => trim($contact['social_media'] ?? ''),
+                'is_primary' => isset($contact['is_primary']) ? 1 : 0,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+
+            // Skip empty contacts
+            if (empty($contactData['name']) && empty($contactData['phone']) && empty($contactData['email'])) {
+                continue;
+            }
+
+            if (!empty($contact['id'])) {
+                // Update existing
+                $this->db()->update('partner_contacts', $contactData, ['id' => (int)$contact['id']]);
+            } else {
+                // Insert new
+                $contactData['created_at'] = date('Y-m-d H:i:s');
+                $this->db()->insert('partner_contacts', $contactData);
+            }
+        }
     }
 }

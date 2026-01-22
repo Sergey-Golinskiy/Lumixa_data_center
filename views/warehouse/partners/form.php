@@ -35,6 +35,21 @@
             </div>
 
             <div class="form-group">
+                <label for="category_id"><?= $this->__('business_category') ?></label>
+                <select id="category_id" name="category_id">
+                    <option value=""><?= $this->__('select_category') ?></option>
+                    <?php foreach ($categories as $cat): ?>
+                    <option value="<?= $cat['id'] ?>" <?= ($partner['category_id'] ?? $this->old('category_id')) == $cat['id'] ? 'selected' : '' ?>>
+                        <?= $this->e($cat['name']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if ($this->hasError('category_id')): ?>
+                <span class="error"><?= $this->error('category_id') ?></span>
+                <?php endif; ?>
+            </div>
+
+            <div class="form-group">
                 <label for="name"><?= $this->__('name') ?> *</label>
                 <input type="text" id="name" name="name" required
                        value="<?= $this->e($partner['name'] ?? $this->old('name')) ?>"
@@ -106,6 +121,65 @@
                 <?php endif; ?>
             </div>
 
+            <!-- Additional Contacts -->
+            <div class="form-section">
+                <h3><?= $this->__('additional_contacts') ?></h3>
+                <div id="contacts-container">
+                    <?php if (!empty($contacts)): ?>
+                        <?php foreach ($contacts as $index => $contact): ?>
+                        <div class="contact-item" data-index="<?= $index ?>">
+                            <div class="contact-header">
+                                <span class="contact-number"><?= $this->__('contact') ?> #<?= $index + 1 ?></span>
+                                <button type="button" class="btn-remove-contact" onclick="removeContact(this)">
+                                    <i class="fas fa-times"></i> <?= $this->__('remove') ?>
+                                </button>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label><?= $this->__('contact_name') ?></label>
+                                    <input type="text" name="contacts[<?= $index ?>][name]" value="<?= $this->e($contact['name']) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label><?= $this->__('position') ?></label>
+                                    <input type="text" name="contacts[<?= $index ?>][position]" value="<?= $this->e($contact['position']) ?>">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label><?= $this->__('phone') ?></label>
+                                    <input type="text" name="contacts[<?= $index ?>][phone]" value="<?= $this->e($contact['phone']) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label><?= $this->__('email') ?></label>
+                                    <input type="email" name="contacts[<?= $index ?>][email]" value="<?= $this->e($contact['email']) ?>">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label><?= $this->__('website') ?></label>
+                                    <input type="text" name="contacts[<?= $index ?>][website]" value="<?= $this->e($contact['website']) ?>" placeholder="https://example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label><?= $this->__('social_media') ?></label>
+                                    <input type="text" name="contacts[<?= $index ?>][social_media]" value="<?= $this->e($contact['social_media']) ?>" placeholder="@username">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="contacts[<?= $index ?>][is_primary]" value="1" <?= $contact['is_primary'] ? 'checked' : '' ?>>
+                                    <?= $this->__('primary') ?>
+                                </label>
+                            </div>
+                            <input type="hidden" name="contacts[<?= $index ?>][id]" value="<?= $contact['id'] ?? '' ?>">
+                        </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addContact()">
+                    <i class="fas fa-plus"></i> <?= $this->__('add_contact') ?>
+                </button>
+            </div>
+
             <div class="form-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="is_active" value="1"
@@ -122,6 +196,77 @@
     </div>
 </div>
 
+<script>
+let contactIndex = <?= !empty($contacts) ? count($contacts) : 0 ?>;
+
+function addContact() {
+    const container = document.getElementById('contacts-container');
+    const contactHtml = `
+        <div class="contact-item" data-index="${contactIndex}">
+            <div class="contact-header">
+                <span class="contact-number"><?= $this->__('contact') ?> #${contactIndex + 1}</span>
+                <button type="button" class="btn-remove-contact" onclick="removeContact(this)">
+                    <i class="fas fa-times"></i> <?= $this->__('remove') ?>
+                </button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><?= $this->__('contact_name') ?></label>
+                    <input type="text" name="contacts[${contactIndex}][name]">
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('position') ?></label>
+                    <input type="text" name="contacts[${contactIndex}][position]">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><?= $this->__('phone') ?></label>
+                    <input type="text" name="contacts[${contactIndex}][phone]">
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('email') ?></label>
+                    <input type="email" name="contacts[${contactIndex}][email]">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><?= $this->__('website') ?></label>
+                    <input type="text" name="contacts[${contactIndex}][website]" placeholder="https://example.com">
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('social_media') ?></label>
+                    <input type="text" name="contacts[${contactIndex}][social_media]" placeholder="@username">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="contacts[${contactIndex}][is_primary]" value="1">
+                    <?= $this->__('primary') ?>
+                </label>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', contactHtml);
+    contactIndex++;
+    updateContactNumbers();
+}
+
+function removeContact(button) {
+    if (confirm('<?= $this->__('confirm_delete') ?>')) {
+        button.closest('.contact-item').remove();
+        updateContactNumbers();
+    }
+}
+
+function updateContactNumbers() {
+    const items = document.querySelectorAll('.contact-item');
+    items.forEach((item, index) => {
+        item.querySelector('.contact-number').textContent = `<?= $this->__('contact') ?> #${index + 1}`;
+    });
+}
+</script>
+
 <style>
 .form-row {
     display: grid;
@@ -133,6 +278,52 @@
     align-items: center;
     gap: 8px;
     cursor: pointer;
+}
+.form-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+.form-section h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+.contact-item {
+    background: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+.contact-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e9ecef;
+}
+.contact-number {
+    font-weight: 600;
+    color: #495057;
+}
+.btn-remove-contact {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.2s;
+}
+.btn-remove-contact:hover {
+    background: #c82333;
+}
+.btn-remove-contact i {
+    margin-right: 4px;
 }
 </style>
 
