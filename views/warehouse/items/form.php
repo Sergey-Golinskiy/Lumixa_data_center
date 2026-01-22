@@ -450,8 +450,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 generateBtn.disabled = false;
             }
 
-            // Auto-generate on type select if field is empty
-            if (!isEditMode && skuInput && !skuInput.value) {
+            // Auto-generate on type select (regenerate even if field has value)
+            if (!isEditMode && skuInput) {
                 generateSku();
             }
         }
