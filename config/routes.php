@@ -129,6 +129,10 @@ return function (Router $router) {
         $router->get('/items/{id}/edit', 'Warehouse\\ItemsController@edit', 'warehouse.items.edit');
         $router->post('/items/{id}', 'Warehouse\\ItemsController@update');
 
+        // Items API endpoints
+        $router->get('/api/items/generate-sku', 'Warehouse\\ItemsController@generateSku', 'api.items.generate-sku');
+        $router->get('/api/items/check-sku', 'Warehouse\\ItemsController@checkSkuUniqueness', 'api.items.check-sku');
+
         // Batches
         $router->get('/batches', 'Warehouse\\BatchesController@index', 'warehouse.batches');
         $router->get('/batches/create', 'Warehouse\\BatchesController@create', 'warehouse.batches.create');

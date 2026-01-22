@@ -7,18 +7,8 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="sku"><?= $this->__('sku') ?> *</label>
-                    <input type="text" id="sku" name="sku"
-                           value="<?= $this->e($this->old('sku', $item['sku'] ?? '')) ?>"
-                           required maxlength="50" placeholder="<?= $this->__('placeholder_sku') ?>">
-                    <?php if ($this->hasError('sku')): ?>
-                    <span class="error"><?= $this->e($this->error('sku')) ?></span>
-                    <?php endif; ?>
-                </div>
-
-                <div class="form-group">
                     <label for="type"><?= $this->__('type') ?> *</label>
-                    <select id="type" name="type" required>
+                    <select id="type" name="type" required <?= $item ? 'disabled' : '' ?>>
                         <option value=""><?= $this->__('select_type') ?></option>
                         <?php foreach ($types as $value => $label): ?>
                         <option value="<?= $this->e($value) ?>"
@@ -27,6 +17,32 @@
                         </option>
                         <?php endforeach; ?>
                     </select>
+                    <?php if ($item): ?>
+                    <input type="hidden" name="type" value="<?= $this->e($item['type']) ?>">
+                    <?php endif; ?>
+                    <small class="text-muted" id="type-hint"><?= $this->__('select_type_first') ?></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="sku"><?= $this->__('sku') ?> *</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <input type="text" id="sku" name="sku"
+                                   value="<?= $this->e($this->old('sku', $item['sku'] ?? '')) ?>"
+                                   required maxlength="50" placeholder="<?= $this->__('placeholder_sku') ?>"
+                                   <?= $item ? 'readonly' : '' ?>>
+                            <div id="sku-feedback" style="margin-top: 0.25rem; font-size: 0.875rem;"></div>
+                        </div>
+                        <?php if (!$item): ?>
+                        <button type="button" id="generate-sku-btn" class="btn btn-secondary" style="white-space: nowrap;" disabled>
+                            <i class="fas fa-sync"></i> <?= $this->__('generate') ?>
+                        </button>
+                        <?php endif; ?>
+                    </div>
+                    <?php if ($this->hasError('sku')): ?>
+                    <span class="error"><?= $this->e($this->error('sku')) ?></span>
+                    <?php endif; ?>
+                    <small class="text-muted" id="sku-hint"></small>
                 </div>
             </div>
 
@@ -251,10 +267,26 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const typeSelect = document.getElementById('type');
+    const skuInput = document.getElementById('sku');
+    const skuFeedback = document.getElementById('sku-feedback');
+    const skuHint = document.getElementById('sku-hint');
+    const typeHint = document.getElementById('type-hint');
+    const generateBtn = document.getElementById('generate-sku-btn');
     const materialSection = document.getElementById('material-attributes');
     const nonMaterialSection = document.getElementById('non-material-attributes');
     const materialSelect = document.getElementById('attr_material');
     const filamentSection = document.getElementById('filament-attributes');
+
+    const isEditMode = <?= $item ? 'true' : 'false' ?>;
+    const itemId = <?= $item ? $item['id'] : 'null' ?>;
+
+    // Types that require manual SKU input
+    const manualSkuTypes = ['part'];
+
+    // Types that auto-generate SKU
+    const autoSkuTypes = ['material', 'component', 'consumable', 'packaging'];
+
+    let skuCheckTimeout = null;
 
     const updateFilamentSection = () => {
         if (!materialSelect || !filamentSection) {
@@ -272,9 +304,160 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFilamentSection();
     };
 
+    const setSkuFeedback = (message, type) => {
+        if (!skuFeedback) return;
+        skuFeedback.textContent = message;
+        skuFeedback.className = '';
+        if (type === 'success') {
+            skuFeedback.style.color = '#10B981';
+        } else if (type === 'error') {
+            skuFeedback.style.color = '#EF4444';
+        } else if (type === 'info') {
+            skuFeedback.style.color = '#3B82F6';
+        } else {
+            skuFeedback.style.color = '';
+        }
+    };
+
+    const checkSkuUniqueness = async (sku) => {
+        if (!sku || sku.length < 3) {
+            setSkuFeedback('', '');
+            return;
+        }
+
+        setSkuFeedback('<?= $this->__('checking') ?>...', 'info');
+
+        try {
+            const url = `/warehouse/api/items/check-sku?sku=${encodeURIComponent(sku)}${itemId ? '&exclude_id=' + itemId : ''}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.unique) {
+                setSkuFeedback('✓ <?= $this->__('sku_available') ?>', 'success');
+            } else {
+                setSkuFeedback('✗ <?= $this->__('sku_exists') ?>', 'error');
+            }
+        } catch (error) {
+            console.error('SKU check error:', error);
+            setSkuFeedback('<?= $this->__('check_failed') ?>', 'error');
+        }
+    };
+
+    const generateSku = async () => {
+        const type = typeSelect?.value;
+        if (!type) return;
+
+        if (manualSkuTypes.includes(type)) {
+            return;
+        }
+
+        if (generateBtn) {
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <?= $this->__('generating') ?>...';
+        }
+
+        try {
+            const response = await fetch(`/warehouse/api/items/generate-sku?type=${encodeURIComponent(type)}`);
+            const data = await response.json();
+
+            if (data.sku) {
+                skuInput.value = data.sku;
+                setSkuFeedback('✓ <?= $this->__('sku_generated') ?>', 'success');
+            } else {
+                setSkuFeedback('✗ <?= $this->__('generation_failed') ?>', 'error');
+            }
+        } catch (error) {
+            console.error('SKU generation error:', error);
+            setSkuFeedback('✗ <?= $this->__('generation_failed') ?>', 'error');
+        } finally {
+            if (generateBtn) {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-sync"></i> <?= $this->__('generate') ?>';
+            }
+        }
+    };
+
+    const updateSkuField = () => {
+        const type = typeSelect?.value;
+
+        if (!type) {
+            if (skuHint) skuHint.textContent = '';
+            if (typeHint) typeHint.textContent = '<?= $this->__('select_type_first') ?>';
+            if (skuInput && !isEditMode) {
+                skuInput.readOnly = true;
+                skuInput.placeholder = '<?= $this->__('select_type_first') ?>';
+            }
+            if (generateBtn) generateBtn.disabled = true;
+            return;
+        }
+
+        if (typeHint) typeHint.textContent = '';
+
+        if (manualSkuTypes.includes(type)) {
+            // Manual SKU input (for parts/details)
+            if (skuHint) skuHint.textContent = '<?= $this->__('sku_manual_hint') ?>';
+            if (skuInput && !isEditMode) {
+                skuInput.readOnly = false;
+                skuInput.placeholder = '<?= $this->__('enter_sku_manually') ?>';
+                skuInput.value = '';
+            }
+            if (generateBtn) generateBtn.style.display = 'none';
+            setSkuFeedback('', '');
+        } else if (autoSkuTypes.includes(type)) {
+            // Auto-generate SKU
+            if (skuHint) {
+                const format = type === 'material' ? 'LX-MAT-xxxxx' : 'LX-xxxxx';
+                skuHint.textContent = `<?= $this->__('sku_auto_format') ?>: ${format}`;
+            }
+            if (skuInput && !isEditMode) {
+                skuInput.readOnly = true;
+                skuInput.placeholder = '<?= $this->__('will_be_generated') ?>';
+            }
+            if (generateBtn) {
+                generateBtn.style.display = 'block';
+                generateBtn.disabled = false;
+            }
+
+            // Auto-generate on type select if field is empty
+            if (!isEditMode && skuInput && !skuInput.value) {
+                generateSku();
+            }
+        }
+    };
+
+    // Event Listeners
+    if (typeSelect && !isEditMode) {
+        typeSelect.addEventListener('change', () => {
+            updateTypeSections();
+            updateSkuField();
+        });
+    }
+
+    if (generateBtn) {
+        generateBtn.addEventListener('click', generateSku);
+    }
+
+    if (skuInput && !isEditMode) {
+        skuInput.addEventListener('input', () => {
+            const type = typeSelect?.value;
+            // Only check uniqueness for manually entered SKUs
+            if (type && manualSkuTypes.includes(type)) {
+                clearTimeout(skuCheckTimeout);
+                skuCheckTimeout = setTimeout(() => {
+                    checkSkuUniqueness(skuInput.value);
+                }, 500);
+            }
+        });
+    }
+
     typeSelect?.addEventListener('change', updateTypeSections);
     materialSelect?.addEventListener('change', updateFilamentSection);
+
+    // Initialize
     updateTypeSections();
+    if (!isEditMode) {
+        updateSkuField();
+    }
 });
 </script>
 

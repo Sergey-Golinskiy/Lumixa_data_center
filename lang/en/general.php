@@ -895,4 +895,19 @@ return [
     'category_required' => 'Category *',
     'create_new_product' => 'Create New Product',
     'edit_product' => 'Edit Product',
+
+    // SKU Generation & Validation
+    'select_type_first' => 'Select item type first',
+    'generate' => 'Generate',
+    'generating' => 'Generating',
+    'checking' => 'Checking',
+    'sku_available' => 'SKU is available',
+    'sku_exists' => 'SKU already exists',
+    'sku_generated' => 'SKU generated automatically',
+    'generation_failed' => 'Generation failed',
+    'check_failed' => 'Check failed',
+    'sku_manual_hint' => 'Enter SKU manually (for manufactured parts)',
+    'enter_sku_manually' => 'Enter SKU manually',
+    'sku_auto_format' => 'Format',
+    'will_be_generated' => 'Will be generated automatically',
 ];

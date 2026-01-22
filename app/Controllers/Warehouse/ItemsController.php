@@ -264,4 +264,67 @@ class ItemsController extends Controller
 
         return $attributes;
     }
+
+    /**
+     * API: Generate SKU for given type
+     */
+    public function generateSku(): void
+    {
+        $this->requireAuth();
+        $this->authorize('warehouse.items.create');
+
+        $type = $this->get('type', '');
+
+        if (empty($type)) {
+            $this->json(['error' => 'Type is required'], 400);
+            return;
+        }
+
+        // Check if this type requires manual SKU
+        if ($this->itemService->requiresManualSku($type)) {
+            $this->json(['error' => 'This type requires manual SKU input'], 400);
+            return;
+        }
+
+        try {
+            $sku = $this->itemService->generateNextSku($type);
+            $this->json(['sku' => $sku]);
+        } catch (\Exception $e) {
+            $this->app->getLogger()->error('Failed to generate SKU', [
+                'type' => $type,
+                'error' => $e->getMessage()
+            ]);
+            $this->json(['error' => 'Failed to generate SKU'], 500);
+        }
+    }
+
+    /**
+     * API: Check SKU uniqueness
+     */
+    public function checkSkuUniqueness(): void
+    {
+        $this->requireAuth();
+
+        $sku = $this->get('sku', '');
+        $excludeId = $this->get('exclude_id') ? (int)$this->get('exclude_id') : null;
+
+        if (empty($sku)) {
+            $this->json(['error' => 'SKU is required'], 400);
+            return;
+        }
+
+        try {
+            $isUnique = $this->itemService->isSkuUnique($sku, $excludeId);
+            $this->json([
+                'unique' => $isUnique,
+                'message' => $isUnique ? 'SKU is available' : 'SKU already exists'
+            ]);
+        } catch (\Exception $e) {
+            $this->app->getLogger()->error('Failed to check SKU uniqueness', [
+                'sku' => $sku,
+                'error' => $e->getMessage()
+            ]);
+            $this->json(['error' => 'Failed to check SKU'], 500);
+        }
+    }
 }

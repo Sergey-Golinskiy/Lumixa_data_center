@@ -894,4 +894,19 @@ return [
     'category_required' => 'Категорія *',
     'create_new_product' => 'Створити новий продукт',
     'edit_product' => 'Редагувати продукт',
+
+    // Генерація та перевірка SKU
+    'select_type_first' => 'Спочатку оберіть тип товару',
+    'generate' => 'Згенерувати',
+    'generating' => 'Генерація',
+    'checking' => 'Перевірка',
+    'sku_available' => 'SKU вільний',
+    'sku_exists' => 'SKU вже існує',
+    'sku_generated' => 'SKU згенеровано автоматично',
+    'generation_failed' => 'Помилка генерації',
+    'check_failed' => 'Помилка перевірки',
+    'sku_manual_hint' => 'Введіть SKU вручну (для виготовлюваних деталей)',
+    'enter_sku_manually' => 'Введіть SKU вручну',
+    'sku_auto_format' => 'Формат',
+    'will_be_generated' => 'Буде згенеровано автоматично',
 ];

@@ -346,4 +346,81 @@ class ItemService
             ["%{$term}%", "%{$term}%"]
         );
     }
+
+    /**
+     * Generate next SKU for given type
+     *
+     * @param string $type Item type (material, component, part, consumable, packaging)
+     * @return string Generated SKU
+     */
+    public function generateNextSku(string $type): string
+    {
+        // For materials: LX-MAT-xxxxx
+        if ($type === 'material') {
+            $prefix = 'LX-MAT-';
+            $pattern = 'LX-MAT-%';
+        }
+        // For other auto-generated types: LX-xxxxx
+        else {
+            $prefix = 'LX-';
+            $pattern = 'LX-%';
+        }
+
+        // Find the highest existing number for this prefix
+        $sql = "SELECT sku FROM items WHERE sku LIKE ? ORDER BY sku DESC LIMIT 1";
+        $lastSku = $this->db->fetchColumn($sql, [$pattern]);
+
+        if ($lastSku) {
+            // Extract the numeric part
+            if ($type === 'material') {
+                // LX-MAT-00001 -> 00001
+                $parts = explode('-', $lastSku);
+                $number = isset($parts[2]) ? intval($parts[2]) : 0;
+            } else {
+                // LX-00001 -> 00001
+                $parts = explode('-', $lastSku);
+                $number = isset($parts[1]) ? intval($parts[1]) : 0;
+            }
+            $nextNumber = $number + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        // Format with leading zeros (5 digits)
+        return $prefix . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Check if SKU is unique
+     *
+     * @param string $sku SKU to check
+     * @param int|null $excludeId Item ID to exclude from check (for updates)
+     * @return bool True if SKU is unique, false otherwise
+     */
+    public function isSkuUnique(string $sku, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT COUNT(*) FROM items WHERE sku = ?";
+        $params = [$sku];
+
+        if ($excludeId !== null) {
+            $sql .= " AND id != ?";
+            $params[] = $excludeId;
+        }
+
+        $count = (int)$this->db->fetchColumn($sql, $params);
+        return $count === 0;
+    }
+
+    /**
+     * Check if type requires manual SKU input
+     *
+     * @param string $type Item type
+     * @return bool True if SKU should be manually entered
+     */
+    public function requiresManualSku(string $type): bool
+    {
+        // Only 'part' (manufactured parts) requires manual SKU input
+        return $type === 'part';
+    }
 }
+

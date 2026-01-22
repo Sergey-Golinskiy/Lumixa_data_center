@@ -894,4 +894,19 @@ return [
     'category_required' => 'Категория *',
     'create_new_product' => 'Создать новый продукт',
     'edit_product' => 'Редактировать продукт',
+
+    // Генерация и проверка SKU
+    'select_type_first' => 'Сначала выберите тип товара',
+    'generate' => 'Сгенерировать',
+    'generating' => 'Генерация',
+    'checking' => 'Проверка',
+    'sku_available' => 'SKU свободен',
+    'sku_exists' => 'SKU уже существует',
+    'sku_generated' => 'SKU сгенерирован автоматически',
+    'generation_failed' => 'Ошибка генерации',
+    'check_failed' => 'Ошибка проверки',
+    'sku_manual_hint' => 'Введите SKU вручную (для изготавливаемых деталей)',
+    'enter_sku_manually' => 'Введите SKU вручную',
+    'sku_auto_format' => 'Формат',
+    'will_be_generated' => 'Будет сгенерирован автоматически',
 ];
