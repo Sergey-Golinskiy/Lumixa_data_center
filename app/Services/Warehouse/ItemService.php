@@ -19,7 +19,8 @@ class ItemService
         'material' => 'material',
         'component' => 'component',
         'consumable' => 'consumable',
-        'packaging' => 'packaging'
+        'packaging' => 'packaging',
+        'hardware' => 'hardware'
     ];
 
     private array $units = [
@@ -364,32 +365,27 @@ class ItemService
      */
     public function generateNextSku(string $type): string
     {
-        // For materials: LX-MAT-xxxxx
-        if ($type === 'material') {
-            $prefix = 'LX-MAT-';
-            $pattern = 'LX-MAT-%';
-        }
-        // For other auto-generated types: LX-xxxxx
-        else {
-            $prefix = 'LX-';
-            $pattern = 'LX-%';
-        }
+        // Define prefixes for each type
+        $prefixes = [
+            'material' => 'LX-MAT-',
+            'component' => 'LX-CMP-',
+            'consumable' => 'LX-CSM-',
+            'packaging' => 'LX-PKG-',
+            'hardware' => 'LX-HRD-'
+        ];
+
+        // Get prefix for this type
+        $prefix = $prefixes[$type] ?? 'LX-';
+        $pattern = $prefix . '%';
 
         // Find the highest existing number for this prefix
         $sql = "SELECT sku FROM items WHERE sku LIKE ? ORDER BY sku DESC LIMIT 1";
         $lastSku = $this->db->fetchColumn($sql, [$pattern]);
 
         if ($lastSku) {
-            // Extract the numeric part
-            if ($type === 'material') {
-                // LX-MAT-00001 -> 00001
-                $parts = explode('-', $lastSku);
-                $number = isset($parts[2]) ? intval($parts[2]) : 0;
-            } else {
-                // LX-00001 -> 00001
-                $parts = explode('-', $lastSku);
-                $number = isset($parts[1]) ? intval($parts[1]) : 0;
-            }
+            // Extract the numeric part (last segment after last dash)
+            $parts = explode('-', $lastSku);
+            $number = isset($parts[2]) ? intval($parts[2]) : 0;
             $nextNumber = $number + 1;
         } else {
             $nextNumber = 1;

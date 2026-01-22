@@ -286,14 +286,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const manualSkuTypes = [];
 
     // Types that auto-generate SKU
-    const autoSkuTypes = ['material', 'component', 'consumable', 'packaging'];
+    const autoSkuTypes = ['material', 'component', 'consumable', 'packaging', 'hardware'];
 
     // Type descriptions
     const typeDescriptions = {
         'material': '<?= $this->__('item_type_material_desc') ?>',
         'component': '<?= $this->__('item_type_component_desc') ?>',
         'consumable': '<?= $this->__('item_type_consumable_desc') ?>',
-        'packaging': '<?= $this->__('item_type_packaging_desc') ?>'
+        'packaging': '<?= $this->__('item_type_packaging_desc') ?>',
+        'hardware': '<?= $this->__('item_type_hardware_desc') ?>'
     };
 
     let skuCheckTimeout = null;
@@ -430,7 +431,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (autoSkuTypes.includes(type)) {
             // Auto-generate SKU
             if (skuHint) {
-                const format = type === 'material' ? 'LX-MAT-xxxxx' : 'LX-xxxxx';
+                const formats = {
+                    'material': 'LX-MAT-xxxxx',
+                    'component': 'LX-CMP-xxxxx',
+                    'consumable': 'LX-CSM-xxxxx',
+                    'packaging': 'LX-PKG-xxxxx',
+                    'hardware': 'LX-HRD-xxxxx'
+                };
+                const format = formats[type] || 'LX-xxxxx';
                 skuHint.textContent = `<?= $this->__('sku_auto_format') ?>: ${format}`;
             }
             if (skuInput && !isEditMode) {
