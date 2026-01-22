@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const manualSkuTypes = [];
 
     // Types that auto-generate SKU
-    const autoSkuTypes = ['material', 'component', 'consumable', 'packaging', 'hardware'];
+    const autoSkuTypes = ['material', 'component', 'consumable', 'packaging', 'fasteners'];
 
     // Type descriptions
     const typeDescriptions = {
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'component': '<?= $this->__('item_type_component_desc') ?>',
         'consumable': '<?= $this->__('item_type_consumable_desc') ?>',
         'packaging': '<?= $this->__('item_type_packaging_desc') ?>',
-        'hardware': '<?= $this->__('item_type_hardware_desc') ?>'
+        'fasteners': '<?= $this->__('item_type_fasteners_desc') ?>'
     };
 
     let skuCheckTimeout = null;
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'component': 'LX-CMP-xxxxx',
                     'consumable': 'LX-CSM-xxxxx',
                     'packaging': 'LX-PKG-xxxxx',
-                    'hardware': 'LX-HRD-xxxxx'
+                    'fasteners': 'LX-FST-xxxxx'
                 };
                 const format = formats[type] || 'LX-xxxxx';
                 skuHint.textContent = `<?= $this->__('sku_auto_format') ?>: ${format}`;

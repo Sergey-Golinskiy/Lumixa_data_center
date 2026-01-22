@@ -20,7 +20,7 @@ class ItemService
         'component' => 'component',
         'consumable' => 'consumable',
         'packaging' => 'packaging',
-        'hardware' => 'hardware'
+        'fasteners' => 'fasteners'
     ];
 
     private array $units = [
@@ -371,7 +371,7 @@ class ItemService
             'component' => 'LX-CMP-',
             'consumable' => 'LX-CSM-',
             'packaging' => 'LX-PKG-',
-            'hardware' => 'LX-HRD-'
+            'fasteners' => 'LX-FST-'
         ];
 
         // Get prefix for this type
