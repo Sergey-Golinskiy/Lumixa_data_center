@@ -20,7 +20,9 @@
                     <?php if ($item): ?>
                     <input type="hidden" name="type" value="<?= $this->e($item['type']) ?>">
                     <?php endif; ?>
-                    <small class="text-muted" id="type-hint"><?= $this->__('select_type_first') ?></small>
+                    <div id="type-description" style="margin-top: 0.5rem; padding: 0.75rem; background: #f8f9fa; border-radius: 4px; display: none;">
+                        <small class="text-muted" style="line-height: 1.5;"></small>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -270,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const skuInput = document.getElementById('sku');
     const skuFeedback = document.getElementById('sku-feedback');
     const skuHint = document.getElementById('sku-hint');
-    const typeHint = document.getElementById('type-hint');
+    const typeDescription = document.getElementById('type-description');
     const generateBtn = document.getElementById('generate-sku-btn');
     const materialSection = document.getElementById('material-attributes');
     const nonMaterialSection = document.getElementById('non-material-attributes');
@@ -285,6 +287,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Types that auto-generate SKU
     const autoSkuTypes = ['material', 'component', 'consumable', 'packaging'];
+
+    // Type descriptions
+    const typeDescriptions = {
+        'material': '<?= $this->__('item_type_material_desc') ?>',
+        'component': '<?= $this->__('item_type_component_desc') ?>',
+        'consumable': '<?= $this->__('item_type_consumable_desc') ?>',
+        'packaging': '<?= $this->__('item_type_packaging_desc') ?>'
+    };
 
     let skuCheckTimeout = null;
 
@@ -377,12 +387,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const updateTypeDescription = () => {
+        const type = typeSelect?.value;
+
+        if (!type || !typeDescription) {
+            if (typeDescription) typeDescription.style.display = 'none';
+            return;
+        }
+
+        const description = typeDescriptions[type];
+        if (description) {
+            typeDescription.querySelector('small').textContent = description;
+            typeDescription.style.display = 'block';
+        } else {
+            typeDescription.style.display = 'none';
+        }
+    };
+
     const updateSkuField = () => {
         const type = typeSelect?.value;
 
         if (!type) {
             if (skuHint) skuHint.textContent = '';
-            if (typeHint) typeHint.textContent = '<?= $this->__('select_type_first') ?>';
             if (skuInput && !isEditMode) {
                 skuInput.readOnly = true;
                 skuInput.placeholder = '<?= $this->__('select_type_first') ?>';
@@ -390,8 +416,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (generateBtn) generateBtn.disabled = true;
             return;
         }
-
-        if (typeHint) typeHint.textContent = '';
 
         if (manualSkuTypes.includes(type)) {
             // Manual SKU input (for parts/details)
@@ -428,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
     if (typeSelect && !isEditMode) {
         typeSelect.addEventListener('change', () => {
+            updateTypeDescription();
             updateTypeSections();
             updateSkuField();
         });
@@ -450,10 +475,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    typeSelect?.addEventListener('change', updateTypeSections);
     materialSelect?.addEventListener('change', updateFilamentSection);
 
     // Initialize
+    updateTypeDescription();
     updateTypeSections();
     if (!isEditMode) {
         updateSkuField();

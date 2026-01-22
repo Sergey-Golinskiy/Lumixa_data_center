@@ -917,17 +917,24 @@ return [
     'item_type_consumable' => 'Consumable',
     'item_type_packaging' => 'Packaging',
 
+    // Item type descriptions
+    'item_type_material_desc' => 'Raw materials used for manufacturing products (plastics, metals, filaments, etc.)',
+    'item_type_component_desc' => 'Pre-manufactured components used in assembly (electronics, fasteners, purchased parts)',
+    'item_type_consumable_desc' => 'Consumable supplies that are used up during production (glue, lubricants, cleaning materials)',
+    'item_type_packaging_desc' => 'Packaging materials for finished products (boxes, bags, labels, wrapping)',
+
     // Units
-    'unit_pcs' => 'pcs',
-    'unit_g' => 'g',
-    'unit_kg' => 'kg',
-    'unit_m' => 'm',
-    'unit_l' => 'l',
-    'unit_set' => 'set',
+    'unit_pcs' => 'pcs (pieces)',
+    'unit_g' => 'g (grams)',
+    'unit_kg' => 'kg (kilograms)',
+    'unit_m' => 'm (meters)',
+    'unit_l' => 'l (liters)',
+    'unit_set' => 'set (sets)',
 
     // Costing methods (for items form)
     'costing_method' => 'Costing Method',
     'costing_method_help' => 'Method for calculating material costs when issuing from stock',
+    'costing_method_weighted_avg' => 'Weighted Average',
     'allow_method_override' => 'Allow method override',
     'allow_method_override_help' => 'Allow users to override the costing method on documents',
 ];
