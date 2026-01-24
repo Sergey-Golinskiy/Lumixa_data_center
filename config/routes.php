@@ -192,6 +192,17 @@ return function (Router $router) {
         $router->get('/details/{id}/edit', 'Catalog\\DetailsController@edit', 'catalog.details.edit');
         $router->post('/details/{id}', 'Catalog\\DetailsController@update');
 
+        // Detail Configurations
+        $router->get('/details/{detailId}/configurations', 'Catalog\\DetailConfigurationsController@index', 'catalog.detail-configurations');
+        $router->get('/details/{detailId}/configurations/create', 'Catalog\\DetailConfigurationsController@create', 'catalog.detail-configurations.create');
+        $router->post('/details/{detailId}/configurations', 'Catalog\\DetailConfigurationsController@store');
+        $router->get('/details/{detailId}/configurations/{id}/edit', 'Catalog\\DetailConfigurationsController@edit', 'catalog.detail-configurations.edit');
+        $router->post('/details/{detailId}/configurations/{id}', 'Catalog\\DetailConfigurationsController@update');
+        $router->post('/details/{detailId}/configurations/{id}/delete', 'Catalog\\DetailConfigurationsController@delete');
+
+        // API endpoint for BOM form
+        $router->get('/api/details/{detailId}/configurations', 'Catalog\\DetailConfigurationsController@getConfigurationsForDetail');
+
         // Detail Routing
         $router->get('/detail-routing', 'Catalog\\DetailRoutingController@index', 'catalog.detail-routing');
         $router->get('/detail-routing/create', 'Catalog\\DetailRoutingController@create', 'catalog.detail-routing.create');

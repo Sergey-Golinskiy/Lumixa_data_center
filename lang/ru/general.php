@@ -856,6 +856,26 @@ return [
     'select_filament_diameter' => 'Выберите диаметр филамента',
     'select_filament_alias' => 'Выберите псевдоним филамента',
 
+    // Конфигурации деталей
+    'detail_configurations' => 'Конфигурации деталей',
+    'configurations' => 'Конфигурации',
+    'configuration' => 'Конфигурация',
+    'new_configuration' => 'Новая конфигурация',
+    'create_configuration' => 'Создать конфигурацию',
+    'edit_configuration' => 'Редактировать конфигурацию',
+    'update_configuration' => 'Обновить конфигурацию',
+    'configuration_sku' => 'SKU конфигурации',
+    'configuration_name' => 'Название конфигурации',
+    'material_color' => 'Цвет материала',
+    'select_configuration' => 'Выберите конфигурацию',
+    'no_configurations_found' => 'Конфигурации не найдены',
+    'no_configurations_available' => 'Нет доступных конфигураций',
+    'manage_configurations' => 'Управление конфигурациями',
+    'add_configuration' => 'Добавить конфигурацию',
+    'base_detail' => 'Базовая деталь',
+    'configuration_details' => 'Детали конфигурации',
+    'configurations_for_detail' => 'Конфигурации для: :name',
+
     // Склад и запасы - Дополнительно
     'total_in' => 'Всего ПРИХОД',
     'total_out' => 'Всего РАСХОД',

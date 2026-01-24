@@ -97,6 +97,7 @@
                         <tr>
                             <th style="width: 50px;">#</th>
                             <th style="width: 200px;"><?= $this->__('item') ?> *</th>
+                            <th style="width: 200px;"><?= $this->__('configuration') ?></th>
                             <th style="width: 100px;"><?= $this->__('quantity') ?> *</th>
                             <th style="width: 100px;"><?= $this->__('unit_cost') ?></th>
                             <th style="width: 80px;"><?= $this->__('waste_percent') ?></th>
@@ -160,12 +161,13 @@ function addLine(data = null) {
     let itemOptions = '<option value=""><?= $this->__('select_item') ?></option>';
     items.forEach(function(item) {
         const selected = data && data.item_id == item.id ? 'selected' : '';
-        itemOptions += `<option value="${item.id}" ${selected}>${item.sku} - ${item.name} (${item.unit})</option>`;
+        itemOptions += `<option value="${item.id}" data-detail-id="${item.detail_id || ''}" ${selected}>${item.sku} - ${item.name} (${item.unit})</option>`;
     });
 
     row.innerHTML = `
         <td>${lineNumber}</td>
-        <td><select name="lines[${lineNumber}][item_id]" required onchange="updateTotals()">${itemOptions}</select></td>
+        <td><select name="lines[${lineNumber}][item_id]" required onchange="onItemChange(${lineNumber})">${itemOptions}</select></td>
+        <td><select name="lines[${lineNumber}][detail_configuration_id]" id="config-${lineNumber}" style="display:none;"></select></td>
         <td><input type="number" name="lines[${lineNumber}][quantity]" step="0.0001" min="0.0001" required value="${data ? data.quantity : ''}" onchange="updateTotals()"></td>
         <td><input type="number" name="lines[${lineNumber}][unit_cost]" step="0.0001" min="0" value="${data ? data.unit_cost : '0'}" onchange="updateTotals()"></td>
         <td><input type="number" name="lines[${lineNumber}][waste_percent]" step="0.01" min="0" max="100" value="${data ? data.waste_percent : '0'}" onchange="updateTotals()"></td>
@@ -174,6 +176,57 @@ function addLine(data = null) {
         <td><button type="button" class="btn-remove" onclick="removeLine(${lineNumber})">&times;</button></td>
     `;
     tbody.appendChild(row);
+
+    // If this is existing data with a configuration, trigger the item change to load configurations
+    if (data && data.item_id) {
+        onItemChange(lineNumber, data.detail_configuration_id);
+    }
+
+    updateTotals();
+}
+
+async function onItemChange(lineNum, preselectedConfigId = null) {
+    const itemSelect = document.querySelector(`select[name="lines[${lineNum}][item_id]"]`);
+    const configSelect = document.getElementById(`config-${lineNum}`);
+    const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+    const detailId = selectedOption.getAttribute('data-detail-id');
+
+    if (!detailId) {
+        // Not a detail, hide configuration selector
+        configSelect.style.display = 'none';
+        configSelect.innerHTML = '';
+        configSelect.removeAttribute('required');
+        return;
+    }
+
+    // Fetch configurations for this detail
+    try {
+        const response = await fetch(`/api/details/${detailId}/configurations`);
+        const result = await response.json();
+
+        if (result.success && result.configurations.length > 0) {
+            let configOptions = '<option value=""><?= $this->__('select_configuration') ?></option>';
+            result.configurations.forEach(config => {
+                const selected = preselectedConfigId && preselectedConfigId == config.id ? 'selected' : '';
+                const colorInfo = config.material_color ? ` - ${config.material_color}` : '';
+                const materialInfo = config.material_name ? ` (${config.material_name})` : '';
+                configOptions += `<option value="${config.id}" ${selected}>${config.sku} - ${config.name}${colorInfo}${materialInfo}</option>`;
+            });
+            configSelect.innerHTML = configOptions;
+            configSelect.style.display = 'block';
+            configSelect.setAttribute('required', 'required');
+        } else {
+            // Detail has no configurations
+            configSelect.style.display = 'none';
+            configSelect.innerHTML = '<option value=""><?= $this->__('no_configurations_available') ?></option>';
+            configSelect.removeAttribute('required');
+        }
+    } catch (error) {
+        console.error('Failed to fetch configurations:', error);
+        configSelect.style.display = 'none';
+        configSelect.removeAttribute('required');
+    }
+
     updateTotals();
 }
 

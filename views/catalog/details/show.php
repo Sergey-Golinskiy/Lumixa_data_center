@@ -4,6 +4,9 @@
     <h1><?= $this->e($detail['name']) ?></h1>
     <div class="page-actions">
         <?php if ($this->can('catalog.details.edit')): ?>
+        <a href="/catalog/details/<?= $detail['id'] ?>/configurations" class="btn btn-success">
+            <i class="fas fa-cog"></i> <?= $this->__('manage_configurations') ?>
+        </a>
         <a href="/catalog/details/<?= $detail['id'] ?>/edit" class="btn btn-primary"><?= $this->__('edit') ?></a>
         <?php endif; ?>
         <a href="/catalog/details" class="btn btn-secondary"><?= $this->__('back_to_list') ?></a>

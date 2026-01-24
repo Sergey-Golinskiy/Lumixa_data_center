@@ -857,6 +857,26 @@ return [
     'select_filament_diameter' => 'Select filament diameter',
     'select_filament_alias' => 'Select filament alias',
 
+    // Detail Configurations
+    'detail_configurations' => 'Detail Configurations',
+    'configurations' => 'Configurations',
+    'configuration' => 'Configuration',
+    'new_configuration' => 'New Configuration',
+    'create_configuration' => 'Create Configuration',
+    'edit_configuration' => 'Edit Configuration',
+    'update_configuration' => 'Update Configuration',
+    'configuration_sku' => 'Configuration SKU',
+    'configuration_name' => 'Configuration Name',
+    'material_color' => 'Material Color',
+    'select_configuration' => 'Select configuration',
+    'no_configurations_found' => 'No configurations found',
+    'no_configurations_available' => 'No configurations available',
+    'manage_configurations' => 'Manage Configurations',
+    'add_configuration' => 'Add Configuration',
+    'base_detail' => 'Base Detail',
+    'configuration_details' => 'Configuration Details',
+    'configurations_for_detail' => 'Configurations for: :name',
+
     // Stock & Warehouse - Additional
     'total_in' => 'Total IN',
     'total_out' => 'Total OUT',
