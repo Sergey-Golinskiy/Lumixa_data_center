@@ -801,6 +801,7 @@ return [
     'confirm_delete_item_option' => 'Удалить этот элемент?',
     'invalid_security_token' => 'Неверный токен безопасности',
     'photo' => 'Фото',
+    'no_photo' => 'Нет фото',
     'upload_photo' => 'Загрузите изображение (JPG, PNG, GIF, WEBP).',
     'nav_details' => 'Детали',
     'new_detail' => 'Новая деталь',

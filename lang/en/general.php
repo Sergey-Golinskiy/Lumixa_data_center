@@ -802,6 +802,7 @@ return [
     'confirm_delete_item_option' => 'Delete this option?',
     'invalid_security_token' => 'Invalid security token',
     'photo' => 'Photo',
+    'no_photo' => 'No photo',
     'upload_photo' => 'Upload an image (JPG, PNG, GIF, WEBP).',
     'nav_details' => 'Details',
     'new_detail' => 'New Detail',
