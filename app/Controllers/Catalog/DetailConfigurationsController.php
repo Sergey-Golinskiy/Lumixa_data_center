@@ -37,7 +37,7 @@ class DetailConfigurationsController extends Controller
         );
 
         $this->render('catalog/detail_configurations/index', [
-            'title' => $this->translator->get('configurations_for_detail', ['name' => $detail['name']]),
+            'title' => str_replace(':name', $detail['name'], $this->app->getTranslator()->get('configurations_for_detail')),
             'detail' => $detail,
             'configurations' => $configurations
         ]);
@@ -68,7 +68,7 @@ class DetailConfigurationsController extends Controller
         );
 
         $this->render('catalog/detail_configurations/form', [
-            'title' => $this->translator->get('create_configuration'),
+            'title' => $this->app->getTranslator()->get('create_configuration'),
             'detail' => $detail,
             'configuration' => null,
             'materials' => $materials
@@ -180,7 +180,7 @@ class DetailConfigurationsController extends Controller
         );
 
         $this->render('catalog/detail_configurations/form', [
-            'title' => $this->translator->get('edit_configuration'),
+            'title' => $this->app->getTranslator()->get('edit_configuration'),
             'detail' => $detail,
             'configuration' => $configuration,
             'materials' => $materials
