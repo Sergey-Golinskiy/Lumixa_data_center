@@ -70,6 +70,92 @@
             <?= $detail['print_parameters'] ? $this->e($detail['print_parameters']) : '-' ?>
         </div>
         <?php endif; ?>
+
+        <?php if ($detail['detail_type'] === 'printed' && isset($costData)): ?>
+        <div class="production-cost-section" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--border);">
+            <h3 style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <?= $this->__('production_cost') ?>
+                <?php if ($costData['total_cost'] > 0): ?>
+                <span class="cost-total-badge"><?= $this->currency($costData['total_cost']) ?></span>
+                <?php endif; ?>
+            </h3>
+
+            <?php if (!empty($costData['missing_data'])): ?>
+            <div class="alert alert-warning" style="margin-bottom: 15px;">
+                <strong><?= $this->__('missing_data_for_calculation') ?>:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <?php foreach ($costData['missing_data'] as $missing): ?>
+                    <li><?= $this->__('missing_' . $missing) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($costBreakdown)): ?>
+            <div class="cost-breakdown">
+                <table class="cost-table">
+                    <thead>
+                        <tr>
+                            <th><?= $this->__('cost_component') ?></th>
+                            <th><?= $this->__('calculation') ?></th>
+                            <th class="text-right"><?= $this->__('amount') ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($costBreakdown as $item): ?>
+                        <tr>
+                            <td>
+                                <span class="cost-icon cost-icon-<?= $this->e($item['type']) ?>"></span>
+                                <?= $this->__($item['label']) ?>
+                            </td>
+                            <td class="text-muted"><?= $this->e($item['details']) ?></td>
+                            <td class="text-right"><?= $this->currency($item['value']) ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                    <tfoot>
+                        <tr class="cost-total-row">
+                            <td colspan="2"><strong><?= $this->__('total_production_cost') ?></strong></td>
+                            <td class="text-right"><strong><?= $this->currency($costData['total_cost']) ?></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <?php if (!empty($costData['printer'])): ?>
+            <div class="cost-info-panel" style="margin-top: 15px;">
+                <div class="cost-info-header"><?= $this->__('calculation_parameters') ?></div>
+                <div class="cost-info-grid">
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('material_cost_per_gram') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['material_cost_per_gram'], 4) ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('print_time_hours') ?>:</span>
+                        <span class="cost-info-value"><?= $costData['calculation_details']['print_time_hours'] ?? 0 ?> <?= $this->__('hours_short') ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('printer_power') ?>:</span>
+                        <span class="cost-info-value"><?= $costData['printer']['power_watts'] ?? 0 ?> <?= $this->__('watts_short') ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('electricity_rate') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['printer']['electricity_cost_per_kwh'] ?? 0, 4) ?> / <?= $this->__('kwh_short') ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('amortization_rate') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['printer']['amortization_per_hour'] ?? 0, 4) ?> / <?= $this->__('hour_short') ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('maintenance_rate') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['printer']['maintenance_per_hour'] ?? 0, 4) ?> / <?= $this->__('hour_short') ?></span>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
         <div class="detail-row">
             <strong><?= $this->__('model_file') ?>:</strong>
             <?php if (!empty($detail['model_path'])): ?>
@@ -136,6 +222,89 @@
 .page-header h1 { margin: 0; }
 .detail-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
 .detail-row:last-child { border-bottom: none; }
+
+/* Production Cost Section */
+.production-cost-section h3 { font-size: 1.1rem; color: var(--text); }
+.cost-total-badge {
+    background: var(--success);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+.cost-breakdown { margin-top: 10px; }
+.cost-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.cost-table th, .cost-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+.cost-table thead th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+.cost-table tbody tr:hover { background: var(--bg-hover); }
+.cost-total-row {
+    background: var(--bg-secondary);
+    font-size: 1.05rem;
+}
+.cost-total-row td { border-bottom: none; }
+
+/* Cost icons */
+.cost-icon {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+.cost-icon-material { background: #3498db; }
+.cost-icon-electricity { background: #f1c40f; }
+.cost-icon-amortization { background: #9b59b6; }
+.cost-icon-maintenance { background: #e67e22; }
+
+/* Cost info panel */
+.cost-info-panel {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+}
+.cost-info-header {
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+.cost-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+.cost-info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+}
+.cost-info-label { color: var(--text-muted); font-size: 0.9rem; }
+.cost-info-value { font-weight: 500; font-family: monospace; }
+
+/* Alert */
+.alert-warning {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    padding: 12px 15px;
+    border-radius: 6px;
+}
 </style>
 
 <?php $this->endSection(); ?>

@@ -8,15 +8,18 @@ namespace App\Controllers\Catalog;
 use App\Core\Application;
 use App\Core\Controller;
 use App\Services\Warehouse\ItemService;
+use App\Services\Catalog\DetailCostingService;
 
 class DetailsController extends Controller
 {
     private ItemService $itemService;
+    private DetailCostingService $costingService;
 
     public function __construct(Application $app)
     {
         parent::__construct($app);
         $this->itemService = new ItemService($app);
+        $this->costingService = new DetailCostingService($app);
     }
 
     /**
@@ -121,11 +124,21 @@ class DetailsController extends Controller
             );
         }
 
+        // Calculate production cost for printed details
+        $costData = null;
+        $costBreakdown = [];
+        if ($detail['detail_type'] === 'printed') {
+            $costData = $this->costingService->calculateCost($detail);
+            $costBreakdown = $this->costingService->getCostBreakdown($costData);
+        }
+
         $this->render('catalog/details/show', [
             'title' => $detail['name'],
             'detail' => $detail,
             'activeRouting' => $activeRouting,
-            'routingOperations' => $routingOperations
+            'routingOperations' => $routingOperations,
+            'costData' => $costData,
+            'costBreakdown' => $costBreakdown
         ]);
     }
 
