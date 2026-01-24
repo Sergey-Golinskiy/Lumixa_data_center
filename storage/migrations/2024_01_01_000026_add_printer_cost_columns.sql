@@ -2,6 +2,21 @@
 -- Lumixa LMS - Add cost columns to printers table
 -- =====================================================
 
+-- Add model column if not exists
+SET @column_exists = (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME = 'printers'
+    AND COLUMN_NAME = 'model'
+);
+SET @sql = IF(@column_exists = 0,
+    'ALTER TABLE printers ADD COLUMN model VARCHAR(150) AFTER name',
+    'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- Add power_watts column if not exists
 SET @column_exists = (
     SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -10,7 +25,7 @@ SET @column_exists = (
     AND COLUMN_NAME = 'power_watts'
 );
 SET @sql = IF(@column_exists = 0,
-    'ALTER TABLE printers ADD COLUMN power_watts DECIMAL(10,2) DEFAULT 0 AFTER model',
+    'ALTER TABLE printers ADD COLUMN power_watts DECIMAL(10,2) DEFAULT 0',
     'SELECT 1'
 );
 PREPARE stmt FROM @sql;
@@ -25,7 +40,7 @@ SET @column_exists = (
     AND COLUMN_NAME = 'electricity_cost_per_kwh'
 );
 SET @sql = IF(@column_exists = 0,
-    'ALTER TABLE printers ADD COLUMN electricity_cost_per_kwh DECIMAL(10,4) DEFAULT 0 AFTER power_watts',
+    'ALTER TABLE printers ADD COLUMN electricity_cost_per_kwh DECIMAL(10,4) DEFAULT 0',
     'SELECT 1'
 );
 PREPARE stmt FROM @sql;
@@ -40,7 +55,7 @@ SET @column_exists = (
     AND COLUMN_NAME = 'amortization_per_hour'
 );
 SET @sql = IF(@column_exists = 0,
-    'ALTER TABLE printers ADD COLUMN amortization_per_hour DECIMAL(15,4) DEFAULT 0 AFTER electricity_cost_per_kwh',
+    'ALTER TABLE printers ADD COLUMN amortization_per_hour DECIMAL(15,4) DEFAULT 0',
     'SELECT 1'
 );
 PREPARE stmt FROM @sql;
@@ -55,7 +70,7 @@ SET @column_exists = (
     AND COLUMN_NAME = 'maintenance_per_hour'
 );
 SET @sql = IF(@column_exists = 0,
-    'ALTER TABLE printers ADD COLUMN maintenance_per_hour DECIMAL(15,4) DEFAULT 0 AFTER amortization_per_hour',
+    'ALTER TABLE printers ADD COLUMN maintenance_per_hour DECIMAL(15,4) DEFAULT 0',
     'SELECT 1'
 );
 PREPARE stmt FROM @sql;
