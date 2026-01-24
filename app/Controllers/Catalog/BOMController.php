@@ -100,13 +100,9 @@ class BOMController extends Controller
 
         // Get lines
         $lines = $this->db()->fetchAll(
-            "SELECT bl.*, i.sku, i.name as item_name, i.unit,
-                    dc.id as config_id, dc.sku as config_sku, dc.name as config_name,
-                    dc.material_color, iov.name as material_name
+            "SELECT bl.*, i.sku, i.name as item_name, i.unit
              FROM bom_lines bl
              JOIN items i ON bl.item_id = i.id
-             LEFT JOIN detail_configurations dc ON bl.detail_configuration_id = dc.id
-             LEFT JOIN item_option_values iov ON dc.material_id = iov.id
              WHERE bl.bom_id = ?
              ORDER BY bl.sort_order",
             [$id]
@@ -140,11 +136,7 @@ class BOMController extends Controller
         );
 
         $items = $this->db()->fetchAll(
-            "SELECT i.id, i.sku, i.name, i.unit, d.id as detail_id
-             FROM items i
-             LEFT JOIN details d ON i.id = d.item_id
-             WHERE i.is_active = 1
-             ORDER BY i.sku"
+            "SELECT id, sku, name, unit FROM items WHERE is_active = 1 ORDER BY sku"
         );
 
         $this->render('catalog/bom/form', [
@@ -213,7 +205,7 @@ class BOMController extends Controller
 
             // Create lines
             foreach ($lines as $i => $line) {
-                $lineData = [
+                $this->db()->insert('bom_lines', [
                     'bom_id' => $bomId,
                     'item_id' => $line['item_id'],
                     'quantity' => $line['quantity'],
@@ -221,14 +213,7 @@ class BOMController extends Controller
                     'waste_percent' => $line['waste_percent'],
                     'notes' => $line['notes'],
                     'sort_order' => $i + 1
-                ];
-
-                // Add detail_configuration_id if present
-                if (isset($line['detail_configuration_id'])) {
-                    $lineData['detail_configuration_id'] = $line['detail_configuration_id'];
-                }
-
-                $this->db()->insert('bom_lines', $lineData);
+                ]);
             }
 
             $this->db()->commit();
@@ -269,7 +254,7 @@ class BOMController extends Controller
         }
 
         $lines = $this->db()->fetchAll(
-            "SELECT bl.*, i.sku, i.name as item_name, bl.detail_configuration_id
+            "SELECT bl.*, i.sku, i.name as item_name
              FROM bom_lines bl
              JOIN items i ON bl.item_id = i.id
              WHERE bl.bom_id = ?
@@ -282,11 +267,7 @@ class BOMController extends Controller
         );
 
         $items = $this->db()->fetchAll(
-            "SELECT i.id, i.sku, i.name, i.unit, d.id as detail_id
-             FROM items i
-             LEFT JOIN details d ON i.id = d.item_id
-             WHERE i.is_active = 1
-             ORDER BY i.sku"
+            "SELECT id, sku, name, unit FROM items WHERE is_active = 1 ORDER BY sku"
         );
 
         $this->render('catalog/bom/form', [
@@ -351,7 +332,7 @@ class BOMController extends Controller
             $this->db()->delete('bom_lines', ['bom_id' => $id]);
 
             foreach ($lines as $i => $line) {
-                $lineData = [
+                $this->db()->insert('bom_lines', [
                     'bom_id' => $id,
                     'item_id' => $line['item_id'],
                     'quantity' => $line['quantity'],
@@ -359,14 +340,7 @@ class BOMController extends Controller
                     'waste_percent' => $line['waste_percent'],
                     'notes' => $line['notes'],
                     'sort_order' => $i + 1
-                ];
-
-                // Add detail_configuration_id if present
-                if (isset($line['detail_configuration_id'])) {
-                    $lineData['detail_configuration_id'] = $line['detail_configuration_id'];
-                }
-
-                $this->db()->insert('bom_lines', $lineData);
+                ]);
             }
 
             $this->db()->commit();
@@ -466,20 +440,13 @@ class BOMController extends Controller
                 continue;
             }
 
-            $lineData = [
+            $result[] = [
                 'item_id' => (int)$line['item_id'],
                 'quantity' => (float)$line['quantity'],
                 'unit_cost' => (float)($line['unit_cost'] ?? 0),
                 'waste_percent' => (float)($line['waste_percent'] ?? 0),
                 'notes' => $line['notes'] ?? ''
             ];
-
-            // Add detail_configuration_id if present
-            if (!empty($line['detail_configuration_id'])) {
-                $lineData['detail_configuration_id'] = (int)$line['detail_configuration_id'];
-            }
-
-            $result[] = $lineData;
         }
 
         return $result;

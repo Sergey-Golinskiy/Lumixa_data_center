@@ -130,7 +130,6 @@
                         <th>#</th>
                         <th><?= $this->__('item') ?></th>
                         <th><?= $this->__('name') ?></th>
-                        <th><?= $this->__('configuration') ?></th>
                         <th class="text-right"><?= $this->__('quantity') ?></th>
                         <th><?= $this->__('unit') ?></th>
                         <th class="text-right"><?= $this->__('unit_cost') ?></th>
@@ -142,7 +141,7 @@
                 <tbody>
                     <?php if (empty($lines)): ?>
                     <tr>
-                        <td colspan="10" class="text-center text-muted"><?= $this->__('no_materials_defined') ?></td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_materials_defined') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php $totalCost = 0; foreach ($lines as $i => $line): ?>
@@ -154,22 +153,6 @@
                         <td><?= $i + 1 ?></td>
                         <td><a href="/warehouse/items/<?= $line['item_id'] ?>"><?= $this->e($line['sku']) ?></a></td>
                         <td><?= $this->e($line['item_name']) ?></td>
-                        <td>
-                            <?php if (!empty($line['config_id'])): ?>
-                            <div style="font-size: 12px;">
-                                <strong><?= $this->e($line['config_sku']) ?></strong><br>
-                                <span class="text-muted"><?= $this->e($line['config_name']) ?></span>
-                                <?php if ($line['material_color']): ?>
-                                <br><span class="text-muted"><?= $this->e($line['material_color']) ?></span>
-                                <?php endif; ?>
-                                <?php if ($line['material_name']): ?>
-                                <br><small class="text-muted">(<?= $this->e($line['material_name']) ?>)</small>
-                                <?php endif; ?>
-                            </div>
-                            <?php else: ?>
-                            <span class="text-muted">-</span>
-                            <?php endif; ?>
-                        </td>
                         <td class="text-right"><?= number_format($line['quantity'], 4) ?></td>
                         <td><?= $this->e($line['unit']) ?></td>
                         <td class="text-right"><?= number_format($line['unit_cost'], 4) ?></td>
@@ -183,7 +166,7 @@
                 <?php if (!empty($lines)): ?>
                 <tfoot>
                     <tr>
-                        <td colspan="8" class="text-right"><strong><?= $this->__('total_material_cost') ?>:</strong></td>
+                        <td colspan="7" class="text-right"><strong><?= $this->__('total_material_cost') ?>:</strong></td>
                         <td class="text-right"><strong><?= number_format($totalCost, 2) ?></strong></td>
                         <td></td>
                     </tr>
