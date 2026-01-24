@@ -254,10 +254,16 @@ class DetailsController extends Controller
     private function getMaterials(): array
     {
         return $this->db()->fetchAll(
-            "SELECT id, sku, name
-             FROM items
-             WHERE type = 'material' AND is_active = 1
-             ORDER BY name"
+            "SELECT i.id, i.sku, i.name,
+                    MAX(CASE WHEN ia.attribute_name = 'manufacturer' THEN ia.attribute_value END) as manufacturer,
+                    MAX(CASE WHEN ia.attribute_name = 'plastic_type' THEN ia.attribute_value END) as plastic_type,
+                    MAX(CASE WHEN ia.attribute_name = 'color' THEN ia.attribute_value END) as color,
+                    MAX(CASE WHEN ia.attribute_name = 'filament_alias' THEN ia.attribute_value END) as filament_alias
+             FROM items i
+             LEFT JOIN item_attributes ia ON i.id = ia.item_id
+             WHERE i.type = 'material' AND i.is_active = 1
+             GROUP BY i.id, i.sku, i.name
+             ORDER BY i.name"
         );
     }
 

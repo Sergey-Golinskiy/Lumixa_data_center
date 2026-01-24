@@ -50,8 +50,21 @@
                         <select id="material_item_id" name="material_item_id">
                             <option value=""><?= $this->__('select_material') ?></option>
                             <?php foreach ($materials as $material): ?>
-                            <option value="<?= $material['id'] ?>" <?= (string)$this->old('material_item_id', $detail['material_item_id'] ?? '') === (string)$material['id'] ? 'selected' : '' ?>>
-                                <?= $this->e($material['sku']) ?> - <?= $this->e($material['name']) ?>
+                            <?php
+                            $materialInfo = [];
+                            if (!empty($material['manufacturer'])) $materialInfo[] = $material['manufacturer'];
+                            if (!empty($material['plastic_type'])) $materialInfo[] = $material['plastic_type'];
+                            if (!empty($material['color'])) $materialInfo[] = $material['color'];
+                            if (!empty($material['filament_alias'])) $materialInfo[] = $material['filament_alias'];
+                            $materialDetails = !empty($materialInfo) ? ' (' . implode(' | ', $materialInfo) . ')' : '';
+                            ?>
+                            <option value="<?= $material['id'] ?>"
+                                    data-manufacturer="<?= $this->e($material['manufacturer'] ?? '') ?>"
+                                    data-plastic-type="<?= $this->e($material['plastic_type'] ?? '') ?>"
+                                    data-color="<?= $this->e($material['color'] ?? '') ?>"
+                                    data-alias="<?= $this->e($material['filament_alias'] ?? '') ?>"
+                                    <?= (string)$this->old('material_item_id', $detail['material_item_id'] ?? '') === (string)$material['id'] ? 'selected' : '' ?>>
+                                <?= $this->e($material['sku']) ?> - <?= $this->e($material['name']) ?><?= $materialDetails ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
@@ -164,6 +177,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <style>
 .detail-printing-fields.is-hidden { display: none; }
+
+/* Improved material select dropdown */
+#material_item_id {
+    font-size: 13px;
+    max-width: 100%;
+}
+
+#material_item_id option {
+    padding: 8px 4px;
+    line-height: 1.4;
+}
 </style>
 
 <?php $this->endSection(); ?>
