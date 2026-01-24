@@ -160,17 +160,49 @@ class DetailCostingService
      */
     private function getPrinterData(int $printerId): ?array
     {
-        $columns = ['id', 'name', 'power_watts', 'electricity_cost_per_kwh',
-                    'amortization_per_hour', 'maintenance_per_hour'];
+        // Base columns that always exist
+        $columns = ['id', 'name'];
 
-        if ($this->db->columnExists('printers', 'model')) {
-            $columns[] = 'model';
+        // Check for optional cost-related columns
+        $optionalColumns = [
+            'model',
+            'power_watts',
+            'electricity_cost_per_kwh',
+            'amortization_per_hour',
+            'maintenance_per_hour'
+        ];
+
+        foreach ($optionalColumns as $col) {
+            if ($this->db->columnExists('printers', $col)) {
+                $columns[] = $col;
+            }
         }
 
-        return $this->db->fetch(
+        $printer = $this->db->fetch(
             "SELECT " . implode(', ', $columns) . " FROM printers WHERE id = ?",
             [$printerId]
         );
+
+        if (!$printer) {
+            return null;
+        }
+
+        // Ensure all cost columns have default values
+        $defaults = [
+            'model' => '',
+            'power_watts' => 0,
+            'electricity_cost_per_kwh' => 0,
+            'amortization_per_hour' => 0,
+            'maintenance_per_hour' => 0,
+        ];
+
+        foreach ($defaults as $key => $default) {
+            if (!isset($printer[$key])) {
+                $printer[$key] = $default;
+            }
+        }
+
+        return $printer;
     }
 
     /**
