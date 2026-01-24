@@ -76,7 +76,24 @@
                         </td>
                         <td>
                             <?php if ($detail['material_item_id']): ?>
-                            <?= $this->e($detail['material_sku'] ?? '') ?> <?= $detail['material_name'] ? ' - ' . $this->e($detail['material_name']) : '' ?>
+                            <div class="material-info">
+                                <div class="material-main">
+                                    <strong><?= $this->e($detail['material_sku'] ?? '') ?></strong>
+                                    <?= $detail['material_name'] ? ' - ' . $this->e($detail['material_name']) : '' ?>
+                                </div>
+                                <?php
+                                $materialDetails = [];
+                                if (!empty($detail['material_manufacturer'])) $materialDetails[] = $detail['material_manufacturer'];
+                                if (!empty($detail['material_plastic_type'])) $materialDetails[] = $detail['material_plastic_type'];
+                                if (!empty($detail['material_color'])) $materialDetails[] = $detail['material_color'];
+                                if (!empty($detail['material_filament_alias'])) $materialDetails[] = $detail['material_filament_alias'];
+                                if (!empty($materialDetails)):
+                                ?>
+                                <div class="material-details">
+                                    <small class="text-muted"><?= implode(' | ', $materialDetails) ?></small>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                             <?php else: ?>
                             <span class="text-muted">-</span>
                             <?php endif; ?>
@@ -126,6 +143,17 @@
 .filter-group input, .filter-group select { width: 100%; }
 .text-center { text-align: center; }
 .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+/* Material info styling */
+.material-info {
+    line-height: 1.4;
+}
+.material-main {
+    margin-bottom: 2px;
+}
+.material-details {
+    font-size: 0.9em;
+}
 </style>
 
 <?php $this->endSection(); ?>

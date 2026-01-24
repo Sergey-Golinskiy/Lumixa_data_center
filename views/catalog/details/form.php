@@ -47,7 +47,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="material_item_id"><?= $this->__('material') ?></label>
-                        <select id="material_item_id" name="material_item_id">
+                        <select id="material_item_id" name="material_item_id" class="material-select">
                             <option value=""><?= $this->__('select_material') ?></option>
                             <?php foreach ($materials as $material): ?>
                             <?php
@@ -56,7 +56,12 @@
                             if (!empty($material['plastic_type'])) $materialInfo[] = $material['plastic_type'];
                             if (!empty($material['color'])) $materialInfo[] = $material['color'];
                             if (!empty($material['filament_alias'])) $materialInfo[] = $material['filament_alias'];
-                            $materialDetails = !empty($materialInfo) ? ' (' . implode(' | ', $materialInfo) . ')' : '';
+
+                            // Первая строка: SKU - Название
+                            $line1 = $material['sku'] . ' - ' . $material['name'];
+                            // Вторая строка: атрибуты с отступом
+                            $line2 = !empty($materialInfo) ? '    ' . implode(' | ', $materialInfo) : '';
+                            $optionText = $line2 ? $line1 . "\n" . $line2 : $line1;
                             ?>
                             <option value="<?= $material['id'] ?>"
                                     data-manufacturer="<?= $this->e($material['manufacturer'] ?? '') ?>"
@@ -64,8 +69,7 @@
                                     data-color="<?= $this->e($material['color'] ?? '') ?>"
                                     data-alias="<?= $this->e($material['filament_alias'] ?? '') ?>"
                                     <?= (string)$this->old('material_item_id', $detail['material_item_id'] ?? '') === (string)$material['id'] ? 'selected' : '' ?>>
-                                <?= $this->e($material['sku']) ?> - <?= $this->e($material['name']) ?><?= $materialDetails ?>
-                            </option>
+<?= $this->e($optionText) ?></option>
                             <?php endforeach; ?>
                         </select>
                         <?php if ($this->hasError('material_item_id')): ?>
@@ -179,14 +183,18 @@ document.addEventListener('DOMContentLoaded', () => {
 .detail-printing-fields.is-hidden { display: none; }
 
 /* Improved material select dropdown */
-#material_item_id {
+.material-select {
     font-size: 13px;
     max-width: 100%;
+    font-family: monospace;
+    line-height: 1.6;
 }
 
-#material_item_id option {
+.material-select option {
     padding: 8px 4px;
-    line-height: 1.4;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-family: monospace;
 }
 </style>
 

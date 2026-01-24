@@ -54,10 +54,16 @@ class DetailsController extends Controller
 
         $offset = ($page - 1) * $perPage;
         $details = $this->db()->fetchAll(
-            "SELECT d.*, m.sku AS material_sku, m.name AS material_name
+            "SELECT d.*, m.sku AS material_sku, m.name AS material_name,
+                    MAX(CASE WHEN ia.attribute_name = 'manufacturer' THEN ia.attribute_value END) as material_manufacturer,
+                    MAX(CASE WHEN ia.attribute_name = 'plastic_type' THEN ia.attribute_value END) as material_plastic_type,
+                    MAX(CASE WHEN ia.attribute_name = 'color' THEN ia.attribute_value END) as material_color,
+                    MAX(CASE WHEN ia.attribute_name = 'filament_alias' THEN ia.attribute_value END) as material_filament_alias
              FROM details d
              LEFT JOIN items m ON d.material_item_id = m.id
+             LEFT JOIN item_attributes ia ON m.id = ia.item_id
              WHERE {$whereClause}
+             GROUP BY d.id, m.id, m.sku, m.name
              ORDER BY d.sku
              LIMIT {$perPage} OFFSET {$offset}",
             $params
