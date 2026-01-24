@@ -673,7 +673,7 @@ Admin → Backups:
 Система готова, если:
 - ставится без Docker через setup wizard
 - есть логин и RBAC
-- склад: SKU+lots+documents+posting+stock
+- склад: SKU+documents+posting+stock
 - каталог: product/variant + BOM revisions + routing revisions
 - производство: production orders + tasks (минимум)
 - print queue: резерв → фактический расход → списание
