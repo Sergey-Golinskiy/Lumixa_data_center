@@ -447,37 +447,72 @@
                     </div>
                 </div>
 
-                <!-- Components Selection with Checkboxes -->
-                <div class="components-selection" style="margin-top: 15px;">
-                    <label style="display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);">
-                        <?= $this->__('components') ?>
-                    </label>
-                    <div class="components-grid">
-                        <!-- Product itself (assembled) -->
-                        <label class="component-checkbox product-item">
-                            <input type="checkbox" name="component_ids[]" value="product">
-                            <span class="component-info">
-                                <span class="badge badge-success"><?= $this->__('product') ?></span>
-                                <strong><?= $this->e($product['code'] ?? '') ?></strong>
-                                <span class="component-name"><?= $this->e($product['name'] ?? '') ?></span>
-                            </span>
-                        </label>
-                        <?php foreach ($components ?? [] as $comp): ?>
-                        <label class="component-checkbox">
-                            <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>">
-                            <span class="component-info">
-                                <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>">
-                                    <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
-                                </span>
-                                <strong><?= $this->e($comp['component_type'] === 'detail'
-                                    ? ($comp['detail_sku'] ?? '')
-                                    : ($comp['item_sku'] ?? '')) ?></strong>
-                                <span class="component-name"><?= $this->e($comp['component_type'] === 'detail'
-                                    ? ($comp['detail_name'] ?? '')
-                                    : ($comp['item_name'] ?? '')) ?></span>
-                            </span>
-                        </label>
-                        <?php endforeach; ?>
+                <!-- Components Selection with Checkboxes - Two Columns -->
+                <div class="components-selection-container" style="margin-top: 15px;">
+                    <div class="components-two-columns">
+                        <!-- Left Column: Components (Details & Items) -->
+                        <div class="components-column">
+                            <label class="column-label"><?= $this->__('product_composition') ?></label>
+                            <div class="components-list">
+                                <!-- Product itself (assembled) -->
+                                <label class="component-checkbox product-item">
+                                    <input type="checkbox" name="component_ids[]" value="product">
+                                    <span class="component-info">
+                                        <span class="badge badge-success"><?= $this->__('product') ?></span>
+                                        <strong><?= $this->e($product['code'] ?? '') ?></strong>
+                                        <span class="component-name"><?= $this->e($product['name'] ?? '') ?></span>
+                                    </span>
+                                </label>
+                                <?php foreach ($components ?? [] as $comp): ?>
+                                <label class="component-checkbox">
+                                    <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>">
+                                    <span class="component-info">
+                                        <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>">
+                                            <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
+                                        </span>
+                                        <strong><?= $this->e($comp['component_type'] === 'detail'
+                                            ? ($comp['detail_sku'] ?? '')
+                                            : ($comp['item_sku'] ?? '')) ?></strong>
+                                        <span class="component-name"><?= $this->e($comp['component_type'] === 'detail'
+                                            ? ($comp['detail_name'] ?? '')
+                                            : ($comp['item_name'] ?? '')) ?></span>
+                                        <?php if ($comp['component_type'] === 'detail' && !empty($comp['material_name'])): ?>
+                                        <span class="component-material">
+                                            <small><?= $this->e($comp['material_name'] ?? '') ?></small>
+                                            <?php if (!empty($comp['plastic_type_name'])): ?>
+                                            <small class="text-muted">(<?= $this->e($comp['plastic_type_name']) ?>)</small>
+                                            <?php endif; ?>
+                                            <?php if (!empty($comp['filament_alias_name'])): ?>
+                                            <small class="badge badge-outline"><?= $this->e($comp['filament_alias_name']) ?></small>
+                                            <?php endif; ?>
+                                        </span>
+                                        <?php endif; ?>
+                                    </span>
+                                </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Packaging -->
+                        <div class="components-column">
+                            <label class="column-label"><?= $this->__('packaging') ?></label>
+                            <div class="components-list">
+                                <?php if (empty($packaging)): ?>
+                                <div class="no-items-hint"><?= $this->__('no_packaging') ?></div>
+                                <?php else: ?>
+                                <?php foreach ($packaging ?? [] as $pack): ?>
+                                <label class="component-checkbox packaging-item">
+                                    <input type="checkbox" name="component_ids[]" value="packaging_<?= $pack['id'] ?>">
+                                    <span class="component-info">
+                                        <span class="badge badge-warning"><?= $this->__('packaging') ?></span>
+                                        <strong><?= $this->e($pack['item_sku'] ?? '') ?></strong>
+                                        <span class="component-name"><?= $this->e($pack['item_name'] ?? '') ?></span>
+                                    </span>
+                                </label>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -605,37 +640,64 @@
                     <label><?= $this->__('description') ?></label>
                     <textarea name="description" id="editOpDescription" rows="3"></textarea>
                 </div>
-                <!-- Components Selection with Checkboxes -->
-                <div class="components-selection">
-                    <label style="display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);">
-                        <?= $this->__('components') ?>
-                    </label>
-                    <div class="components-grid" id="editOpComponentsGrid">
-                        <!-- Product itself (assembled) -->
-                        <label class="component-checkbox product-item">
-                            <input type="checkbox" name="component_ids[]" value="product" class="edit-comp-checkbox">
-                            <span class="component-info">
-                                <span class="badge badge-success"><?= $this->__('product') ?></span>
-                                <strong><?= $this->e($product['code'] ?? '') ?></strong>
-                                <span class="component-name"><?= $this->e($product['name'] ?? '') ?></span>
-                            </span>
-                        </label>
-                        <?php foreach ($components ?? [] as $comp): ?>
-                        <label class="component-checkbox">
-                            <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>" class="edit-comp-checkbox">
-                            <span class="component-info">
-                                <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>">
-                                    <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
-                                </span>
-                                <strong><?= $this->e($comp['component_type'] === 'detail'
-                                    ? ($comp['detail_sku'] ?? '')
-                                    : ($comp['item_sku'] ?? '')) ?></strong>
-                                <span class="component-name"><?= $this->e($comp['component_type'] === 'detail'
-                                    ? ($comp['detail_name'] ?? '')
-                                    : ($comp['item_name'] ?? '')) ?></span>
-                            </span>
-                        </label>
-                        <?php endforeach; ?>
+                <!-- Components Selection with Checkboxes - Two Columns -->
+                <div class="components-selection-container">
+                    <div class="components-two-columns">
+                        <!-- Left Column: Components -->
+                        <div class="components-column">
+                            <label class="column-label"><?= $this->__('product_composition') ?></label>
+                            <div class="components-list">
+                                <label class="component-checkbox product-item">
+                                    <input type="checkbox" name="component_ids[]" value="product" class="edit-comp-checkbox">
+                                    <span class="component-info">
+                                        <span class="badge badge-success"><?= $this->__('product') ?></span>
+                                        <strong><?= $this->e($product['code'] ?? '') ?></strong>
+                                        <span class="component-name"><?= $this->e($product['name'] ?? '') ?></span>
+                                    </span>
+                                </label>
+                                <?php foreach ($components ?? [] as $comp): ?>
+                                <label class="component-checkbox">
+                                    <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>" class="edit-comp-checkbox">
+                                    <span class="component-info">
+                                        <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>">
+                                            <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
+                                        </span>
+                                        <strong><?= $this->e($comp['component_type'] === 'detail'
+                                            ? ($comp['detail_sku'] ?? '')
+                                            : ($comp['item_sku'] ?? '')) ?></strong>
+                                        <span class="component-name"><?= $this->e($comp['component_type'] === 'detail'
+                                            ? ($comp['detail_name'] ?? '')
+                                            : ($comp['item_name'] ?? '')) ?></span>
+                                        <?php if ($comp['component_type'] === 'detail' && !empty($comp['material_name'])): ?>
+                                        <span class="component-material">
+                                            <small><?= $this->e($comp['material_name'] ?? '') ?></small>
+                                        </span>
+                                        <?php endif; ?>
+                                    </span>
+                                </label>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <!-- Right Column: Packaging -->
+                        <div class="components-column">
+                            <label class="column-label"><?= $this->__('packaging') ?></label>
+                            <div class="components-list">
+                                <?php if (empty($packaging)): ?>
+                                <div class="no-items-hint"><?= $this->__('no_packaging') ?></div>
+                                <?php else: ?>
+                                <?php foreach ($packaging ?? [] as $pack): ?>
+                                <label class="component-checkbox packaging-item">
+                                    <input type="checkbox" name="component_ids[]" value="packaging_<?= $pack['id'] ?>" class="edit-comp-checkbox">
+                                    <span class="component-info">
+                                        <span class="badge badge-warning"><?= $this->__('packaging') ?></span>
+                                        <strong><?= $this->e($pack['item_sku'] ?? '') ?></strong>
+                                        <span class="component-name"><?= $this->e($pack['item_name'] ?? '') ?></span>
+                                    </span>
+                                </label>
+                                <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -729,19 +791,22 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 .modal-content {
-    background: var(--bg-primary);
-    border-radius: 8px;
+    background: var(--bg-primary, #ffffff);
+    border-radius: 12px;
     width: 90%;
-    max-width: 600px;
+    max-width: 800px;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
 }
 .modal-header {
     display: flex;
@@ -858,6 +923,85 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Two-Column Components Selection */
+.components-selection-container {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+}
+.components-two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+@media (max-width: 768px) {
+    .components-two-columns {
+        grid-template-columns: 1fr;
+    }
+}
+.components-column {
+    min-width: 0;
+}
+.column-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+}
+.components-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+.no-items-hint {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    padding: 15px;
+    text-align: center;
+    background: var(--bg-primary);
+    border-radius: 6px;
+    border: 1px dashed var(--border);
+}
+
+/* Packaging item style */
+.component-checkbox.packaging-item {
+    border-color: var(--warning, #f0ad4e);
+    background: rgba(240, 173, 78, 0.05);
+}
+.component-checkbox.packaging-item:hover {
+    background: rgba(240, 173, 78, 0.1);
+}
+
+/* Material info for details */
+.component-material {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.component-material small {
+    font-size: 0.75rem;
+}
+.badge-outline {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+.badge-warning {
+    background: var(--warning, #f0ad4e);
+    color: #fff;
 }
 </style>
 
