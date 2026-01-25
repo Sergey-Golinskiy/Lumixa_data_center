@@ -1048,4 +1048,13 @@ return [
     'copy_product' => 'Копировать продукт',
     'copy_detail' => 'Копировать деталь',
     'copied_from' => 'Скопировано из',
+
+    // Упаковка
+    'packaging' => 'Упаковка',
+    'packaging_item' => 'Элемент упаковки',
+    'packaging_cost' => 'Стоимость упаковки',
+    'total_packaging_cost' => 'Итого стоимость упаковки',
+    'no_packaging' => 'Нет элементов упаковки',
+    'confirm_remove_packaging' => 'Удалить этот элемент упаковки?',
+    'total_price' => 'Общая цена',
 ];

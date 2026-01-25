@@ -89,14 +89,19 @@ class ProductCostingService
     public function calculateProductCost(int $productId): array
     {
         $components = $this->getComposition($productId);
+        $packaging = $this->getPackaging($productId);
 
         $result = [
             'components' => $components,
+            'packaging' => $packaging,
             'details_cost' => 0,
             'items_cost' => 0,
             'assembly_cost' => 0,
+            'packaging_cost' => 0,
             'total_cost' => 0,
+            'total_price' => 0, // Including packaging
             'component_count' => count($components),
+            'packaging_count' => count($packaging),
         ];
 
         foreach ($components as $component) {
@@ -107,6 +112,10 @@ class ProductCostingService
             }
         }
 
+        foreach ($packaging as $item) {
+            $result['packaging_cost'] += $item['total_cost'];
+        }
+
         // Get assembly cost from product
         $product = $this->db->fetch(
             "SELECT assembly_cost FROM products WHERE id = ?",
@@ -114,7 +123,11 @@ class ProductCostingService
         );
         $result['assembly_cost'] = (float)($product['assembly_cost'] ?? 0);
 
+        // Production cost (without packaging)
         $result['total_cost'] = $result['details_cost'] + $result['items_cost'] + $result['assembly_cost'];
+
+        // Total price (including packaging)
+        $result['total_price'] = $result['total_cost'] + $result['packaging_cost'];
 
         return $result;
     }
@@ -126,12 +139,17 @@ class ProductCostingService
     {
         $costData = $this->calculateProductCost($productId);
 
-        // Check if column exists
+        // Check if columns exist and update
+        $updateData = [];
         if ($this->db->columnExists('products', 'production_cost')) {
-            $this->db->query(
-                "UPDATE products SET production_cost = ? WHERE id = ?",
-                [$costData['total_cost'], $productId]
-            );
+            $updateData['production_cost'] = $costData['total_cost'];
+        }
+        if ($this->db->columnExists('products', 'packaging_cost')) {
+            $updateData['packaging_cost'] = $costData['packaging_cost'];
+        }
+
+        if (!empty($updateData)) {
+            $this->db->update('products', $updateData, ['id' => $productId]);
         }
 
         return $costData['total_cost'];
@@ -233,6 +251,137 @@ class ProductCostingService
              FROM items i
              LEFT JOIN stock_balances sb ON i.id = sb.item_id
              WHERE i.is_active = 1 AND i.type IN ('component', 'fasteners')
+             ORDER BY i.sku"
+        );
+    }
+
+    // ==================== PACKAGING METHODS ====================
+
+    /**
+     * Get product packaging with costs
+     */
+    public function getPackaging(int $productId): array
+    {
+        if (!$this->db->tableExists('product_packaging')) {
+            return [];
+        }
+
+        $packaging = $this->db->fetchAll(
+            "SELECT pp.*,
+                    i.sku AS item_sku, i.name AS item_name, i.image_path AS item_image, i.unit,
+                    COALESCE(sb.avg_cost, 0) AS item_avg_cost
+             FROM product_packaging pp
+             LEFT JOIN items i ON pp.item_id = i.id
+             LEFT JOIN stock_balances sb ON i.id = sb.item_id
+             WHERE pp.product_id = ?
+             ORDER BY pp.sort_order, pp.id",
+            [$productId]
+        );
+
+        // Calculate costs for each packaging item
+        foreach ($packaging as &$item) {
+            $item['calculated_cost'] = $this->calculatePackagingItemCost($item);
+            $item['total_cost'] = $item['calculated_cost'] * (float)$item['quantity'];
+        }
+
+        return $packaging;
+    }
+
+    /**
+     * Calculate cost for a single packaging item
+     */
+    public function calculatePackagingItemCost(array $item): float
+    {
+        // If cost is overridden, use the override value
+        if (!empty($item['cost_override']) && $item['unit_cost'] > 0) {
+            return (float)$item['unit_cost'];
+        }
+
+        // Use weighted average cost from stock
+        return (float)($item['item_avg_cost'] ?? 0);
+    }
+
+    /**
+     * Add packaging item to product
+     */
+    public function addPackaging(int $productId, array $data): int
+    {
+        $insertData = [
+            'product_id' => $productId,
+            'item_id' => (int)$data['item_id'],
+            'quantity' => (float)($data['quantity'] ?? 1),
+            'unit_cost' => (float)($data['unit_cost'] ?? 0),
+            'cost_override' => !empty($data['cost_override']) ? 1 : 0,
+            'sort_order' => (int)($data['sort_order'] ?? 0),
+            'notes' => $data['notes'] ?? null,
+        ];
+
+        $id = $this->db->insert('product_packaging', $insertData);
+
+        // Recalculate product cost
+        $this->updateProductCost($productId);
+
+        return $id;
+    }
+
+    /**
+     * Update packaging item
+     */
+    public function updatePackaging(int $packagingId, array $data): void
+    {
+        $packaging = $this->db->fetch(
+            "SELECT product_id FROM product_packaging WHERE id = ?",
+            [$packagingId]
+        );
+
+        if (!$packaging) {
+            return;
+        }
+
+        $updateData = [
+            'quantity' => (float)($data['quantity'] ?? 1),
+            'unit_cost' => (float)($data['unit_cost'] ?? 0),
+            'cost_override' => !empty($data['cost_override']) ? 1 : 0,
+            'sort_order' => (int)($data['sort_order'] ?? 0),
+            'notes' => $data['notes'] ?? null,
+        ];
+
+        $this->db->update('product_packaging', $updateData, ['id' => $packagingId]);
+
+        // Recalculate product cost
+        $this->updateProductCost((int)$packaging['product_id']);
+    }
+
+    /**
+     * Remove packaging item from product
+     */
+    public function removePackaging(int $packagingId): void
+    {
+        $packaging = $this->db->fetch(
+            "SELECT product_id FROM product_packaging WHERE id = ?",
+            [$packagingId]
+        );
+
+        if (!$packaging) {
+            return;
+        }
+
+        $this->db->delete('product_packaging', ['id' => $packagingId]);
+
+        // Recalculate product cost
+        $this->updateProductCost((int)$packaging['product_id']);
+    }
+
+    /**
+     * Get available packaging items from warehouse
+     */
+    public function getAvailablePackagingItems(): array
+    {
+        return $this->db->fetchAll(
+            "SELECT i.id, i.sku, i.name, i.unit, i.image_path, COALESCE(sb.avg_cost, 0) AS avg_cost
+             FROM items i
+             LEFT JOIN stock_balances sb ON i.id = sb.item_id
+             WHERE i.is_active = 1 AND i.type = 'packaging'
              ORDER BY i.sku"
         );
     }

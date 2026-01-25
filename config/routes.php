@@ -193,6 +193,12 @@ return function (Router $router) {
         $router->get('/api/products/details', 'Catalog\\ProductsController@apiGetDetails');
         $router->get('/api/products/items', 'Catalog\\ProductsController@apiGetItems');
 
+        // Product Packaging
+        $router->post('/products/{id}/packaging', 'Catalog\\ProductsController@addPackaging');
+        $router->post('/products/{id}/packaging/{packagingId}', 'Catalog\\ProductsController@updatePackaging');
+        $router->post('/products/{id}/packaging/{packagingId}/remove', 'Catalog\\ProductsController@removePackaging');
+        $router->get('/api/products/packaging-items', 'Catalog\\ProductsController@apiGetPackagingItems');
+
         // Details
         $router->get('/details', 'Catalog\\DetailsController@index', 'catalog.details');
         $router->get('/details/create', 'Catalog\\DetailsController@create', 'catalog.details.create');

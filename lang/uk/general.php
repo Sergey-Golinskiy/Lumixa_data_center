@@ -1048,4 +1048,16 @@ return [
     'copy_product' => 'Копіювати продукт',
     'copy_detail' => 'Копіювати деталь',
     'copied_from' => 'Скопійовано з',
+
+    // Упаковка
+    'packaging' => 'Упаковка',
+    'packaging_item' => 'Елемент упаковки',
+    'packaging_cost' => 'Вартість упаковки',
+    'total_packaging_cost' => 'Разом вартість упаковки',
+    'no_packaging' => 'Немає елементів упаковки',
+    'confirm_remove_packaging' => 'Видалити цей елемент упаковки?',
+    'total_price' => 'Загальна ціна',
+    'packaging_added' => 'Елемент упаковки додано',
+    'packaging_updated' => 'Упаковку оновлено',
+    'packaging_removed' => 'Елемент упаковки видалено',
 ];

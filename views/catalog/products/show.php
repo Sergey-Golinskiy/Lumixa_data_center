@@ -102,6 +102,14 @@
                     <span class="cost-label"><?= $this->__('total_production_cost') ?></span>
                     <span class="cost-value"><?= $this->currency($costData['total_cost'] ?? 0) ?></span>
                 </div>
+                <div class="cost-summary-item" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
+                    <span class="cost-label"><?= $this->__('packaging_cost') ?></span>
+                    <span class="cost-value"><?= $this->currency($costData['packaging_cost'] ?? 0) ?></span>
+                </div>
+                <div class="cost-summary-total">
+                    <span class="cost-label"><?= $this->__('total_price') ?></span>
+                    <span class="cost-value" style="color: var(--success);"><?= $this->currency($costData['total_price'] ?? 0) ?></span>
+                </div>
             </div>
 
             <?php if ($this->can('catalog.products.composition')): ?>
@@ -275,6 +283,122 @@
     </div>
 </div>
 
+<!-- Product Packaging -->
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <?= $this->__('packaging') ?>
+        <span class="badge badge-secondary"><?= count($packaging ?? []) ?> <?= $this->__('items') ?></span>
+    </div>
+    <div class="card-body">
+        <?php if ($this->can('catalog.products.packaging')): ?>
+        <!-- Add Packaging Form -->
+        <div class="add-component-section">
+            <form method="POST" action="/catalog/products/<?= $product['id'] ?>/packaging" class="add-component-form">
+                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><?= $this->__('packaging_item') ?></label>
+                        <select name="item_id" id="packagingSelect" required>
+                            <option value=""><?= $this->__('select') ?>...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $this->__('quantity') ?></label>
+                        <input type="number" name="quantity" value="1" min="0.0001" step="0.0001" style="width:100px;" required>
+                    </div>
+
+                    <div class="form-group" style="align-self:flex-end;">
+                        <button type="submit" class="btn btn-primary"><?= $this->__('add') ?></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <?php endif; ?>
+
+        <!-- Packaging Table -->
+        <div class="table-container" style="margin-top:20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:60px;"><?= $this->__('photo') ?></th>
+                        <th><?= $this->__('sku') ?></th>
+                        <th><?= $this->__('name') ?></th>
+                        <th><?= $this->__('unit') ?></th>
+                        <th class="text-right"><?= $this->__('quantity') ?></th>
+                        <th class="text-right"><?= $this->__('unit_cost') ?></th>
+                        <th class="text-right"><?= $this->__('total_cost') ?></th>
+                        <?php if ($this->can('catalog.products.packaging')): ?>
+                        <th><?= $this->__('actions') ?></th>
+                        <?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($packaging)): ?>
+                    <tr>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_packaging') ?></td>
+                    </tr>
+                    <?php else: ?>
+                    <?php foreach ($packaging as $item): ?>
+                    <tr>
+                        <td>
+                            <?php if (!empty($item['item_image'])): ?>
+                            <img src="/<?= $this->e(ltrim($item['item_image'], '/')) ?>" alt="" class="image-thumb-sm">
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="/warehouse/items/<?= $item['item_id'] ?>">
+                                <strong><?= $this->e($item['item_sku'] ?? '') ?></strong>
+                            </a>
+                        </td>
+                        <td><?= $this->e($item['item_name'] ?? '') ?></td>
+                        <td><?= $this->e($item['unit'] ?? 'pcs') ?></td>
+                        <td class="text-right">
+                            <?php if ($this->can('catalog.products.packaging')): ?>
+                            <form method="POST" action="/catalog/products/<?= $product['id'] ?>/packaging/<?= $item['id'] ?>" style="display:inline;">
+                                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                <input type="number" name="quantity" value="<?= $this->e($item['quantity']) ?>"
+                                       min="0.0001" step="0.0001" style="width:80px;text-align:right;"
+                                       onchange="this.form.submit()">
+                            </form>
+                            <?php else: ?>
+                            <?= $this->number($item['quantity'], 4) ?>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-right"><?= $this->currency($item['calculated_cost'] ?? 0) ?></td>
+                        <td class="text-right"><strong><?= $this->currency($item['total_cost'] ?? 0) ?></strong></td>
+                        <?php if ($this->can('catalog.products.packaging')): ?>
+                        <td>
+                            <form method="POST" action="/catalog/products/<?= $product['id'] ?>/packaging/<?= $item['id'] ?>/remove"
+                                  style="display:inline;" onsubmit="return confirm('<?= $this->__('confirm_remove_packaging') ?>');">
+                                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                <button type="submit" class="btn btn-sm btn-danger">&times;</button>
+                            </form>
+                        </td>
+                        <?php endif; ?>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+                <?php if (!empty($packaging)): ?>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="6" class="text-right"><strong><?= $this->__('total_packaging_cost') ?>:</strong></td>
+                        <td class="text-right"><strong><?= $this->currency($costData['packaging_cost'] ?? 0) ?></strong></td>
+                        <?php if ($this->can('catalog.products.packaging')): ?>
+                        <td></td>
+                        <?php endif; ?>
+                    </tr>
+                </tfoot>
+                <?php endif; ?>
+            </table>
+        </div>
+    </div>
+</div>
+
 <style>
 .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
 .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border); }
@@ -352,6 +476,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Composition handling
     const componentType = document.getElementById('componentType');
     const detailGroup = document.getElementById('detailSelectGroup');
     const itemGroup = document.getElementById('itemSelectGroup');
@@ -361,19 +486,21 @@ document.addEventListener('DOMContentLoaded', function() {
     let detailsLoaded = false;
     let itemsLoaded = false;
 
-    componentType.addEventListener('change', function() {
-        const value = this.value;
+    if (componentType) {
+        componentType.addEventListener('change', function() {
+            const value = this.value;
 
-        detailGroup.style.display = value === 'detail' ? 'block' : 'none';
-        itemGroup.style.display = value === 'item' ? 'block' : 'none';
+            detailGroup.style.display = value === 'detail' ? 'block' : 'none';
+            itemGroup.style.display = value === 'item' ? 'block' : 'none';
 
-        if (value === 'detail' && !detailsLoaded) {
-            loadDetails();
-        }
-        if (value === 'item' && !itemsLoaded) {
-            loadItems();
-        }
-    });
+            if (value === 'detail' && !detailsLoaded) {
+                loadDetails();
+            }
+            if (value === 'item' && !itemsLoaded) {
+                loadItems();
+            }
+        });
+    }
 
     function loadDetails() {
         fetch('/catalog/api/products/details')
@@ -405,6 +532,28 @@ document.addEventListener('DOMContentLoaded', function() {
                         itemSelect.appendChild(opt);
                     });
                     itemsLoaded = true;
+                }
+            });
+    }
+
+    // Packaging handling - load on page load
+    const packagingSelect = document.getElementById('packagingSelect');
+    if (packagingSelect) {
+        loadPackagingItems();
+    }
+
+    function loadPackagingItems() {
+        fetch('/catalog/api/products/packaging-items')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.items) {
+                    packagingSelect.innerHTML = '<option value=""><?= $this->__('select') ?>...</option>';
+                    data.items.forEach(i => {
+                        const opt = document.createElement('option');
+                        opt.value = i.id;
+                        opt.textContent = i.sku + ' - ' + i.name + (i.avg_cost > 0 ? ' (' + parseFloat(i.avg_cost).toFixed(2) + ')' : '');
+                        packagingSelect.appendChild(opt);
+                    });
                 }
             });
     }

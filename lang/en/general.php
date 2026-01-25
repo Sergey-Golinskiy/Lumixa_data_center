@@ -1049,4 +1049,13 @@ return [
     'copy_product' => 'Copy Product',
     'copy_detail' => 'Copy Detail',
     'copied_from' => 'Copied from',
+
+    // Packaging
+    'packaging' => 'Packaging',
+    'packaging_item' => 'Packaging Item',
+    'packaging_cost' => 'Packaging Cost',
+    'total_packaging_cost' => 'Total Packaging Cost',
+    'no_packaging' => 'No packaging items',
+    'confirm_remove_packaging' => 'Remove this packaging item?',
+    'total_price' => 'Total Price',
 ];

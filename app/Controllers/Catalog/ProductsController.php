@@ -153,7 +153,7 @@ class ProductsController extends Controller
             $this->notFound();
         }
 
-        // Get product composition and cost
+        // Get product composition, packaging and cost
         $costingService = $this->getCostingService();
         $costData = $costingService->calculateProductCost((int)$id);
 
@@ -161,6 +161,7 @@ class ProductsController extends Controller
             'title' => $product['name'],
             'product' => $product,
             'components' => $costData['components'],
+            'packaging' => $costData['packaging'] ?? [],
             'costData' => $costData
         ]);
     }
@@ -314,6 +315,97 @@ class ProductsController extends Controller
         $items = $costingService->getAvailableItems();
 
         $this->json(['success' => true, 'items' => $items]);
+    }
+
+    /**
+     * API: Get available packaging items
+     */
+    public function apiGetPackagingItems(): void
+    {
+        $this->requirePermission('catalog.products.view');
+
+        $costingService = $this->getCostingService();
+        $items = $costingService->getAvailablePackagingItems();
+
+        $this->json(['success' => true, 'items' => $items]);
+    }
+
+    // ==================== PACKAGING METHODS ====================
+
+    /**
+     * Add packaging item to product
+     */
+    public function addPackaging(string $id): void
+    {
+        $this->requirePermission('catalog.products.packaging');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        $itemId = (int)($_POST['item_id'] ?? 0);
+        $quantity = (float)($_POST['quantity'] ?? 1);
+
+        if ($itemId <= 0) {
+            $this->session->setFlash('error', 'Please select a packaging item');
+            $this->redirect("/catalog/products/{$id}");
+            return;
+        }
+
+        $costingService = $this->getCostingService();
+        $costingService->addPackaging((int)$id, [
+            'item_id' => $itemId,
+            'quantity' => $quantity,
+        ]);
+
+        $this->session->setFlash('success', 'Packaging item added');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * Update packaging item quantity
+     */
+    public function updatePackaging(string $id, string $packagingId): void
+    {
+        $this->requirePermission('catalog.products.packaging');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        $quantity = (float)($_POST['quantity'] ?? 1);
+
+        $costingService = $this->getCostingService();
+        $costingService->updatePackaging((int)$packagingId, [
+            'quantity' => $quantity,
+        ]);
+
+        $this->session->setFlash('success', 'Packaging updated');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * Remove packaging item from product
+     */
+    public function removePackaging(string $id, string $packagingId): void
+    {
+        $this->requirePermission('catalog.products.packaging');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        $costingService = $this->getCostingService();
+        $costingService->removePackaging((int)$packagingId);
+
+        $this->session->setFlash('success', 'Packaging removed');
+        $this->redirect("/catalog/products/{$id}");
     }
 
     /**
