@@ -105,6 +105,16 @@
                 <?php if ($this->can('catalog.products.edit')): ?>
                 <a href="/catalog/products/<?= $product['id'] ?>/edit" class="btn btn-sm btn-outline"><?= $this->__('edit') ?></a>
                 <?php endif; ?>
+                <?php if (!empty($product['website_url'])): ?>
+                <a href="<?= $this->e($product['website_url']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary" title="<?= $this->__('open_in_store') ?>">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <?= $this->__('store') ?>
+                </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

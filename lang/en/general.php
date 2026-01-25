@@ -1037,4 +1037,10 @@ return [
     'component_added' => 'Component added to composition',
     'component_updated' => 'Component updated',
     'component_removed' => 'Component removed from composition',
+
+    // Website URL
+    'website_url' => 'Website Link',
+    'website_url_hint' => 'Link to product page in online store',
+    'open_in_store' => 'Open in Store',
+    'store' => 'Store',
 ];

@@ -363,7 +363,8 @@ class ProductsController extends Controller
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'base_price' => (float)($_POST['base_price'] ?? 0),
-            'is_active' => isset($_POST['is_active']) ? 1 : 0
+            'is_active' => isset($_POST['is_active']) ? 1 : 0,
+            'website_url' => trim($_POST['website_url'] ?? '') ?: null
         ];
         if ($categoryMode === 'table') {
             $data['category_id'] = (int)($_POST['category_id'] ?? 0);
@@ -486,7 +487,8 @@ class ProductsController extends Controller
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'base_price' => (float)($_POST['base_price'] ?? 0),
-            'is_active' => isset($_POST['is_active']) ? 1 : 0
+            'is_active' => isset($_POST['is_active']) ? 1 : 0,
+            'website_url' => trim($_POST['website_url'] ?? '') ?: null
         ];
         if ($categoryMode === 'table') {
             $data['category_id'] = (int)($_POST['category_id'] ?? 0);

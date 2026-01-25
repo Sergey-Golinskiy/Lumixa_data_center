@@ -95,6 +95,17 @@
             </div>
 
             <div class="form-group">
+                <label for="website_url"><?= $this->__('website_url') ?></label>
+                <input type="url" id="website_url" name="website_url"
+                       value="<?= $this->e($product['website_url'] ?? $this->old('website_url')) ?>"
+                       placeholder="https://shop.example.com/product/...">
+                <small class="text-muted"><?= $this->__('website_url_hint') ?></small>
+                <?php if ($this->hasError('website_url')): ?>
+                <span class="error"><?= $this->error('website_url') ?></span>
+                <?php endif; ?>
+            </div>
+
+            <div class="form-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="is_active" value="1"
                            <?= ($product['is_active'] ?? $this->old('is_active', 1)) ? 'checked' : '' ?>>
