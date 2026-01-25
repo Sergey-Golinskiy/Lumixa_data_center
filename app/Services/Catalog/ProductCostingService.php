@@ -31,20 +31,15 @@ class ProductCostingService
         $components = $this->db->fetchAll(
             "SELECT pc.*,
                     d.sku AS detail_sku, d.name AS detail_name, d.detail_type, d.image_path AS detail_image,
-                    d.material_item_id, d.printer_id, d.material_qty_grams, d.print_time_minutes,
-                    d.plastic_type_id, d.filament_alias_id,
+                    d.material_item_id, d.material_qty_grams, d.print_time_minutes,
                     i.sku AS item_sku, i.name AS item_name, i.image_path AS item_image,
                     COALESCE(sb.avg_cost, 0) AS item_avg_cost,
-                    mat.name AS material_name, mat.sku AS material_sku,
-                    pt.name AS plastic_type_name,
-                    fa.name AS filament_alias_name
+                    mat.name AS material_name, mat.sku AS material_sku
              FROM product_components pc
              LEFT JOIN details d ON pc.detail_id = d.id AND pc.component_type = 'detail'
              LEFT JOIN items i ON pc.item_id = i.id AND pc.component_type = 'item'
              LEFT JOIN stock_balances sb ON i.id = sb.item_id
              LEFT JOIN items mat ON d.material_item_id = mat.id
-             LEFT JOIN item_option_values pt ON d.plastic_type_id = pt.id
-             LEFT JOIN item_option_values fa ON d.filament_alias_id = fa.id
              WHERE pc.product_id = ?
              ORDER BY pc.sort_order, pc.id",
             [$productId]

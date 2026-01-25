@@ -478,13 +478,7 @@
                                             : ($comp['item_name'] ?? '')) ?></span>
                                         <?php if ($comp['component_type'] === 'detail' && !empty($comp['material_name'])): ?>
                                         <span class="component-material">
-                                            <small><?= $this->e($comp['material_name'] ?? '') ?></small>
-                                            <?php if (!empty($comp['plastic_type_name'])): ?>
-                                            <small class="text-muted">(<?= $this->e($comp['plastic_type_name']) ?>)</small>
-                                            <?php endif; ?>
-                                            <?php if (!empty($comp['filament_alias_name'])): ?>
-                                            <small class="badge badge-outline"><?= $this->e($comp['filament_alias_name']) ?></small>
-                                            <?php endif; ?>
+                                            <small class="badge badge-outline"><?= $this->e($comp['material_name'] ?? '') ?></small>
                                         </span>
                                         <?php endif; ?>
                                     </span>
@@ -670,7 +664,7 @@
                                             : ($comp['item_name'] ?? '')) ?></span>
                                         <?php if ($comp['component_type'] === 'detail' && !empty($comp['material_name'])): ?>
                                         <span class="component-material">
-                                            <small><?= $this->e($comp['material_name'] ?? '') ?></small>
+                                            <small class="badge badge-outline"><?= $this->e($comp['material_name'] ?? '') ?></small>
                                         </span>
                                         <?php endif; ?>
                                     </span>
