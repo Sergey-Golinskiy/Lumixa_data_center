@@ -4,8 +4,8 @@
 
 -- Product composition table - links products to details and components
 CREATE TABLE IF NOT EXISTS product_components (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    product_id INT UNSIGNED NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL COMMENT 'Must match products.id type (signed INT)',
     component_type ENUM('detail', 'item') NOT NULL COMMENT 'detail = from details table, item = from items table (purchased)',
     detail_id INT UNSIGNED NULL COMMENT 'Reference to details table when component_type = detail',
     item_id INT UNSIGNED NULL COMMENT 'Reference to items table when component_type = item',
