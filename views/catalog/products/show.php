@@ -442,21 +442,42 @@
                         <textarea name="description" rows="2" placeholder="<?= $this->__('instructions_placeholder') ?>"></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label><?= $this->__('components') ?></label>
-                        <select name="component_ids[]" id="operationComponentsSelect" multiple style="height: 60px;">
-                            <?php foreach ($components ?? [] as $comp): ?>
-                            <option value="<?= $comp['id'] ?>">
-                                <?= $this->e($comp['component_type'] === 'detail'
-                                    ? ($comp['detail_sku'] ?? '') . ' - ' . ($comp['detail_name'] ?? '')
-                                    : ($comp['item_sku'] ?? '') . ' - ' . ($comp['item_name'] ?? '')) ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
                     <div class="form-group" style="align-self:flex-end;">
                         <button type="submit" class="btn btn-primary"><?= $this->__('add') ?></button>
+                    </div>
+                </div>
+
+                <!-- Components Selection with Checkboxes -->
+                <div class="components-selection" style="margin-top: 15px;">
+                    <label style="display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);">
+                        <?= $this->__('components') ?>
+                    </label>
+                    <div class="components-grid">
+                        <!-- Product itself (assembled) -->
+                        <label class="component-checkbox product-item">
+                            <input type="checkbox" name="component_ids[]" value="product">
+                            <span class="component-info">
+                                <span class="badge badge-success"><?= $this->__('product') ?></span>
+                                <strong><?= $this->e($product['code'] ?? '') ?></strong>
+                                <span class="component-name"><?= $this->e($product['name'] ?? '') ?></span>
+                            </span>
+                        </label>
+                        <?php foreach ($components ?? [] as $comp): ?>
+                        <label class="component-checkbox">
+                            <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>">
+                            <span class="component-info">
+                                <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>">
+                                    <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
+                                </span>
+                                <strong><?= $this->e($comp['component_type'] === 'detail'
+                                    ? ($comp['detail_sku'] ?? '')
+                                    : ($comp['item_sku'] ?? '')) ?></strong>
+                                <span class="component-name"><?= $this->e($comp['component_type'] === 'detail'
+                                    ? ($comp['detail_name'] ?? '')
+                                    : ($comp['item_name'] ?? '')) ?></span>
+                            </span>
+                        </label>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </form>
@@ -584,17 +605,38 @@
                     <label><?= $this->__('description') ?></label>
                     <textarea name="description" id="editOpDescription" rows="3"></textarea>
                 </div>
-                <div class="form-group">
-                    <label><?= $this->__('components') ?></label>
-                    <select name="component_ids[]" id="editOpComponents" multiple style="height: 100px;">
+                <!-- Components Selection with Checkboxes -->
+                <div class="components-selection">
+                    <label style="display: block; margin-bottom: 10px; font-size: 0.9rem; color: var(--text-muted);">
+                        <?= $this->__('components') ?>
+                    </label>
+                    <div class="components-grid" id="editOpComponentsGrid">
+                        <!-- Product itself (assembled) -->
+                        <label class="component-checkbox product-item">
+                            <input type="checkbox" name="component_ids[]" value="product" class="edit-comp-checkbox">
+                            <span class="component-info">
+                                <span class="badge badge-success"><?= $this->__('product') ?></span>
+                                <strong><?= $this->e($product['code'] ?? '') ?></strong>
+                                <span class="component-name"><?= $this->e($product['name'] ?? '') ?></span>
+                            </span>
+                        </label>
                         <?php foreach ($components ?? [] as $comp): ?>
-                        <option value="<?= $comp['id'] ?>">
-                            <?= $this->e($comp['component_type'] === 'detail'
-                                ? ($comp['detail_sku'] ?? '') . ' - ' . ($comp['detail_name'] ?? '')
-                                : ($comp['item_sku'] ?? '') . ' - ' . ($comp['item_name'] ?? '')) ?>
-                        </option>
+                        <label class="component-checkbox">
+                            <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>" class="edit-comp-checkbox">
+                            <span class="component-info">
+                                <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>">
+                                    <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
+                                </span>
+                                <strong><?= $this->e($comp['component_type'] === 'detail'
+                                    ? ($comp['detail_sku'] ?? '')
+                                    : ($comp['item_sku'] ?? '')) ?></strong>
+                                <span class="component-name"><?= $this->e($comp['component_type'] === 'detail'
+                                    ? ($comp['detail_name'] ?? '')
+                                    : ($comp['item_name'] ?? '')) ?></span>
+                            </span>
+                        </label>
                         <?php endforeach; ?>
-                    </select>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -752,6 +794,71 @@
     flex-wrap: wrap;
     gap: 2px;
 }
+
+/* Components Selection Grid */
+.components-selection {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 10px;
+}
+.components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+}
+.component-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.component-checkbox:hover {
+    border-color: var(--primary);
+    background: var(--bg-hover);
+}
+.component-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+.component-checkbox input[type="checkbox"]:checked + .component-info {
+    opacity: 1;
+}
+.component-checkbox.product-item {
+    border-color: var(--success);
+    background: rgba(var(--success-rgb), 0.05);
+}
+.component-checkbox.product-item:hover {
+    background: rgba(var(--success-rgb), 0.1);
+}
+.component-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+.component-info .badge {
+    flex-shrink: 0;
+}
+.component-info strong {
+    flex-shrink: 0;
+    font-size: 0.9rem;
+}
+.component-name {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 </style>
 
 <script>
@@ -845,7 +952,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const editOpDescription = document.getElementById('editOpDescription');
     const editOpTime = document.getElementById('editOpTime');
     const editOpRate = document.getElementById('editOpRate');
-    const editOpComponents = document.getElementById('editOpComponents');
 
     // Edit button handlers
     document.querySelectorAll('.edit-operation-btn').forEach(btn => {
@@ -863,12 +969,10 @@ document.addEventListener('DOMContentLoaded', function() {
             editOpTime.value = time;
             editOpRate.value = rate;
 
-            // Set selected components
-            if (editOpComponents) {
-                Array.from(editOpComponents.options).forEach(opt => {
-                    opt.selected = components.includes(opt.value);
-                });
-            }
+            // Set checkboxes for selected components
+            document.querySelectorAll('.edit-comp-checkbox').forEach(checkbox => {
+                checkbox.checked = components.includes(checkbox.value);
+            });
 
             editModal.style.display = 'flex';
         });
