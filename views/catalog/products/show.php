@@ -5,6 +5,15 @@
     <?php if ($this->can('catalog.products.edit')): ?>
     <a href="/catalog/products/<?= $product['id'] ?>/edit" class="btn btn-outline"><?= $this->__('edit_product') ?></a>
     <?php endif; ?>
+    <?php if ($this->can('catalog.products.create')): ?>
+    <a href="/catalog/products/<?= $product['id'] ?>/copy" target="_blank" class="btn btn-outline" title="<?= $this->__('copy_product') ?>">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <?= $this->__('copy') ?>
+    </a>
+    <?php endif; ?>
 </div>
 
 <div class="detail-grid">

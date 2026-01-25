@@ -349,6 +349,59 @@ class ProductsController extends Controller
     }
 
     /**
+     * Copy product - opens create form with pre-filled data from existing product
+     */
+    public function copy(string $id): void
+    {
+        $this->requirePermission('catalog.products.create');
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        // Load composition components to copy
+        $components = $this->db()->fetchAll(
+            "SELECT * FROM product_components WHERE product_id = ? ORDER BY sort_order, id",
+            [$id]
+        );
+
+        // Store components in session for copying after new product is saved
+        $this->session->set('copy_product_components', $components);
+        $this->session->set('copy_product_source_id', $id);
+
+        // Modify code to indicate it's a copy
+        $product['code'] = $product['code'] . '-COPY';
+        $product['id'] = null; // Clear ID so form treats it as new
+
+        $categorySupport = $this->getCategorySupport();
+        $categoryMode = $categorySupport['useTable'] ? 'table' : ($categorySupport['categoryName'] ? 'legacy' : 'none');
+        if ($categoryMode === 'table') {
+            $categories = $this->db()->fetchAll(
+                "SELECT id, name FROM product_categories WHERE is_active = 1 ORDER BY name"
+            );
+        } elseif ($categoryMode === 'legacy') {
+            $categories = $this->db()->fetchAll(
+                "SELECT DISTINCT category AS id, category AS name
+                 FROM products
+                 WHERE category IS NOT NULL AND category != ''
+                 ORDER BY category"
+            );
+        } else {
+            $categories = [];
+        }
+
+        $this->render('catalog/products/form', [
+            'title' => 'Copy Product: ' . $product['name'],
+            'product' => $product,
+            'categories' => $categories,
+            'categoryMode' => $categoryMode,
+            'isCopy' => true,
+            'sourceProductId' => $id
+        ]);
+    }
+
+    /**
      * Store new product
      */
     public function store(): void
@@ -423,6 +476,28 @@ class ProductsController extends Controller
         $id = $this->db()->insert('products', array_merge($data, [
             'created_at' => date('Y-m-d H:i:s')
         ]));
+
+        // Copy composition components if this was a copy operation
+        $copyComponents = $this->session->get('copy_product_components');
+        if ($copyComponents && is_array($copyComponents)) {
+            foreach ($copyComponents as $component) {
+                $this->db()->insert('product_components', [
+                    'product_id' => $id,
+                    'component_type' => $component['component_type'],
+                    'detail_id' => $component['detail_id'],
+                    'item_id' => $component['item_id'],
+                    'quantity' => $component['quantity'],
+                    'unit_cost' => $component['unit_cost'],
+                    'cost_override' => $component['cost_override'],
+                    'sort_order' => $component['sort_order'],
+                    'notes' => $component['notes'],
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+            // Clear session data
+            $this->session->remove('copy_product_components');
+            $this->session->remove('copy_product_source_id');
+        }
 
         $this->audit('product.created', 'products', $id, null, $data);
         $this->session->setFlash('success', 'Product created successfully');

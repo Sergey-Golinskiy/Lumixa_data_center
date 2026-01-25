@@ -161,6 +161,35 @@ class DetailsController extends Controller
     }
 
     /**
+     * Copy detail - opens create form with pre-filled data from existing detail
+     */
+    public function copy(string $id): void
+    {
+        $this->requirePermission('catalog.details.create');
+
+        $detail = $this->db()->fetch("SELECT * FROM details WHERE id = ?", [$id]);
+
+        if (!$detail) {
+            $this->notFound();
+        }
+
+        // Modify SKU to indicate it's a copy
+        $detail['sku'] = $detail['sku'] . '-COPY';
+        $detail['id'] = null; // Clear ID so form treats it as new
+
+        $materials = $this->getMaterials();
+        $printers = $this->getPrinters();
+
+        $this->render('catalog/details/form', [
+            'title' => $this->app->getTranslator()->get('copy_detail') . ': ' . $detail['name'],
+            'detail' => $detail,
+            'materials' => $materials,
+            'printers' => $printers,
+            'isCopy' => true
+        ]);
+    }
+
+    /**
      * Store detail
      */
     public function store(): void

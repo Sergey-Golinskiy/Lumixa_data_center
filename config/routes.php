@@ -182,6 +182,7 @@ return function (Router $router) {
         $router->post('/products', 'Catalog\\ProductsController@store');
         $router->get('/products/{id}', 'Catalog\\ProductsController@show', 'catalog.products.show');
         $router->get('/products/{id}/edit', 'Catalog\\ProductsController@edit', 'catalog.products.edit');
+        $router->get('/products/{id}/copy', 'Catalog\\ProductsController@copy', 'catalog.products.create');
         $router->post('/products/{id}', 'Catalog\\ProductsController@update');
 
         // Product Composition
@@ -198,6 +199,7 @@ return function (Router $router) {
         $router->post('/details', 'Catalog\\DetailsController@store');
         $router->get('/details/{id}', 'Catalog\\DetailsController@show', 'catalog.details.show');
         $router->get('/details/{id}/edit', 'Catalog\\DetailsController@edit', 'catalog.details.edit');
+        $router->get('/details/{id}/copy', 'Catalog\\DetailsController@copy', 'catalog.details.create');
         $router->post('/details/{id}', 'Catalog\\DetailsController@update');
 
         // Detail Routing

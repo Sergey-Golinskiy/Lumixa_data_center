@@ -1043,4 +1043,10 @@ return [
     'website_url_hint' => 'Link to product page in online store',
     'open_in_store' => 'Open in Store',
     'store' => 'Store',
+
+    // Copy
+    'copy' => 'Copy',
+    'copy_product' => 'Copy Product',
+    'copy_detail' => 'Copy Detail',
+    'copied_from' => 'Copied from',
 ];
