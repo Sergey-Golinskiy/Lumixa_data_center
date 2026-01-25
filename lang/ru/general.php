@@ -1057,4 +1057,17 @@ return [
     'no_packaging' => 'Нет элементов упаковки',
     'confirm_remove_packaging' => 'Удалить этот элемент упаковки?',
     'total_price' => 'Общая цена',
+
+    // Маршрут продукта (операции)
+    'product_routing' => 'Маршрут',
+    'labor_cost' => 'Стоимость работ',
+    'total_labor_cost' => 'Итого стоимость работ',
+    'labor_rate' => 'Ставка',
+    'time_minutes' => 'Время (мин)',
+    'no_operations' => 'Нет операций',
+    'confirm_remove_operation' => 'Удалить эту операцию?',
+    'edit_operation' => 'Редактировать операцию',
+    'operation_added' => 'Операция добавлена',
+    'operation_updated' => 'Операция обновлена',
+    'operation_removed' => 'Операция удалена',
 ];

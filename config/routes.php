@@ -199,6 +199,12 @@ return function (Router $router) {
         $router->post('/products/{id}/packaging/{packagingId}/remove', 'Catalog\\ProductsController@removePackaging');
         $router->get('/api/products/packaging-items', 'Catalog\\ProductsController@apiGetPackagingItems');
 
+        // Product Operations (Routing)
+        $router->post('/products/{id}/operations', 'Catalog\\ProductsController@addOperation');
+        $router->post('/products/{id}/operations/{operationId}', 'Catalog\\ProductsController@updateOperation');
+        $router->post('/products/{id}/operations/{operationId}/remove', 'Catalog\\ProductsController@removeOperation');
+        $router->get('/api/products/{id}/components', 'Catalog\\ProductsController@apiGetProductComponents');
+
         // Details
         $router->get('/details', 'Catalog\\DetailsController@index', 'catalog.details');
         $router->get('/details/create', 'Catalog\\DetailsController@create', 'catalog.details.create');

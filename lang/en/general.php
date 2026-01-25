@@ -1058,4 +1058,17 @@ return [
     'no_packaging' => 'No packaging items',
     'confirm_remove_packaging' => 'Remove this packaging item?',
     'total_price' => 'Total Price',
+
+    // Product Routing (Operations)
+    'product_routing' => 'Routing',
+    'labor_cost' => 'Labor Cost',
+    'total_labor_cost' => 'Total Labor Cost',
+    'labor_rate' => 'Labor Rate',
+    'time_minutes' => 'Time (min)',
+    'no_operations' => 'No operations',
+    'confirm_remove_operation' => 'Remove this operation?',
+    'edit_operation' => 'Edit Operation',
+    'operation_added' => 'Operation added',
+    'operation_updated' => 'Operation updated',
+    'operation_removed' => 'Operation removed',
 ];

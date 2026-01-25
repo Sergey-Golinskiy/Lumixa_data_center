@@ -90,18 +90,23 @@ class ProductCostingService
     {
         $components = $this->getComposition($productId);
         $packaging = $this->getPackaging($productId);
+        $operations = $this->getOperations($productId);
 
         $result = [
             'components' => $components,
             'packaging' => $packaging,
+            'operations' => $operations,
             'details_cost' => 0,
             'items_cost' => 0,
             'assembly_cost' => 0,
+            'labor_cost' => 0,
             'packaging_cost' => 0,
             'total_cost' => 0,
             'total_price' => 0, // Including packaging
             'component_count' => count($components),
             'packaging_count' => count($packaging),
+            'operations_count' => count($operations),
+            'total_time_minutes' => 0,
         ];
 
         foreach ($components as $component) {
@@ -116,15 +121,21 @@ class ProductCostingService
             $result['packaging_cost'] += $item['total_cost'];
         }
 
-        // Get assembly cost from product
+        // Calculate labor cost from operations
+        foreach ($operations as $operation) {
+            $result['labor_cost'] += $operation['operation_cost'];
+            $result['total_time_minutes'] += (int)$operation['time_minutes'];
+        }
+
+        // Get assembly cost from product (legacy field, may be deprecated)
         $product = $this->db->fetch(
             "SELECT assembly_cost FROM products WHERE id = ?",
             [$productId]
         );
         $result['assembly_cost'] = (float)($product['assembly_cost'] ?? 0);
 
-        // Production cost (without packaging)
-        $result['total_cost'] = $result['details_cost'] + $result['items_cost'] + $result['assembly_cost'];
+        // Production cost (without packaging): components + labor + assembly
+        $result['total_cost'] = $result['details_cost'] + $result['items_cost'] + $result['labor_cost'] + $result['assembly_cost'];
 
         // Total price (including packaging)
         $result['total_price'] = $result['total_cost'] + $result['packaging_cost'];
@@ -384,5 +395,193 @@ class ProductCostingService
              WHERE i.is_active = 1 AND i.type = 'packaging'
              ORDER BY i.sku"
         );
+    }
+
+    // ==================== OPERATIONS METHODS ====================
+
+    /**
+     * Get product operations (routing/assembly steps) with costs
+     */
+    public function getOperations(int $productId): array
+    {
+        if (!$this->db->tableExists('product_operations')) {
+            return [];
+        }
+
+        $operations = $this->db->fetchAll(
+            "SELECT po.*
+             FROM product_operations po
+             WHERE po.product_id = ?
+             ORDER BY po.sort_order, po.id",
+            [$productId]
+        );
+
+        // Get linked components for each operation
+        foreach ($operations as &$operation) {
+            $operation['components'] = $this->getOperationComponents((int)$operation['id']);
+            $operation['operation_cost'] = $this->calculateOperationCost($operation);
+        }
+
+        return $operations;
+    }
+
+    /**
+     * Get components linked to an operation
+     */
+    public function getOperationComponents(int $operationId): array
+    {
+        if (!$this->db->tableExists('product_operation_components')) {
+            return [];
+        }
+
+        return $this->db->fetchAll(
+            "SELECT poc.*, pc.component_type, pc.quantity,
+                    d.sku AS detail_sku, d.name AS detail_name,
+                    i.sku AS item_sku, i.name AS item_name
+             FROM product_operation_components poc
+             JOIN product_components pc ON poc.component_id = pc.id
+             LEFT JOIN details d ON pc.detail_id = d.id AND pc.component_type = 'detail'
+             LEFT JOIN items i ON pc.item_id = i.id AND pc.component_type = 'item'
+             WHERE poc.operation_id = ?
+             ORDER BY poc.id",
+            [$operationId]
+        );
+    }
+
+    /**
+     * Calculate cost for a single operation
+     */
+    public function calculateOperationCost(array $operation): float
+    {
+        $timeMinutes = (int)($operation['time_minutes'] ?? 0);
+        $laborRate = (float)($operation['labor_rate'] ?? 0);
+
+        if ($timeMinutes <= 0 || $laborRate <= 0) {
+            return 0;
+        }
+
+        // Labor rate is per hour, convert minutes to hours
+        return ($timeMinutes / 60) * $laborRate;
+    }
+
+    /**
+     * Add operation to product
+     */
+    public function addOperation(int $productId, array $data): int
+    {
+        $insertData = [
+            'product_id' => $productId,
+            'name' => $data['name'] ?? '',
+            'description' => $data['description'] ?? null,
+            'time_minutes' => (int)($data['time_minutes'] ?? 0),
+            'labor_rate' => (float)($data['labor_rate'] ?? 0),
+            'sort_order' => (int)($data['sort_order'] ?? 0),
+        ];
+
+        $operationId = $this->db->insert('product_operations', $insertData);
+
+        // Add linked components if provided
+        if (!empty($data['component_ids']) && is_array($data['component_ids'])) {
+            foreach ($data['component_ids'] as $componentId) {
+                $this->addOperationComponent($operationId, (int)$componentId);
+            }
+        }
+
+        // Recalculate product cost
+        $this->updateProductCost($productId);
+
+        return $operationId;
+    }
+
+    /**
+     * Update operation
+     */
+    public function updateOperation(int $operationId, array $data): void
+    {
+        $operation = $this->db->fetch(
+            "SELECT product_id FROM product_operations WHERE id = ?",
+            [$operationId]
+        );
+
+        if (!$operation) {
+            return;
+        }
+
+        $updateData = [
+            'name' => $data['name'] ?? '',
+            'description' => $data['description'] ?? null,
+            'time_minutes' => (int)($data['time_minutes'] ?? 0),
+            'labor_rate' => (float)($data['labor_rate'] ?? 0),
+            'sort_order' => (int)($data['sort_order'] ?? 0),
+        ];
+
+        $this->db->update('product_operations', $updateData, ['id' => $operationId]);
+
+        // Update linked components if provided
+        if (isset($data['component_ids']) && is_array($data['component_ids'])) {
+            // Remove existing links
+            $this->db->delete('product_operation_components', ['operation_id' => $operationId]);
+
+            // Add new links
+            foreach ($data['component_ids'] as $componentId) {
+                $this->addOperationComponent($operationId, (int)$componentId);
+            }
+        }
+
+        // Recalculate product cost
+        $this->updateProductCost((int)$operation['product_id']);
+    }
+
+    /**
+     * Remove operation from product
+     */
+    public function removeOperation(int $operationId): void
+    {
+        $operation = $this->db->fetch(
+            "SELECT product_id FROM product_operations WHERE id = ?",
+            [$operationId]
+        );
+
+        if (!$operation) {
+            return;
+        }
+
+        // Components links will be deleted by CASCADE
+        $this->db->delete('product_operations', ['id' => $operationId]);
+
+        // Recalculate product cost
+        $this->updateProductCost((int)$operation['product_id']);
+    }
+
+    /**
+     * Add component to operation
+     */
+    public function addOperationComponent(int $operationId, int $componentId): void
+    {
+        // Check if already linked
+        $existing = $this->db->fetch(
+            "SELECT id FROM product_operation_components WHERE operation_id = ? AND component_id = ?",
+            [$operationId, $componentId]
+        );
+
+        if ($existing) {
+            return;
+        }
+
+        $this->db->insert('product_operation_components', [
+            'operation_id' => $operationId,
+            'component_id' => $componentId,
+        ]);
+    }
+
+    /**
+     * Remove component from operation
+     */
+    public function removeOperationComponent(int $operationId, int $componentId): void
+    {
+        $this->db->delete('product_operation_components', [
+            'operation_id' => $operationId,
+            'component_id' => $componentId,
+        ]);
     }
 }

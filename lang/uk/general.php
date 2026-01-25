@@ -1060,4 +1060,17 @@ return [
     'packaging_added' => 'Елемент упаковки додано',
     'packaging_updated' => 'Упаковку оновлено',
     'packaging_removed' => 'Елемент упаковки видалено',
+
+    // Маршрут продукту (операції)
+    'product_routing' => 'Маршрут',
+    'labor_cost' => 'Вартість робіт',
+    'total_labor_cost' => 'Разом вартість робіт',
+    'labor_rate' => 'Ставка',
+    'time_minutes' => 'Час (хв)',
+    'no_operations' => 'Немає операцій',
+    'confirm_remove_operation' => 'Видалити цю операцію?',
+    'edit_operation' => 'Редагувати операцію',
+    'operation_added' => 'Операцію додано',
+    'operation_updated' => 'Операцію оновлено',
+    'operation_removed' => 'Операцію видалено',
 ];

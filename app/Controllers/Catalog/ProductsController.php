@@ -153,7 +153,7 @@ class ProductsController extends Controller
             $this->notFound();
         }
 
-        // Get product composition, packaging and cost
+        // Get product composition, packaging, operations and cost
         $costingService = $this->getCostingService();
         $costData = $costingService->calculateProductCost((int)$id);
 
@@ -162,6 +162,7 @@ class ProductsController extends Controller
             'product' => $product,
             'components' => $costData['components'],
             'packaging' => $costData['packaging'] ?? [],
+            'operations' => $costData['operations'] ?? [],
             'costData' => $costData
         ]);
     }
@@ -718,6 +719,120 @@ class ProductsController extends Controller
         $this->audit('product.updated', 'products', $id, $product, $data);
         $this->session->setFlash('success', 'Product updated successfully');
         $this->redirect("/catalog/products/{$id}");
+    }
+
+    // ==================== OPERATIONS METHODS ====================
+
+    /**
+     * Add operation to product
+     */
+    public function addOperation(string $id): void
+    {
+        $this->requirePermission('catalog.products.operations');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        $name = trim($_POST['name'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $timeMinutes = (int)($_POST['time_minutes'] ?? 0);
+        $laborRate = (float)($_POST['labor_rate'] ?? 0);
+        $componentIds = $_POST['component_ids'] ?? [];
+
+        if (empty($name)) {
+            $this->session->setFlash('error', 'Operation name is required');
+            $this->redirect("/catalog/products/{$id}");
+            return;
+        }
+
+        $costingService = $this->getCostingService();
+        $costingService->addOperation((int)$id, [
+            'name' => $name,
+            'description' => $description,
+            'time_minutes' => $timeMinutes,
+            'labor_rate' => $laborRate,
+            'component_ids' => is_array($componentIds) ? $componentIds : [],
+        ]);
+
+        $this->session->setFlash('success', 'Operation added');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * Update operation
+     */
+    public function updateOperation(string $id, string $operationId): void
+    {
+        $this->requirePermission('catalog.products.operations');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        $name = trim($_POST['name'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $timeMinutes = (int)($_POST['time_minutes'] ?? 0);
+        $laborRate = (float)($_POST['labor_rate'] ?? 0);
+        $componentIds = $_POST['component_ids'] ?? [];
+
+        $costingService = $this->getCostingService();
+        $costingService->updateOperation((int)$operationId, [
+            'name' => $name,
+            'description' => $description,
+            'time_minutes' => $timeMinutes,
+            'labor_rate' => $laborRate,
+            'component_ids' => is_array($componentIds) ? $componentIds : [],
+        ]);
+
+        $this->session->setFlash('success', 'Operation updated');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * Remove operation from product
+     */
+    public function removeOperation(string $id, string $operationId): void
+    {
+        $this->requirePermission('catalog.products.operations');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        $costingService = $this->getCostingService();
+        $costingService->removeOperation((int)$operationId);
+
+        $this->session->setFlash('success', 'Operation removed');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * API: Get product components for operations
+     */
+    public function apiGetProductComponents(string $id): void
+    {
+        $this->requirePermission('catalog.products.view');
+
+        $components = $this->db()->fetchAll(
+            "SELECT pc.id, pc.component_type, pc.quantity,
+                    COALESCE(d.sku, i.sku) AS sku,
+                    COALESCE(d.name, i.name) AS name
+             FROM product_components pc
+             LEFT JOIN details d ON pc.detail_id = d.id AND pc.component_type = 'detail'
+             LEFT JOIN items i ON pc.item_id = i.id AND pc.component_type = 'item'
+             WHERE pc.product_id = ?
+             ORDER BY pc.sort_order, pc.id",
+            [$id]
+        );
+
+        $this->json(['success' => true, 'components' => $components]);
     }
 
     private function getCategorySupport(): array

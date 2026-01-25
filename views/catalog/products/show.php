@@ -95,6 +95,10 @@
                     <span class="cost-value"><?= $this->currency($costData['items_cost'] ?? 0) ?></span>
                 </div>
                 <div class="cost-summary-item">
+                    <span class="cost-label"><?= $this->__('labor_cost') ?></span>
+                    <span class="cost-value"><?= $this->currency($costData['labor_cost'] ?? 0) ?></span>
+                </div>
+                <div class="cost-summary-item">
                     <span class="cost-label"><?= $this->__('assembly_cost') ?></span>
                     <span class="cost-value"><?= $this->currency($costData['assembly_cost'] ?? 0) ?></span>
                 </div>
@@ -399,6 +403,209 @@
     </div>
 </div>
 
+<!-- Product Operations (Routing) -->
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <?= $this->__('product_routing') ?>
+        <span class="badge badge-secondary"><?= count($operations ?? []) ?> <?= $this->__('operations') ?></span>
+        <?php if (($costData['total_time_minutes'] ?? 0) > 0): ?>
+        <span class="badge badge-info"><?= $costData['total_time_minutes'] ?> <?= $this->__('minutes_short') ?></span>
+        <?php endif; ?>
+    </div>
+    <div class="card-body">
+        <?php if ($this->can('catalog.products.operations')): ?>
+        <!-- Add Operation Form -->
+        <div class="add-component-section">
+            <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations" class="add-operation-form">
+                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label><?= $this->__('operation_name') ?> *</label>
+                        <input type="text" name="name" required placeholder="<?= $this->__('operation_name_placeholder') ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $this->__('time_minutes') ?></label>
+                        <input type="number" name="time_minutes" value="0" min="0" step="1" style="width:100px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
+                        <input type="number" name="labor_rate" value="0" min="0" step="0.01" style="width:120px;">
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top: 10px;">
+                    <div class="form-group" style="flex: 2;">
+                        <label><?= $this->__('description') ?></label>
+                        <textarea name="description" rows="2" placeholder="<?= $this->__('instructions_placeholder') ?>"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $this->__('components') ?></label>
+                        <select name="component_ids[]" id="operationComponentsSelect" multiple style="height: 60px;">
+                            <?php foreach ($components ?? [] as $comp): ?>
+                            <option value="<?= $comp['id'] ?>">
+                                <?= $this->e($comp['component_type'] === 'detail'
+                                    ? ($comp['detail_sku'] ?? '') . ' - ' . ($comp['detail_name'] ?? '')
+                                    : ($comp['item_sku'] ?? '') . ' - ' . ($comp['item_name'] ?? '')) ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="align-self:flex-end;">
+                        <button type="submit" class="btn btn-primary"><?= $this->__('add') ?></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <?php endif; ?>
+
+        <!-- Operations Table -->
+        <div class="table-container" style="margin-top:20px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:40px;">#</th>
+                        <th><?= $this->__('operation_name') ?></th>
+                        <th><?= $this->__('description') ?></th>
+                        <th><?= $this->__('components') ?></th>
+                        <th class="text-right"><?= $this->__('time_minutes') ?></th>
+                        <th class="text-right"><?= $this->__('labor_rate') ?></th>
+                        <th class="text-right"><?= $this->__('operation_cost') ?></th>
+                        <?php if ($this->can('catalog.products.operations')): ?>
+                        <th><?= $this->__('actions') ?></th>
+                        <?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($operations)): ?>
+                    <tr>
+                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_operations') ?></td>
+                    </tr>
+                    <?php else: ?>
+                    <?php $opNum = 1; foreach ($operations as $operation): ?>
+                    <tr>
+                        <td><strong><?= $opNum++ ?></strong></td>
+                        <td><strong><?= $this->e($operation['name'] ?? '') ?></strong></td>
+                        <td>
+                            <?php if (!empty($operation['description'])): ?>
+                            <small><?= nl2br($this->e($operation['description'])) ?></small>
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if (!empty($operation['components'])): ?>
+                            <div class="operation-components">
+                                <?php foreach ($operation['components'] as $comp): ?>
+                                <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>" style="margin: 2px;">
+                                    <?= $this->e($comp['component_type'] === 'detail'
+                                        ? ($comp['detail_sku'] ?? '')
+                                        : ($comp['item_sku'] ?? '')) ?>
+                                </span>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-right"><?= (int)($operation['time_minutes'] ?? 0) ?> <?= $this->__('minutes_short') ?></td>
+                        <td class="text-right"><?= $this->currency($operation['labor_rate'] ?? 0) ?>/<?= $this->__('hour_short') ?></td>
+                        <td class="text-right"><strong><?= $this->currency($operation['operation_cost'] ?? 0) ?></strong></td>
+                        <?php if ($this->can('catalog.products.operations')): ?>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline edit-operation-btn"
+                                    data-id="<?= $operation['id'] ?>"
+                                    data-name="<?= $this->e($operation['name'] ?? '') ?>"
+                                    data-description="<?= $this->e($operation['description'] ?? '') ?>"
+                                    data-time="<?= $operation['time_minutes'] ?? 0 ?>"
+                                    data-rate="<?= $operation['labor_rate'] ?? 0 ?>"
+                                    data-components="<?= $this->e(implode(',', array_column($operation['components'] ?? [], 'component_id'))) ?>">
+                                <?= $this->__('edit') ?>
+                            </button>
+                            <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations/<?= $operation['id'] ?>/remove"
+                                  style="display:inline;" onsubmit="return confirm('<?= $this->__('confirm_remove_operation') ?>');">
+                                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                <button type="submit" class="btn btn-sm btn-danger">&times;</button>
+                            </form>
+                        </td>
+                        <?php endif; ?>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+                <?php if (!empty($operations)): ?>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="4" class="text-right"><strong><?= $this->__('total_labor_cost') ?>:</strong></td>
+                        <td class="text-right"><strong><?= $costData['total_time_minutes'] ?? 0 ?> <?= $this->__('minutes_short') ?></strong></td>
+                        <td></td>
+                        <td class="text-right"><strong><?= $this->currency($costData['labor_cost'] ?? 0) ?></strong></td>
+                        <?php if ($this->can('catalog.products.operations')): ?>
+                        <td></td>
+                        <?php endif; ?>
+                    </tr>
+                </tfoot>
+                <?php endif; ?>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Operation Modal -->
+<?php if ($this->can('catalog.products.operations')): ?>
+<div id="editOperationModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><?= $this->__('edit_operation') ?></h3>
+            <button type="button" class="modal-close">&times;</button>
+        </div>
+        <form id="editOperationForm" method="POST">
+            <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><?= $this->__('operation_name') ?> *</label>
+                    <input type="text" name="name" id="editOpName" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><?= $this->__('time_minutes') ?></label>
+                        <input type="number" name="time_minutes" id="editOpTime" min="0" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
+                        <input type="number" name="labor_rate" id="editOpRate" min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('description') ?></label>
+                    <textarea name="description" id="editOpDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('components') ?></label>
+                    <select name="component_ids[]" id="editOpComponents" multiple style="height: 100px;">
+                        <?php foreach ($components ?? [] as $comp): ?>
+                        <option value="<?= $comp['id'] ?>">
+                            <?= $this->e($comp['component_type'] === 'detail'
+                                ? ($comp['detail_sku'] ?? '') . ' - ' . ($comp['detail_name'] ?? '')
+                                : ($comp['item_sku'] ?? '') . ' - ' . ($comp['item_name'] ?? '')) ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close"><?= $this->__('cancel') ?></button>
+                <button type="submit" class="btn btn-primary"><?= $this->__('save') ?></button>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
 <style>
 .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
 .detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border); }
@@ -472,6 +679,79 @@
 }
 .text-right { text-align: right; }
 .text-center { text-align: center; }
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background: var(--bg-primary);
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { margin: 0; }
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+.modal-body { padding: 20px; }
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+}
+
+/* Operations */
+.add-operation-form .form-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.add-operation-form .form-group {
+    flex: 1;
+    min-width: 150px;
+}
+.add-operation-form .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+.add-operation-form .form-group input,
+.add-operation-form .form-group textarea,
+.add-operation-form .form-group select {
+    width: 100%;
+}
+.operation-components {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
 </style>
 
 <script>
@@ -556,6 +836,58 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                 }
             });
+    }
+
+    // Operations modal handling
+    const editModal = document.getElementById('editOperationModal');
+    const editForm = document.getElementById('editOperationForm');
+    const editOpName = document.getElementById('editOpName');
+    const editOpDescription = document.getElementById('editOpDescription');
+    const editOpTime = document.getElementById('editOpTime');
+    const editOpRate = document.getElementById('editOpRate');
+    const editOpComponents = document.getElementById('editOpComponents');
+
+    // Edit button handlers
+    document.querySelectorAll('.edit-operation-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const name = this.dataset.name;
+            const description = this.dataset.description;
+            const time = this.dataset.time;
+            const rate = this.dataset.rate;
+            const components = this.dataset.components ? this.dataset.components.split(',') : [];
+
+            editForm.action = '/catalog/products/<?= $product['id'] ?>/operations/' + id;
+            editOpName.value = name;
+            editOpDescription.value = description;
+            editOpTime.value = time;
+            editOpRate.value = rate;
+
+            // Set selected components
+            if (editOpComponents) {
+                Array.from(editOpComponents.options).forEach(opt => {
+                    opt.selected = components.includes(opt.value);
+                });
+            }
+
+            editModal.style.display = 'flex';
+        });
+    });
+
+    // Close modal handlers
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.modal').style.display = 'none';
+        });
+    });
+
+    // Close modal on backdrop click
+    if (editModal) {
+        editModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
     }
 });
 </script>
