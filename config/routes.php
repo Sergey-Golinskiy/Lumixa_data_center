@@ -184,6 +184,14 @@ return function (Router $router) {
         $router->get('/products/{id}/edit', 'Catalog\\ProductsController@edit', 'catalog.products.edit');
         $router->post('/products/{id}', 'Catalog\\ProductsController@update');
 
+        // Product Composition
+        $router->post('/products/{id}/components', 'Catalog\\ProductsController@addComponent');
+        $router->post('/products/{id}/components/{componentId}', 'Catalog\\ProductsController@updateComponent');
+        $router->post('/products/{id}/components/{componentId}/remove', 'Catalog\\ProductsController@removeComponent');
+        $router->post('/products/{id}/assembly-cost', 'Catalog\\ProductsController@updateAssemblyCost');
+        $router->get('/api/products/details', 'Catalog\\ProductsController@apiGetDetails');
+        $router->get('/api/products/items', 'Catalog\\ProductsController@apiGetItems');
+
         // Details
         $router->get('/details', 'Catalog\\DetailsController@index', 'catalog.details');
         $router->get('/details/create', 'Catalog\\DetailsController@create', 'catalog.details.create');

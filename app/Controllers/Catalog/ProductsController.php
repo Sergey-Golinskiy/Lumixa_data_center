@@ -6,9 +6,20 @@
 namespace App\Controllers\Catalog;
 
 use App\Core\Controller;
+use App\Services\Catalog\ProductCostingService;
 
 class ProductsController extends Controller
 {
+    private ?ProductCostingService $costingService = null;
+
+    private function getCostingService(): ProductCostingService
+    {
+        if ($this->costingService === null) {
+            $this->costingService = new ProductCostingService($this->app);
+        }
+        return $this->costingService;
+    }
+
     /**
      * List all products
      */
@@ -142,22 +153,167 @@ class ProductsController extends Controller
             $this->notFound();
         }
 
-        // Get variants
-        $variants = $this->db()->fetchAll(
-            "SELECT v.*,
-                    (SELECT COUNT(*) FROM bom WHERE variant_id = v.id AND status = 'active') as has_bom,
-                    (SELECT COUNT(*) FROM routing WHERE variant_id = v.id AND status = 'active') as has_routing
-             FROM variants v
-             WHERE v.product_id = ?
-             ORDER BY v.sku",
-            [$id]
-        );
+        // Get product composition and cost
+        $costingService = $this->getCostingService();
+        $costData = $costingService->calculateProductCost((int)$id);
 
         $this->render('catalog/products/show', [
             'title' => $product['name'],
             'product' => $product,
-            'variants' => $variants
+            'components' => $costData['components'],
+            'costData' => $costData
         ]);
+    }
+
+    /**
+     * Add component to product composition
+     */
+    public function addComponent(string $id): void
+    {
+        $this->requirePermission('catalog.products.composition');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        $componentType = $_POST['component_type'] ?? '';
+        $detailId = (int)($_POST['detail_id'] ?? 0);
+        $itemId = (int)($_POST['item_id'] ?? 0);
+        $quantity = (float)($_POST['quantity'] ?? 1);
+
+        if (!in_array($componentType, ['detail', 'item'])) {
+            $this->session->setFlash('error', 'Invalid component type');
+            $this->redirect("/catalog/products/{$id}");
+            return;
+        }
+
+        if ($componentType === 'detail' && $detailId <= 0) {
+            $this->session->setFlash('error', 'Please select a detail');
+            $this->redirect("/catalog/products/{$id}");
+            return;
+        }
+
+        if ($componentType === 'item' && $itemId <= 0) {
+            $this->session->setFlash('error', 'Please select a component');
+            $this->redirect("/catalog/products/{$id}");
+            return;
+        }
+
+        $costingService = $this->getCostingService();
+        $costingService->addComponent((int)$id, [
+            'component_type' => $componentType,
+            'detail_id' => $detailId,
+            'item_id' => $itemId,
+            'quantity' => $quantity,
+        ]);
+
+        $this->audit('product.component_added', 'products', $id, null, [
+            'component_type' => $componentType,
+            'detail_id' => $detailId,
+            'item_id' => $itemId,
+            'quantity' => $quantity,
+        ]);
+
+        $this->session->setFlash('success', 'Component added successfully');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * Update component in product composition
+     */
+    public function updateComponent(string $id, string $componentId): void
+    {
+        $this->requirePermission('catalog.products.composition');
+        $this->validateCSRF();
+
+        $quantity = (float)($_POST['quantity'] ?? 1);
+        $unitCost = (float)($_POST['unit_cost'] ?? 0);
+        $costOverride = isset($_POST['cost_override']) ? 1 : 0;
+
+        $costingService = $this->getCostingService();
+        $costingService->updateComponent((int)$componentId, [
+            'quantity' => $quantity,
+            'unit_cost' => $unitCost,
+            'cost_override' => $costOverride,
+        ]);
+
+        $this->audit('product.component_updated', 'products', $id, null, [
+            'component_id' => $componentId,
+            'quantity' => $quantity,
+        ]);
+
+        $this->session->setFlash('success', 'Component updated');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * Remove component from product composition
+     */
+    public function removeComponent(string $id, string $componentId): void
+    {
+        $this->requirePermission('catalog.products.composition');
+        $this->validateCSRF();
+
+        $costingService = $this->getCostingService();
+        $costingService->removeComponent((int)$componentId);
+
+        $this->audit('product.component_removed', 'products', $id, null, [
+            'component_id' => $componentId,
+        ]);
+
+        $this->session->setFlash('success', 'Component removed');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * Update assembly cost
+     */
+    public function updateAssemblyCost(string $id): void
+    {
+        $this->requirePermission('catalog.products.composition');
+        $this->validateCSRF();
+
+        $assemblyCost = (float)($_POST['assembly_cost'] ?? 0);
+
+        $this->db()->update('products', [
+            'assembly_cost' => $assemblyCost,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], ['id' => $id]);
+
+        // Recalculate total cost
+        $costingService = $this->getCostingService();
+        $costingService->updateProductCost((int)$id);
+
+        $this->session->setFlash('success', 'Assembly cost updated');
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * API: Get available details for composition
+     */
+    public function apiGetDetails(): void
+    {
+        $this->requirePermission('catalog.products.view');
+
+        $costingService = $this->getCostingService();
+        $details = $costingService->getAvailableDetails();
+
+        $this->json(['success' => true, 'details' => $details]);
+    }
+
+    /**
+     * API: Get available items for composition
+     */
+    public function apiGetItems(): void
+    {
+        $this->requirePermission('catalog.products.view');
+
+        $costingService = $this->getCostingService();
+        $items = $costingService->getAvailableItems();
+
+        $this->json(['success' => true, 'items' => $items]);
     }
 
     /**
