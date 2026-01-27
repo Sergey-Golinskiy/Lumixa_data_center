@@ -98,26 +98,45 @@
                             <span class="nav-group-arrow">&#9662;</span>
                         </button>
                         <ul class="nav-submenu" data-submenu="admin">
-                            <li><a href="/admin/users" class="nav-link"><?= $this->__('nav_users') ?></a></li>
-                            <li><a href="/admin/roles" class="nav-link"><?= $this->__('nav_roles') ?></a></li>
-                            <li><a href="/admin/audit" class="nav-link"><?= $this->__('nav_audit') ?></a></li>
+                            <!-- Admin Dashboard -->
+                            <li><a href="/admin" class="nav-link"><span class="nav-submenu-icon">&#9632;</span> <?= $this->__('admin_dashboard') ?></a></li>
+
+                            <!-- User Management -->
+                            <li class="nav-submenu-header"><?= $this->__('user_management') ?></li>
+                            <li><a href="/admin/users" class="nav-link"><span class="nav-submenu-icon">&#128100;</span> <?= $this->__('nav_users') ?></a></li>
+                            <li><a href="/admin/roles" class="nav-link"><span class="nav-submenu-icon">&#128101;</span> <?= $this->__('nav_roles') ?></a></li>
+
+                            <!-- Catalog Settings -->
+                            <?php if ($this->can('admin.product_categories.view') || $this->can('admin.product_collections.view')): ?>
+                            <li class="nav-submenu-header"><?= $this->__('catalog_settings') ?></li>
                             <?php if ($this->can('admin.product_categories.view')): ?>
-                            <li><a href="/admin/product-categories" class="nav-link"><?= $this->__('nav_product_categories') ?></a></li>
+                            <li><a href="/admin/product-categories" class="nav-link"><span class="nav-submenu-icon">&#128193;</span> <?= $this->__('nav_product_categories') ?></a></li>
                             <?php endif; ?>
                             <?php if ($this->can('admin.product_collections.view')): ?>
-                            <li><a href="/admin/product-collections" class="nav-link"><?= $this->__('nav_product_collections') ?></a></li>
+                            <li><a href="/admin/product-collections" class="nav-link"><span class="nav-submenu-icon">&#128218;</span> <?= $this->__('nav_product_collections') ?></a></li>
                             <?php endif; ?>
+                            <?php endif; ?>
+
+                            <!-- Item Settings -->
                             <?php if ($this->can('admin.item_options.view')): ?>
-                            <li><a href="/admin/item-options/materials" class="nav-link"><?= $this->__('nav_materials') ?></a></li>
-                            <li><a href="/admin/item-options/manufacturers" class="nav-link"><?= $this->__('nav_manufacturers') ?></a></li>
-                            <li><a href="/admin/item-options/plastic-types" class="nav-link"><?= $this->__('nav_plastic_types') ?></a></li>
-                            <li><a href="/admin/item-options/filament-aliases" class="nav-link"><?= $this->__('nav_filament_aliases') ?></a></li>
+                            <li class="nav-submenu-header"><?= $this->__('item_settings') ?></li>
+                            <li><a href="/admin/item-options/materials" class="nav-link"><span class="nav-submenu-icon">&#128295;</span> <?= $this->__('nav_materials') ?></a></li>
+                            <li><a href="/admin/item-options/manufacturers" class="nav-link"><span class="nav-submenu-icon">&#127981;</span> <?= $this->__('nav_manufacturers') ?></a></li>
+                            <li><a href="/admin/item-options/plastic-types" class="nav-link"><span class="nav-submenu-icon">&#128204;</span> <?= $this->__('nav_plastic_types') ?></a></li>
+                            <li><a href="/admin/item-options/filament-aliases" class="nav-link"><span class="nav-submenu-icon">&#127912;</span> <?= $this->__('nav_filament_aliases') ?></a></li>
                             <?php endif; ?>
+
+                            <!-- Equipment -->
                             <?php if ($this->can('admin.printers.view')): ?>
-                            <li><a href="/admin/printers" class="nav-link"><?= $this->__('nav_printers') ?></a></li>
+                            <li class="nav-submenu-header"><?= $this->__('equipment_settings') ?></li>
+                            <li><a href="/admin/printers" class="nav-link"><span class="nav-submenu-icon">&#128424;</span> <?= $this->__('nav_printers') ?></a></li>
                             <?php endif; ?>
-                            <li><a href="/admin/backups" class="nav-link"><?= $this->__('nav_backups') ?></a></li>
-                            <li><a href="/admin/diagnostics" class="nav-link"><?= $this->__('nav_diagnostics') ?></a></li>
+
+                            <!-- System -->
+                            <li class="nav-submenu-header"><?= $this->__('system') ?></li>
+                            <li><a href="/admin/audit" class="nav-link"><span class="nav-submenu-icon">&#128203;</span> <?= $this->__('nav_audit') ?></a></li>
+                            <li><a href="/admin/backups" class="nav-link"><span class="nav-submenu-icon">&#128190;</span> <?= $this->__('nav_backups') ?></a></li>
+                            <li><a href="/admin/diagnostics" class="nav-link"><span class="nav-submenu-icon">&#128295;</span> <?= $this->__('nav_diagnostics') ?></a></li>
                         </ul>
                     </li>
                     <?php endif; ?>

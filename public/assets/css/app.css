@@ -328,6 +328,33 @@ a:hover {
     color: white;
 }
 
+/* Submenu Headers for grouped items */
+.nav-submenu-header {
+    display: block;
+    padding: 12px 20px 6px 20px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #64748b;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.nav-submenu-header:first-child {
+    margin-top: 0;
+    border-top: none;
+}
+
+/* Submenu Icons */
+.nav-submenu-icon {
+    display: inline-block;
+    width: 18px;
+    font-size: 12px;
+    margin-right: 6px;
+    text-align: center;
+}
+
 .sidebar-footer {
     padding: 15px 20px;
     border-top: 1px solid rgba(255,255,255,0.1);

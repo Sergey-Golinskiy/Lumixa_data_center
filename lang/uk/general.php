@@ -704,6 +704,22 @@ return [
     'system_diagnostics' => 'Діагностика системи',
     'health_checks_debugging' => 'Перевірки стану та налагодження',
 
+    // Секції адмін-панелі
+    'user_management' => 'Керування користувачами',
+    'catalog_settings' => 'Налаштування каталогу',
+    'item_settings' => 'Налаштування товарів',
+    'equipment_settings' => 'Обладнання',
+    'collections' => 'Колекції',
+    'audit' => 'Аудит',
+    'week' => 'Тиждень',
+    'entity' => 'Обʼєкт',
+    'recent_activity' => 'Остання активність',
+    'manage_users_roles_desc' => 'Керування обліковими записами, ролями та правами доступу',
+    'catalog_settings_desc' => 'Категорії продуктів, колекції та організація',
+    'item_settings_desc' => 'Матеріали, виробники, типи пластику та налаштування філаменту',
+    'equipment_settings_desc' => 'Налаштування принтерів та виробничого обладнання',
+    'system_settings_desc' => 'Системний аудит, резервні копії та діагностика',
+
     // Backups UI
     'total_backups' => 'Всього копій',
     'total_size' => 'Загальний розмір',

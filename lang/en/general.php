@@ -705,6 +705,22 @@ return [
     'system_diagnostics' => 'System Diagnostics',
     'health_checks_debugging' => 'Health checks and debugging',
 
+    // Admin Panel Sections
+    'user_management' => 'User Management',
+    'catalog_settings' => 'Catalog Settings',
+    'item_settings' => 'Item Settings',
+    'equipment_settings' => 'Equipment',
+    'collections' => 'Collections',
+    'audit' => 'Audit',
+    'week' => 'Week',
+    'entity' => 'Entity',
+    'recent_activity' => 'Recent Activity',
+    'manage_users_roles_desc' => 'Manage user accounts, roles and access permissions',
+    'catalog_settings_desc' => 'Product categories, collections and organization',
+    'item_settings_desc' => 'Materials, manufacturers, plastic types and filament settings',
+    'equipment_settings_desc' => 'Configure printers and production equipment',
+    'system_settings_desc' => 'System audit, backups and diagnostics',
+
     // Backups UI
     'total_backups' => 'Total Backups',
     'total_size' => 'Total Size',

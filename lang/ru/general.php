@@ -704,6 +704,22 @@ return [
     'system_diagnostics' => 'Диагностика системы',
     'health_checks_debugging' => 'Проверки состояния и отладка',
 
+    // Секции админ-панели
+    'user_management' => 'Управление пользователями',
+    'catalog_settings' => 'Настройки каталога',
+    'item_settings' => 'Настройки товаров',
+    'equipment_settings' => 'Оборудование',
+    'collections' => 'Коллекции',
+    'audit' => 'Аудит',
+    'week' => 'Неделя',
+    'entity' => 'Объект',
+    'recent_activity' => 'Последняя активность',
+    'manage_users_roles_desc' => 'Управление учётными записями, ролями и правами доступа',
+    'catalog_settings_desc' => 'Категории продуктов, коллекции и организация',
+    'item_settings_desc' => 'Материалы, производители, типы пластика и настройки филамента',
+    'equipment_settings_desc' => 'Настройка принтеров и производственного оборудования',
+    'system_settings_desc' => 'Системный аудит, резервные копии и диагностика',
+
     // Backups UI
     'total_backups' => 'Всего копий',
     'total_size' => 'Общий размер',

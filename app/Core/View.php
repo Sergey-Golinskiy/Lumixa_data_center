@@ -339,4 +339,21 @@ class View
     {
         return $this->app->getLocale();
     }
+
+    /**
+     * Get audit action badge color
+     */
+    public function getAuditActionBadge(string $action): string
+    {
+        if (strpos($action, 'created') !== false || strpos($action, 'create') !== false) {
+            return 'success';
+        }
+        if (strpos($action, 'deleted') !== false || strpos($action, 'delete') !== false) {
+            return 'danger';
+        }
+        if (strpos($action, 'updated') !== false || strpos($action, 'update') !== false) {
+            return 'info';
+        }
+        return 'secondary';
+    }
 }
