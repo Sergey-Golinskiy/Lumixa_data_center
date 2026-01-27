@@ -789,23 +789,4 @@ class DetailsController extends Controller
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         ");
     }
-
-    /**
-     * Check if request is AJAX
-     */
-    private function isAjax(): bool
-    {
-        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-    }
-
-    /**
-     * Send JSON response
-     */
-    private function jsonResponse(array $data): void
-    {
-        header('Content-Type: application/json');
-        echo json_encode($data);
-        exit;
-    }
 }
