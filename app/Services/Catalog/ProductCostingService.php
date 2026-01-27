@@ -487,7 +487,16 @@ class ProductCostingService
         // Add linked components if provided
         if (!empty($data['component_ids']) && is_array($data['component_ids'])) {
             foreach ($data['component_ids'] as $componentId) {
-                $this->addOperationComponent($operationId, (int)$componentId);
+                // Filter out special values like "product" and "packaging_X"
+                // Only process valid numeric component IDs from product_components
+                if (!is_numeric($componentId) || strpos((string)$componentId, 'packaging') !== false) {
+                    continue;
+                }
+                $componentIdInt = (int)$componentId;
+                if ($componentIdInt <= 0) {
+                    continue;
+                }
+                $this->addOperationComponent($operationId, $componentIdInt);
             }
         }
 
@@ -526,9 +535,17 @@ class ProductCostingService
             // Remove existing links
             $this->db->delete('product_operation_components', ['operation_id' => $operationId]);
 
-            // Add new links
+            // Add new links (filter out special values like "product" and "packaging_X")
             foreach ($data['component_ids'] as $componentId) {
-                $this->addOperationComponent($operationId, (int)$componentId);
+                // Only process valid numeric component IDs from product_components
+                if (!is_numeric($componentId) || strpos((string)$componentId, 'packaging') !== false) {
+                    continue;
+                }
+                $componentIdInt = (int)$componentId;
+                if ($componentIdInt <= 0) {
+                    continue;
+                }
+                $this->addOperationComponent($operationId, $componentIdInt);
             }
         }
 
