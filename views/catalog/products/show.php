@@ -1104,7 +1104,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Currency formatter
     function formatCurrency(value) {
-        return parseFloat(value || 0).toFixed(2) + ' <?= $this->e($this->getCurrencySymbol?.() ?? '₴') ?>';
+        return parseFloat(value || 0).toFixed(2) + ' ₴';
     }
 
     // AJAX helper
