@@ -550,12 +550,12 @@ class DetailsController extends Controller
     /**
      * Add operation to detail
      */
-    public function addOperation(string $detailId): void
+    public function addOperation(string $id): void
     {
         $this->requirePermission('catalog.details.edit');
         $this->validateCsrf();
 
-        $detail = $this->db()->fetch("SELECT * FROM details WHERE id = ?", [$detailId]);
+        $detail = $this->db()->fetch("SELECT * FROM details WHERE id = ?", [$id]);
         if (!$detail) {
             $this->notFound();
         }
@@ -565,11 +565,11 @@ class DetailsController extends Controller
 
         $maxSort = (int)$this->db()->fetchColumn(
             "SELECT COALESCE(MAX(sort_order), 0) FROM detail_operations WHERE detail_id = ?",
-            [$detailId]
+            [$id]
         );
 
         $data = [
-            'detail_id' => (int)$detailId,
+            'detail_id' => (int)$id,
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'time_minutes' => (int)($_POST['time_minutes'] ?? 0),
@@ -585,7 +585,7 @@ class DetailsController extends Controller
                 $this->jsonResponse(['success' => false, 'error' => 'Operation name is required']);
             }
             $this->session->setFlash('error', 'Operation name is required');
-            $this->redirect("/catalog/details/{$detailId}");
+            $this->redirect("/catalog/details/{$id}");
             return;
         }
 
@@ -594,7 +594,7 @@ class DetailsController extends Controller
         $this->audit('detail.operation.added', 'detail_operations', $operationId, null, $data);
 
         if ($this->isAjax()) {
-            $operations = $this->getDetailOperations((int)$detailId);
+            $operations = $this->getDetailOperations((int)$id);
             $laborCost = $this->calculateLaborCost($operations);
             $this->jsonResponse([
                 'success' => true,
@@ -604,20 +604,20 @@ class DetailsController extends Controller
         }
 
         $this->session->setFlash('success', 'Operation added');
-        $this->redirect("/catalog/details/{$detailId}");
+        $this->redirect("/catalog/details/{$id}");
     }
 
     /**
      * Update operation
      */
-    public function updateOperation(string $detailId, string $operationId): void
+    public function updateOperation(string $id, string $operationId): void
     {
         $this->requirePermission('catalog.details.edit');
         $this->validateCsrf();
 
         $operation = $this->db()->fetch(
             "SELECT * FROM detail_operations WHERE id = ? AND detail_id = ?",
-            [$operationId, $detailId]
+            [$operationId, $id]
         );
 
         if (!$operation) {
@@ -642,7 +642,7 @@ class DetailsController extends Controller
         $this->audit('detail.operation.updated', 'detail_operations', $operationId, $operation, $data);
 
         if ($this->isAjax()) {
-            $operations = $this->getDetailOperations((int)$detailId);
+            $operations = $this->getDetailOperations((int)$id);
             $laborCost = $this->calculateLaborCost($operations);
             $this->jsonResponse([
                 'success' => true,
@@ -652,20 +652,20 @@ class DetailsController extends Controller
         }
 
         $this->session->setFlash('success', 'Operation updated');
-        $this->redirect("/catalog/details/{$detailId}");
+        $this->redirect("/catalog/details/{$id}");
     }
 
     /**
      * Remove operation
      */
-    public function removeOperation(string $detailId, string $operationId): void
+    public function removeOperation(string $id, string $operationId): void
     {
         $this->requirePermission('catalog.details.edit');
         $this->validateCsrf();
 
         $operation = $this->db()->fetch(
             "SELECT * FROM detail_operations WHERE id = ? AND detail_id = ?",
-            [$operationId, $detailId]
+            [$operationId, $id]
         );
 
         if (!$operation) {
@@ -680,7 +680,7 @@ class DetailsController extends Controller
         $this->audit('detail.operation.removed', 'detail_operations', $operationId, $operation, null);
 
         if ($this->isAjax()) {
-            $operations = $this->getDetailOperations((int)$detailId);
+            $operations = $this->getDetailOperations((int)$id);
             $laborCost = $this->calculateLaborCost($operations);
             $this->jsonResponse([
                 'success' => true,
@@ -690,36 +690,36 @@ class DetailsController extends Controller
         }
 
         $this->session->setFlash('success', 'Operation removed');
-        $this->redirect("/catalog/details/{$detailId}");
+        $this->redirect("/catalog/details/{$id}");
     }
 
     /**
      * Move operation up
      */
-    public function moveOperationUp(string $detailId, string $operationId): void
+    public function moveOperationUp(string $id, string $operationId): void
     {
-        $this->moveOperation($detailId, $operationId, 'up');
+        $this->moveOperation($id, $operationId, 'up');
     }
 
     /**
      * Move operation down
      */
-    public function moveOperationDown(string $detailId, string $operationId): void
+    public function moveOperationDown(string $id, string $operationId): void
     {
-        $this->moveOperation($detailId, $operationId, 'down');
+        $this->moveOperation($id, $operationId, 'down');
     }
 
     /**
      * Move operation in specified direction
      */
-    private function moveOperation(string $detailId, string $operationId, string $direction): void
+    private function moveOperation(string $id, string $operationId, string $direction): void
     {
         $this->requirePermission('catalog.details.edit');
         $this->validateCsrf();
 
         $operations = $this->db()->fetchAll(
             "SELECT id, sort_order FROM detail_operations WHERE detail_id = ? ORDER BY sort_order, id",
-            [$detailId]
+            [$id]
         );
 
         $currentIndex = null;
@@ -743,7 +743,7 @@ class DetailsController extends Controller
             if ($this->isAjax()) {
                 $this->jsonResponse(['success' => true, 'message' => 'Already at boundary']);
             }
-            $this->redirect("/catalog/details/{$detailId}");
+            $this->redirect("/catalog/details/{$id}");
             return;
         }
 
@@ -758,7 +758,7 @@ class DetailsController extends Controller
             $this->jsonResponse(['success' => true]);
         }
 
-        $this->redirect("/catalog/details/{$detailId}");
+        $this->redirect("/catalog/details/{$id}");
     }
 
     /**
