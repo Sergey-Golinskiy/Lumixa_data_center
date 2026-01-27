@@ -124,17 +124,25 @@ class DetailsController extends Controller
             );
         }
 
-        // Calculate production cost for printed details
+        // Load detail operations and calculate labor cost
+        $operations = $this->getDetailOperations((int)$id);
+        $laborCost = $this->calculateLaborCost($operations);
+
+        // Calculate production cost for printed details (including labor cost from operations)
         $costData = null;
         $costBreakdown = [];
         if ($detail['detail_type'] === 'printed') {
-            $costData = $this->costingService->calculateCost($detail);
+            $costData = $this->costingService->calculateCost($detail, $laborCost['total_cost']);
+            // Add labor details for display
+            if ($costData && $laborCost['total_minutes'] > 0) {
+                $costData['calculation_details']['labor_details'] = sprintf(
+                    '%d %s',
+                    $laborCost['total_minutes'],
+                    'min'
+                );
+            }
             $costBreakdown = $this->costingService->getCostBreakdown($costData);
         }
-
-        // Load detail operations
-        $operations = $this->getDetailOperations((int)$id);
-        $laborCost = $this->calculateLaborCost($operations);
 
         // Load available resources for operations
         $materials = $this->getMaterials();

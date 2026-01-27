@@ -21,9 +21,10 @@ class DetailCostingService
      * Calculate full production cost for a detail
      *
      * @param array $detail Detail data with printer_id, material_item_id, material_qty_grams, print_time_minutes
+     * @param float $laborCost Optional labor cost from operations
      * @return array Cost breakdown with total and individual components
      */
-    public function calculateCost(array $detail): array
+    public function calculateCost(array $detail, float $laborCost = 0): array
     {
         $result = [
             'material_cost' => 0,
@@ -31,6 +32,7 @@ class DetailCostingService
             'electricity_cost' => 0,
             'amortization_cost' => 0,
             'maintenance_cost' => 0,
+            'labor_cost' => $laborCost,
             'total_cost' => 0,
             'has_data' => false,
             'missing_data' => [],
@@ -105,7 +107,8 @@ class DetailCostingService
         $result['total_cost'] = $result['material_cost']
             + $result['electricity_cost']
             + $result['amortization_cost']
-            + $result['maintenance_cost'];
+            + $result['maintenance_cost']
+            + $result['labor_cost'];
 
         // Mark as having data if we have a meaningful cost
         $result['has_data'] = $result['total_cost'] > 0 || empty($result['missing_data']);
@@ -265,6 +268,15 @@ class DetailCostingService
                     $costData['calculation_details']['print_time_hours'] ?? 0,
                     $printer['maintenance_per_hour'] ?? 0
                 ),
+            ];
+        }
+
+        if (($costData['labor_cost'] ?? 0) > 0) {
+            $breakdown[] = [
+                'type' => 'labor',
+                'label' => 'labor_cost',
+                'value' => $costData['labor_cost'],
+                'details' => $costData['calculation_details']['labor_details'] ?? '',
             ];
         }
 

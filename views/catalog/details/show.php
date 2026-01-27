@@ -464,6 +464,21 @@
                         <td class="text-right"><strong><?= $this->currency($opCost) ?></strong></td>
                         <?php if ($this->can('catalog.details.edit')): ?>
                         <td>
+                            <button type="button" class="btn btn-sm btn-outline edit-operation-btn"
+                                    data-id="<?= $operation['id'] ?>"
+                                    data-name="<?= $this->e($operation['name'] ?? '') ?>"
+                                    data-description="<?= $this->e($operation['description'] ?? '') ?>"
+                                    data-time="<?= $operation['time_minutes'] ?? 0 ?>"
+                                    data-rate="<?= $operation['labor_rate'] ?? 0 ?>"
+                                    data-material="<?= $operation['material_id'] ?? '' ?>"
+                                    data-printer="<?= $operation['printer_id'] ?? '' ?>"
+                                    data-tool="<?= $operation['tool_id'] ?? '' ?>"
+                                    title="<?= $this->__('edit') ?>">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
                             <form method="POST" action="/catalog/details/<?= $detail['id'] ?>/operations/<?= $operation['id'] ?>/remove" style="display:inline;" onsubmit="return confirm('<?= $this->__('confirm_remove_operation') ?>');">
                                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
                                 <button type="submit" class="btn btn-sm btn-danger" title="<?= $this->__('delete') ?>">
@@ -496,6 +511,77 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Operation Modal -->
+<?php if ($this->can('catalog.details.edit')): ?>
+<div id="editOperationModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><?= $this->__('edit_operation') ?></h3>
+            <button type="button" class="modal-close">&times;</button>
+        </div>
+        <form id="editOperationForm" method="POST">
+            <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label><?= $this->__('operation_name') ?> *</label>
+                    <input type="text" name="name" id="editOpName" required>
+                </div>
+                <div class="form-row-modal">
+                    <div class="form-group">
+                        <label><?= $this->__('time_minutes') ?></label>
+                        <input type="number" name="time_minutes" id="editOpTime" min="0" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
+                        <input type="number" name="labor_rate" id="editOpRate" min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('material') ?></label>
+                    <select name="material_id" id="editOpMaterial">
+                        <option value=""><?= $this->__('select_material') ?></option>
+                        <?php foreach ($materials ?? [] as $mat): ?>
+                        <option value="<?= $mat['id'] ?>">
+                            <?= $this->e($mat['sku']) ?> - <?= $this->e($mat['name']) ?>
+                            <?= !empty($mat['filament_alias']) ? ' (' . $this->e($mat['filament_alias']) . ')' : '' ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('printer') ?></label>
+                    <select name="printer_id" id="editOpPrinter">
+                        <option value=""><?= $this->__('select_printer') ?></option>
+                        <?php foreach ($printers ?? [] as $pr): ?>
+                        <option value="<?= $pr['id'] ?>">
+                            <?= $this->e($pr['name']) ?><?= !empty($pr['model']) ? ' - ' . $this->e($pr['model']) : '' ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('tool') ?></label>
+                    <select name="tool_id" id="editOpTool">
+                        <option value=""><?= $this->__('select_tool') ?></option>
+                        <?php foreach ($tools ?? [] as $tool): ?>
+                        <option value="<?= $tool['id'] ?>"><?= $this->e($tool['sku']) ?> - <?= $this->e($tool['name']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><?= $this->__('description') ?></label>
+                    <textarea name="description" id="editOpDescription" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary modal-close"><?= $this->__('cancel') ?></button>
+                <button type="submit" class="btn btn-primary"><?= $this->__('save') ?></button>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
 
 <style>
 /* Detail Grid Layout */
@@ -668,6 +754,7 @@
 .cost-icon-electricity { background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); }
 .cost-icon-amortization { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
 .cost-icon-maintenance { background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); }
+.cost-icon-labor { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); }
 
 /* Cost info panel */
 .cost-info-panel {
@@ -832,6 +919,187 @@
 .text-right { text-align: right; }
 .text-center { text-align: center; }
 .text-muted { color: var(--text-muted); }
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background: var(--bg-primary, #ffffff);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+}
+.modal-header h3 { margin: 0; }
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0;
+    line-height: 1;
+}
+.modal-close:hover {
+    color: var(--danger);
+}
+.modal-body { padding: 20px; }
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+}
+.form-row-modal {
+    display: flex;
+    gap: 15px;
+}
+.form-row-modal .form-group {
+    flex: 1;
+}
+
+/* Edit button in operations */
+.edit-operation-btn {
+    margin-right: 5px;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const detailId = '<?= $detail['id'] ?>';
+    const csrfToken = '<?= $this->e($csrfToken ?? '') ?>';
+    const canEdit = <?= $this->can('catalog.details.edit') ? 'true' : 'false' ?>;
+
+    // AJAX helper
+    function ajaxPost(url, formData) {
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        }).then(r => r.json());
+    }
+
+    // Edit operation modal
+    const editModal = document.getElementById('editOperationModal');
+    const editForm = document.getElementById('editOperationForm');
+
+    if (editForm && canEdit) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    editModal.style.display = 'none';
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error updating operation');
+                }
+            }).catch(err => { console.error(err); alert('Error'); });
+        });
+    }
+
+    // Open edit modal
+    document.querySelectorAll('.edit-operation-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            editForm.action = '/catalog/details/' + detailId + '/operations/' + id;
+            document.getElementById('editOpName').value = this.dataset.name || '';
+            document.getElementById('editOpDescription').value = this.dataset.description || '';
+            document.getElementById('editOpTime').value = this.dataset.time || 0;
+            document.getElementById('editOpRate').value = this.dataset.rate || 0;
+            document.getElementById('editOpMaterial').value = this.dataset.material || '';
+            document.getElementById('editOpPrinter').value = this.dataset.printer || '';
+            document.getElementById('editOpTool').value = this.dataset.tool || '';
+            editModal.style.display = 'flex';
+        });
+    });
+
+    // Close modal
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.modal').style.display = 'none';
+        });
+    });
+
+    if (editModal) {
+        editModal.addEventListener('click', function(e) {
+            if (e.target === this) this.style.display = 'none';
+        });
+    }
+
+    // Operation reordering - AJAX
+    document.querySelectorAll('.reorder-btn').forEach(btn => {
+        const form = btn.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                ajaxPost(this.action, formData).then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                }).catch(err => console.error(err));
+            });
+        }
+    });
+
+    // Operation delete - AJAX
+    document.querySelectorAll('form[action*="/operations/"][action$="/remove"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!confirm('<?= $this->__('confirm_remove_operation') ?>')) return;
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    this.closest('tr').remove();
+                    // Update row numbers
+                    document.querySelectorAll('#operationsBody tr[data-operation-id]').forEach((row, index) => {
+                        const numCell = row.querySelector('.op-number strong');
+                        if (numCell) numCell.textContent = index + 1;
+                    });
+                }
+            });
+        });
+    });
+
+    // Add operation form - AJAX
+    const addOperationForm = document.querySelector('.add-operation-form');
+    if (addOperationForm) {
+        addOperationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error adding operation');
+                }
+            }).catch(err => { console.error(err); alert('Error'); });
+        });
+    }
+});
+</script>
 
 <?php $this->endSection(); ?>
