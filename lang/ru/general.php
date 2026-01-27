@@ -1070,4 +1070,7 @@ return [
     'operation_added' => 'Операция добавлена',
     'operation_updated' => 'Операция обновлена',
     'operation_removed' => 'Операция удалена',
+    'order' => 'Порядок',
+    'move_up' => 'Вверх',
+    'move_down' => 'Вниз',
 ];

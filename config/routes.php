@@ -203,6 +203,8 @@ return function (Router $router) {
         $router->post('/products/{id}/operations', 'Catalog\\ProductsController@addOperation');
         $router->post('/products/{id}/operations/{operationId}', 'Catalog\\ProductsController@updateOperation');
         $router->post('/products/{id}/operations/{operationId}/remove', 'Catalog\\ProductsController@removeOperation');
+        $router->post('/products/{id}/operations/{operationId}/move-up', 'Catalog\\ProductsController@moveOperationUp');
+        $router->post('/products/{id}/operations/{operationId}/move-down', 'Catalog\\ProductsController@moveOperationDown');
         $router->get('/api/products/{id}/components', 'Catalog\\ProductsController@apiGetProductComponents');
 
         // Details

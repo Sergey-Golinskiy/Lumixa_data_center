@@ -1073,4 +1073,7 @@ return [
     'operation_added' => 'Операцію додано',
     'operation_updated' => 'Операцію оновлено',
     'operation_removed' => 'Операцію видалено',
+    'order' => 'Порядок',
+    'move_up' => 'Вгору',
+    'move_down' => 'Вниз',
 ];

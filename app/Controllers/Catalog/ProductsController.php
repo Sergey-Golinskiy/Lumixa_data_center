@@ -814,6 +814,102 @@ class ProductsController extends Controller
     }
 
     /**
+     * Move operation up in sort order
+     */
+    public function moveOperationUp(string $id, string $operationId): void
+    {
+        $this->requirePermission('catalog.products.operations');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        // Get current operation
+        $current = $this->db()->fetch(
+            "SELECT * FROM product_operations WHERE id = ? AND product_id = ?",
+            [$operationId, $id]
+        );
+
+        if (!$current) {
+            $this->session->setFlash('error', 'Operation not found');
+            $this->redirect("/catalog/products/{$id}");
+            return;
+        }
+
+        // Find the operation above (with smaller sort_order)
+        $above = $this->db()->fetch(
+            "SELECT * FROM product_operations
+             WHERE product_id = ? AND sort_order < ?
+             ORDER BY sort_order DESC LIMIT 1",
+            [$id, $current['sort_order']]
+        );
+
+        if ($above) {
+            // Swap sort_order values
+            $this->db()->update('product_operations',
+                ['sort_order' => $above['sort_order']],
+                ['id' => $current['id']]
+            );
+            $this->db()->update('product_operations',
+                ['sort_order' => $current['sort_order']],
+                ['id' => $above['id']]
+            );
+        }
+
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
+     * Move operation down in sort order
+     */
+    public function moveOperationDown(string $id, string $operationId): void
+    {
+        $this->requirePermission('catalog.products.operations');
+        $this->validateCSRF();
+
+        $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
+        if (!$product) {
+            $this->notFound();
+        }
+
+        // Get current operation
+        $current = $this->db()->fetch(
+            "SELECT * FROM product_operations WHERE id = ? AND product_id = ?",
+            [$operationId, $id]
+        );
+
+        if (!$current) {
+            $this->session->setFlash('error', 'Operation not found');
+            $this->redirect("/catalog/products/{$id}");
+            return;
+        }
+
+        // Find the operation below (with larger sort_order)
+        $below = $this->db()->fetch(
+            "SELECT * FROM product_operations
+             WHERE product_id = ? AND sort_order > ?
+             ORDER BY sort_order ASC LIMIT 1",
+            [$id, $current['sort_order']]
+        );
+
+        if ($below) {
+            // Swap sort_order values
+            $this->db()->update('product_operations',
+                ['sort_order' => $below['sort_order']],
+                ['id' => $current['id']]
+            );
+            $this->db()->update('product_operations',
+                ['sort_order' => $current['sort_order']],
+                ['id' => $below['id']]
+            );
+        }
+
+        $this->redirect("/catalog/products/{$id}");
+    }
+
+    /**
      * API: Get product components for operations
      */
     public function apiGetProductComponents(string $id): void

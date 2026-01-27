@@ -1071,4 +1071,7 @@ return [
     'operation_added' => 'Operation added',
     'operation_updated' => 'Operation updated',
     'operation_removed' => 'Operation removed',
+    'order' => 'Order',
+    'move_up' => 'Move Up',
+    'move_down' => 'Move Down',
 ];

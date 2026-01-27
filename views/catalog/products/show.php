@@ -414,36 +414,42 @@
     </div>
     <div class="card-body">
         <?php if ($this->can('catalog.products.operations')): ?>
-        <!-- Add Operation Form -->
+        <!-- Add Operation Form - Two Column Layout -->
         <div class="add-component-section">
             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations" class="add-operation-form">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
 
-                <div class="form-row">
-                    <div class="form-group" style="flex: 2;">
-                        <label><?= $this->__('operation_name') ?> *</label>
-                        <input type="text" name="name" required placeholder="<?= $this->__('operation_name_placeholder') ?>">
+                <div class="operation-form-columns">
+                    <!-- Left Column: Name, Time, Rate -->
+                    <div class="operation-form-left">
+                        <div class="form-group">
+                            <label><?= $this->__('operation_name') ?> *</label>
+                            <input type="text" name="name" required placeholder="<?= $this->__('operation_name_placeholder') ?>">
+                        </div>
+
+                        <div class="form-row-inline">
+                            <div class="form-group">
+                                <label><?= $this->__('time_minutes') ?></label>
+                                <input type="number" name="time_minutes" value="0" min="0" step="1">
+                            </div>
+
+                            <div class="form-group">
+                                <label><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
+                                <input type="number" name="labor_rate" value="0" min="0" step="0.01">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label><?= $this->__('time_minutes') ?></label>
-                        <input type="number" name="time_minutes" value="0" min="0" step="1" style="width:100px;">
-                    </div>
+                    <!-- Right Column: Description and Add Button -->
+                    <div class="operation-form-right">
+                        <div class="form-group" style="flex: 1;">
+                            <label><?= $this->__('description') ?></label>
+                            <textarea name="description" rows="3" placeholder="<?= $this->__('instructions_placeholder') ?>"></textarea>
+                        </div>
 
-                    <div class="form-group">
-                        <label><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
-                        <input type="number" name="labor_rate" value="0" min="0" step="0.01" style="width:120px;">
-                    </div>
-                </div>
-
-                <div class="form-row" style="margin-top: 10px;">
-                    <div class="form-group" style="flex: 2;">
-                        <label><?= $this->__('description') ?></label>
-                        <textarea name="description" rows="2" placeholder="<?= $this->__('instructions_placeholder') ?>"></textarea>
-                    </div>
-
-                    <div class="form-group" style="align-self:flex-end;">
-                        <button type="submit" class="btn btn-primary"><?= $this->__('add') ?></button>
+                        <div class="form-group" style="align-self: flex-end;">
+                            <button type="submit" class="btn btn-primary btn-lg"><?= $this->__('add') ?></button>
+                        </div>
                     </div>
                 </div>
 
@@ -518,6 +524,9 @@
             <table>
                 <thead>
                     <tr>
+                        <?php if ($this->can('catalog.products.operations')): ?>
+                        <th style="width:60px;"><?= $this->__('order') ?></th>
+                        <?php endif; ?>
                         <th style="width:40px;">#</th>
                         <th><?= $this->__('operation_name') ?></th>
                         <th><?= $this->__('description') ?></th>
@@ -533,11 +542,49 @@
                 <tbody>
                     <?php if (empty($operations)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_operations') ?></td>
+                        <td colspan="<?= $this->can('catalog.products.operations') ? '10' : '8' ?>" class="text-center text-muted"><?= $this->__('no_operations') ?></td>
                     </tr>
                     <?php else: ?>
-                    <?php $opNum = 1; foreach ($operations as $operation): ?>
-                    <tr>
+                    <?php $opNum = 1; $opCount = count($operations); foreach ($operations as $index => $operation): ?>
+                    <tr data-operation-id="<?= $operation['id'] ?>">
+                        <?php if ($this->can('catalog.products.operations')): ?>
+                        <td class="reorder-cell">
+                            <div class="reorder-buttons">
+                                <?php if ($index > 0): ?>
+                                <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations/<?= $operation['id'] ?>/move-up" style="display:inline;">
+                                    <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline reorder-btn" title="<?= $this->__('move_up') ?>">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 15l-6-6-6 6"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <?php else: ?>
+                                <span class="btn btn-sm btn-outline reorder-btn disabled" style="opacity: 0.3;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 15l-6-6-6 6"/>
+                                    </svg>
+                                </span>
+                                <?php endif; ?>
+                                <?php if ($index < $opCount - 1): ?>
+                                <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations/<?= $operation['id'] ?>/move-down" style="display:inline;">
+                                    <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline reorder-btn" title="<?= $this->__('move_down') ?>">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 9l6 6 6-6"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <?php else: ?>
+                                <span class="btn btn-sm btn-outline reorder-btn disabled" style="opacity: 0.3;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M6 9l6 6 6-6"/>
+                                    </svg>
+                                </span>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                        <?php endif; ?>
                         <td><strong><?= $opNum++ ?></strong></td>
                         <td><strong><?= $this->e($operation['name'] ?? '') ?></strong></td>
                         <td>
@@ -590,7 +637,7 @@
                 <?php if (!empty($operations)): ?>
                 <tfoot>
                     <tr class="total-row">
-                        <td colspan="4" class="text-right"><strong><?= $this->__('total_labor_cost') ?>:</strong></td>
+                        <td colspan="<?= $this->can('catalog.products.operations') ? '5' : '4' ?>" class="text-right"><strong><?= $this->__('total_labor_cost') ?>:</strong></td>
                         <td class="text-right"><strong><?= $costData['total_time_minutes'] ?? 0 ?> <?= $this->__('minutes_short') ?></strong></td>
                         <td></td>
                         <td class="text-right"><strong><?= $this->currency($costData['labor_cost'] ?? 0) ?></strong></td>
@@ -996,6 +1043,67 @@
 .badge-warning {
     background: var(--warning, #f0ad4e);
     color: #fff;
+}
+
+/* Two-Column Operation Form Layout */
+.operation-form-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+@media (max-width: 768px) {
+    .operation-form-columns {
+        grid-template-columns: 1fr;
+    }
+}
+.operation-form-left,
+.operation-form-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.operation-form-right {
+    display: flex;
+    flex-direction: column;
+}
+.operation-form-right .form-group:first-child {
+    flex: 1;
+}
+.operation-form-right textarea {
+    height: 100%;
+    min-height: 80px;
+}
+.form-row-inline {
+    display: flex;
+    gap: 15px;
+}
+.form-row-inline .form-group {
+    flex: 1;
+}
+.btn-lg {
+    padding: 12px 24px;
+    font-size: 1rem;
+}
+
+/* Reorder Buttons */
+.reorder-cell {
+    white-space: nowrap;
+}
+.reorder-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.reorder-btn {
+    padding: 4px 8px;
+    line-height: 1;
+}
+.reorder-btn svg {
+    display: block;
+}
+.reorder-btn.disabled {
+    cursor: not-allowed;
+    pointer-events: none;
 }
 </style>
 
