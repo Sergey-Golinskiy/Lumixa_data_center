@@ -226,7 +226,7 @@
                             <small class="text-muted">(<?= $this->__('detail_type_printed') ?>)</small>
                             <?php endif; ?>
                             <?php else: ?>
-                            <span class="badge badge-secondary"><?= $this->__('purchased') ?></span>
+                            <span class="badge badge-component"><?= $this->__('component') ?></span>
                             <?php endif; ?>
                         </td>
                         <td class="text-right">
@@ -1015,9 +1015,10 @@
 
 /* Component badge - distinct style for purchased components */
 .badge-component {
-    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
     color: #fff;
-    border: 1px solid #5a6268;
+    border: 1px solid #8B4513;
+    box-shadow: 0 1px 2px rgba(139, 69, 19, 0.3);
 }
 
 /* Centered form actions */
