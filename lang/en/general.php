@@ -1058,9 +1058,12 @@ return [
     'watts_short' => 'W',
     'kwh_short' => 'kWh',
     'hour_short' => 'h',
+    'grams_short' => 'g',
 
     // Product Composition (BOM)
     'product_information' => 'Product Information',
+    'detail_information' => 'Detail Information',
+    'print_settings' => 'Print Settings',
     'product_composition' => 'Product Composition',
     'details_cost' => 'Details Cost',
     'components_cost' => 'Components Cost',

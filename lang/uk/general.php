@@ -1057,9 +1057,12 @@ return [
     'watts_short' => 'Вт',
     'kwh_short' => 'кВт·год',
     'hour_short' => 'год',
+    'grams_short' => 'г',
 
     // Склад виробу (специфікація)
     'product_information' => 'Інформація про продукт',
+    'detail_information' => 'Інформація про деталь',
+    'print_settings' => 'Налаштування друку',
     'product_composition' => 'Склад виробу',
     'details_cost' => 'Вартість деталей',
     'components_cost' => 'Вартість компонентів',
