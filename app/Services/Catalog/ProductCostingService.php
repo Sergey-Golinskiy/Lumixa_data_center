@@ -34,7 +34,9 @@ class ProductCostingService
                     d.material_item_id, d.material_qty_grams, d.print_time_minutes,
                     i.sku AS item_sku, i.name AS item_name, i.image_path AS item_image,
                     COALESCE(sb.avg_cost, 0) AS item_avg_cost,
-                    mat.name AS material_name, mat.sku AS material_sku
+                    mat.name AS material_name, mat.sku AS material_sku,
+                    (SELECT ia.attribute_value FROM item_attributes ia
+                     WHERE ia.item_id = mat.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS material_alias
              FROM product_components pc
              LEFT JOIN details d ON pc.detail_id = d.id AND pc.component_type = 'detail'
              LEFT JOIN items i ON pc.item_id = i.id AND pc.component_type = 'item'

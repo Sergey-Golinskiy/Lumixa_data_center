@@ -232,12 +232,23 @@ class ItemOptionsController extends Controller
             return;
         }
 
+        $oldName = $option['name'];
+        $newName = $data['name'];
+
         $this->db()->update('item_option_values', [
-            'name' => $data['name'],
+            'name' => $newName,
             'is_active' => $data['is_active'],
             'is_filament' => $data['is_filament'],
             'updated_at' => date('Y-m-d H:i:s')
         ], ['id' => $id]);
+
+        // If name changed, update all item_attributes records that use this value
+        if ($oldName !== $newName) {
+            $this->db()->query(
+                "UPDATE item_attributes SET attribute_value = ? WHERE attribute_name = ? AND attribute_value = ?",
+                [$newName, $config['key'], $oldName]
+            );
+        }
 
         $this->audit('item_option.updated', 'item_option_values', $id, $option, $data);
         $this->session->setFlash('success', $translator->get('item_option_updated_success'));

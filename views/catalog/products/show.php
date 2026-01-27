@@ -440,15 +440,11 @@
                         </div>
                     </div>
 
-                    <!-- Right Column: Description and Add Button -->
+                    <!-- Right Column: Description -->
                     <div class="operation-form-right">
                         <div class="form-group" style="flex: 1;">
                             <label><?= $this->__('description') ?></label>
                             <textarea name="description" rows="3" placeholder="<?= $this->__('instructions_placeholder') ?>"></textarea>
-                        </div>
-
-                        <div class="form-group" style="align-self: flex-end;">
-                            <button type="submit" class="btn btn-primary btn-lg"><?= $this->__('add') ?></button>
                         </div>
                     </div>
                 </div>
@@ -473,7 +469,7 @@
                                 <label class="component-checkbox">
                                     <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>">
                                     <span class="component-info">
-                                        <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>">
+                                        <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'component' ?>">
                                             <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
                                         </span>
                                         <strong><?= $this->e($comp['component_type'] === 'detail'
@@ -484,7 +480,7 @@
                                             : ($comp['item_name'] ?? '')) ?></span>
                                         <?php if ($comp['component_type'] === 'detail' && !empty($comp['material_name'])): ?>
                                         <span class="component-material">
-                                            <small class="badge badge-outline"><?= $this->e($comp['material_name'] ?? '') ?></small>
+                                            <small class="badge badge-outline"><?= $this->e($comp['material_alias'] ?? $comp['material_name'] ?? '') ?></small>
                                         </span>
                                         <?php endif; ?>
                                     </span>
@@ -515,13 +511,23 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Add Button at Bottom -->
+                <div class="form-actions-center" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        <?= $this->__('add_operation') ?>
+                    </button>
+                </div>
             </form>
         </div>
         <?php endif; ?>
 
         <!-- Operations Table -->
         <div class="table-container" style="margin-top:20px;">
-            <table>
+            <table id="operationsTable">
                 <thead>
                     <tr>
                         <?php if ($this->can('catalog.products.operations')): ?>
@@ -539,53 +545,35 @@
                         <?php endif; ?>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="operationsBody">
                     <?php if (empty($operations)): ?>
                     <tr>
                         <td colspan="<?= $this->can('catalog.products.operations') ? '10' : '8' ?>" class="text-center text-muted"><?= $this->__('no_operations') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php $opNum = 1; $opCount = count($operations); foreach ($operations as $index => $operation): ?>
-                    <tr data-operation-id="<?= $operation['id'] ?>">
+                    <tr data-operation-id="<?= $operation['id'] ?>" data-sort="<?= $operation['sort_order'] ?? $index ?>">
                         <?php if ($this->can('catalog.products.operations')): ?>
                         <td class="reorder-cell">
                             <div class="reorder-buttons">
-                                <?php if ($index > 0): ?>
-                                <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations/<?= $operation['id'] ?>/move-up" style="display:inline;">
-                                    <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline reorder-btn" title="<?= $this->__('move_up') ?>">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M18 15l-6-6-6 6"/>
-                                        </svg>
-                                    </button>
-                                </form>
-                                <?php else: ?>
-                                <span class="btn btn-sm btn-outline reorder-btn disabled" style="opacity: 0.3;">
+                                <button type="button" class="btn btn-sm btn-outline reorder-btn move-up-btn"
+                                        data-id="<?= $operation['id'] ?>" title="<?= $this->__('move_up') ?>"
+                                        <?= $index === 0 ? 'disabled style="opacity: 0.3;"' : '' ?>>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M18 15l-6-6-6 6"/>
                                     </svg>
-                                </span>
-                                <?php endif; ?>
-                                <?php if ($index < $opCount - 1): ?>
-                                <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations/<?= $operation['id'] ?>/move-down" style="display:inline;">
-                                    <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline reorder-btn" title="<?= $this->__('move_down') ?>">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M6 9l6 6 6-6"/>
-                                        </svg>
-                                    </button>
-                                </form>
-                                <?php else: ?>
-                                <span class="btn btn-sm btn-outline reorder-btn disabled" style="opacity: 0.3;">
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline reorder-btn move-down-btn"
+                                        data-id="<?= $operation['id'] ?>" title="<?= $this->__('move_down') ?>"
+                                        <?= $index === $opCount - 1 ? 'disabled style="opacity: 0.3;"' : '' ?>>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M6 9l6 6 6-6"/>
                                     </svg>
-                                </span>
-                                <?php endif; ?>
+                                </button>
                             </div>
                         </td>
                         <?php endif; ?>
-                        <td><strong><?= $opNum++ ?></strong></td>
+                        <td class="op-number"><strong><?= $opNum++ ?></strong></td>
                         <td><strong><?= $this->e($operation['name'] ?? '') ?></strong></td>
                         <td>
                             <?php if (!empty($operation['description'])): ?>
@@ -598,7 +586,7 @@
                             <?php if (!empty($operation['components'])): ?>
                             <div class="operation-components">
                                 <?php foreach ($operation['components'] as $comp): ?>
-                                <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>" style="margin: 2px;">
+                                <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'component' ?>" style="margin: 2px;">
                                     <?= $this->e($comp['component_type'] === 'detail'
                                         ? ($comp['detail_sku'] ?? '')
                                         : ($comp['item_sku'] ?? '')) ?>
@@ -711,7 +699,7 @@
                                             : ($comp['item_name'] ?? '')) ?></span>
                                         <?php if ($comp['component_type'] === 'detail' && !empty($comp['material_name'])): ?>
                                         <span class="component-material">
-                                            <small class="badge badge-outline"><?= $this->e($comp['material_name'] ?? '') ?></small>
+                                            <small class="badge badge-outline"><?= $this->e($comp['material_alias'] ?? $comp['material_name'] ?? '') ?></small>
                                         </span>
                                         <?php endif; ?>
                                     </span>
@@ -1045,6 +1033,25 @@
     color: #fff;
 }
 
+/* Component badge - distinct style for purchased components */
+.badge-component {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: #fff;
+    border: 1px solid #5a6268;
+}
+
+/* Centered form actions */
+.form-actions-center {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+}
+.form-actions-center .btn {
+    display: inline-flex;
+    align-items: center;
+}
+
 /* Two-Column Operation Form Layout */
 .operation-form-columns {
     display: grid;
@@ -1190,6 +1197,114 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     }
+
+    // AJAX Operation Reordering
+    const productId = '<?= $product['id'] ?>';
+    const csrfToken = '<?= $this->e($csrfToken ?? '') ?>';
+
+    function moveOperation(operationId, direction) {
+        const url = `/catalog/products/${productId}/operations/${operationId}/move-${direction}`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: '_csrf_token=' + encodeURIComponent(csrfToken)
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reorder rows in DOM without page reload
+                reorderTableRows(operationId, direction);
+            }
+        })
+        .catch(err => console.error('Move error:', err));
+    }
+
+    function reorderTableRows(operationId, direction) {
+        const tbody = document.getElementById('operationsBody');
+        if (!tbody) return;
+
+        const rows = Array.from(tbody.querySelectorAll('tr[data-operation-id]'));
+        const currentIndex = rows.findIndex(r => r.dataset.operationId === String(operationId));
+
+        if (currentIndex === -1) return;
+
+        const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+        if (swapIndex < 0 || swapIndex >= rows.length) return;
+
+        // Swap rows
+        const currentRow = rows[currentIndex];
+        const swapRow = rows[swapIndex];
+
+        if (direction === 'up') {
+            tbody.insertBefore(currentRow, swapRow);
+        } else {
+            tbody.insertBefore(swapRow, currentRow);
+        }
+
+        // Update row numbers
+        updateRowNumbers();
+
+        // Update button states
+        updateReorderButtons();
+    }
+
+    function updateRowNumbers() {
+        const tbody = document.getElementById('operationsBody');
+        if (!tbody) return;
+
+        tbody.querySelectorAll('tr[data-operation-id]').forEach((row, index) => {
+            const numCell = row.querySelector('.op-number strong');
+            if (numCell) {
+                numCell.textContent = index + 1;
+            }
+        });
+    }
+
+    function updateReorderButtons() {
+        const tbody = document.getElementById('operationsBody');
+        if (!tbody) return;
+
+        const rows = tbody.querySelectorAll('tr[data-operation-id]');
+        const count = rows.length;
+
+        rows.forEach((row, index) => {
+            const upBtn = row.querySelector('.move-up-btn');
+            const downBtn = row.querySelector('.move-down-btn');
+
+            if (upBtn) {
+                upBtn.disabled = index === 0;
+                upBtn.style.opacity = index === 0 ? '0.3' : '1';
+            }
+
+            if (downBtn) {
+                downBtn.disabled = index === count - 1;
+                downBtn.style.opacity = index === count - 1 ? '0.3' : '1';
+            }
+        });
+    }
+
+    // Attach event handlers to reorder buttons
+    document.querySelectorAll('.move-up-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!this.disabled) {
+                moveOperation(this.dataset.id, 'up');
+            }
+        });
+    });
+
+    document.querySelectorAll('.move-down-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (!this.disabled) {
+                moveOperation(this.dataset.id, 'down');
+            }
+        });
+    });
 
     // Operations modal handling
     const editModal = document.getElementById('editOperationModal');

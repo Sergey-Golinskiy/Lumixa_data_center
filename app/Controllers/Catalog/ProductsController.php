@@ -821,8 +821,15 @@ class ProductsController extends Controller
         $this->requirePermission('catalog.products.operations');
         $this->validateCSRF();
 
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
@@ -833,6 +840,10 @@ class ProductsController extends Controller
         );
 
         if (!$current) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Operation not found']);
+                return;
+            }
             $this->session->setFlash('error', 'Operation not found');
             $this->redirect("/catalog/products/{$id}");
             return;
@@ -858,6 +869,11 @@ class ProductsController extends Controller
             );
         }
 
+        if ($isAjax) {
+            $this->json(['success' => true]);
+            return;
+        }
+
         $this->redirect("/catalog/products/{$id}");
     }
 
@@ -869,8 +885,15 @@ class ProductsController extends Controller
         $this->requirePermission('catalog.products.operations');
         $this->validateCSRF();
 
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
@@ -881,6 +904,10 @@ class ProductsController extends Controller
         );
 
         if (!$current) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Operation not found']);
+                return;
+            }
             $this->session->setFlash('error', 'Operation not found');
             $this->redirect("/catalog/products/{$id}");
             return;
@@ -904,6 +931,11 @@ class ProductsController extends Controller
                 ['sort_order' => $current['sort_order']],
                 ['id' => $below['id']]
             );
+        }
+
+        if ($isAjax) {
+            $this->json(['success' => true]);
+            return;
         }
 
         $this->redirect("/catalog/products/{$id}");
