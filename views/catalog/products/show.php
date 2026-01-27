@@ -98,10 +98,6 @@
                     <span class="cost-label"><?= $this->__('labor_cost') ?></span>
                     <span class="cost-value"><?= $this->currency($costData['labor_cost'] ?? 0) ?></span>
                 </div>
-                <div class="cost-summary-item">
-                    <span class="cost-label"><?= $this->__('assembly_cost') ?></span>
-                    <span class="cost-value"><?= $this->currency($costData['assembly_cost'] ?? 0) ?></span>
-                </div>
                 <div class="cost-summary-total">
                     <span class="cost-label"><?= $this->__('total_production_cost') ?></span>
                     <span class="cost-value"><?= $this->currency($costData['total_cost'] ?? 0) ?></span>
@@ -116,17 +112,6 @@
                 </div>
             </div>
 
-            <?php if ($this->can('catalog.products.composition')): ?>
-            <form method="POST" action="/catalog/products/<?= $product['id'] ?>/assembly-cost" class="assembly-cost-form">
-                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-                <div class="form-inline">
-                    <label><?= $this->__('assembly_cost') ?>:</label>
-                    <input type="number" name="assembly_cost" step="0.01" min="0"
-                           value="<?= $this->e($product['assembly_cost'] ?? 0) ?>" style="width:120px;">
-                    <button type="submit" class="btn btn-sm btn-secondary"><?= $this->__('update') ?></button>
-                </div>
-            </form>
-            <?php endif; ?>
         </div>
     </div>
 </div>
@@ -766,11 +751,6 @@
 .cost-label { color: var(--text-muted); }
 .cost-value { font-family: monospace; }
 
-/* Assembly Cost Form */
-.assembly-cost-form { margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
-.form-inline { display: flex; gap: 10px; align-items: center; }
-.form-inline label { margin: 0; color: var(--text-muted); }
-
 /* Add Component Section */
 .add-component-section {
     background: var(--bg-secondary);
@@ -1116,242 +1096,370 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Composition handling
+    const productId = '<?= $product['id'] ?>';
+    const csrfToken = '<?= $this->e($csrfToken ?? '') ?>';
+    const canEditComposition = <?= $this->can('catalog.products.composition') ? 'true' : 'false' ?>;
+    const canEditPackaging = <?= $this->can('catalog.products.packaging') ? 'true' : 'false' ?>;
+    const canEditOperations = <?= $this->can('catalog.products.operations') ? 'true' : 'false' ?>;
+
+    // Currency formatter
+    function formatCurrency(value) {
+        return parseFloat(value || 0).toFixed(2) + ' <?= $this->e($this->getCurrencySymbol?.() ?? '₴') ?>';
+    }
+
+    // AJAX helper
+    function ajaxPost(url, formData) {
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        }).then(r => r.json());
+    }
+
+    // Update cost summary
+    function updateCostSummary(costData) {
+        const summary = document.querySelector('.cost-summary');
+        if (!summary || !costData) return;
+
+        const items = summary.querySelectorAll('.cost-summary-item .cost-value');
+        const totals = summary.querySelectorAll('.cost-summary-total .cost-value');
+
+        // Update details, components, labor costs
+        if (items[0]) items[0].textContent = formatCurrency(costData.details_cost);
+        if (items[1]) items[1].textContent = formatCurrency(costData.items_cost);
+        if (items[2]) items[2].textContent = formatCurrency(costData.labor_cost);
+        if (items[3]) items[3].textContent = formatCurrency(costData.packaging_cost);
+
+        // Update totals
+        if (totals[0]) totals[0].textContent = formatCurrency(costData.total_cost);
+        if (totals[1]) totals[1].textContent = formatCurrency(costData.total_price);
+
+        // Update badge counts
+        document.querySelectorAll('.card-header .badge-secondary').forEach((badge, idx) => {
+            if (idx === 0) badge.textContent = (costData.component_count || 0) + ' <?= $this->__('items') ?>';
+            if (idx === 1) badge.textContent = (costData.packaging_count || 0) + ' <?= $this->__('items') ?>';
+            if (idx === 2) badge.textContent = (costData.operations_count || 0) + ' <?= $this->__('operations') ?>';
+        });
+    }
+
+    // ==================== COMPOSITION ====================
     const componentType = document.getElementById('componentType');
     const detailGroup = document.getElementById('detailSelectGroup');
     const itemGroup = document.getElementById('itemSelectGroup');
     const detailSelect = document.getElementById('detailSelect');
     const itemSelect = document.getElementById('itemSelect');
-
-    let detailsLoaded = false;
-    let itemsLoaded = false;
+    let detailsLoaded = false, itemsLoaded = false;
 
     if (componentType) {
         componentType.addEventListener('change', function() {
             const value = this.value;
-
             detailGroup.style.display = value === 'detail' ? 'block' : 'none';
             itemGroup.style.display = value === 'item' ? 'block' : 'none';
-
-            if (value === 'detail' && !detailsLoaded) {
-                loadDetails();
-            }
-            if (value === 'item' && !itemsLoaded) {
-                loadItems();
-            }
+            if (value === 'detail' && !detailsLoaded) loadDetails();
+            if (value === 'item' && !itemsLoaded) loadItems();
         });
     }
 
     function loadDetails() {
-        fetch('/catalog/api/products/details')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && data.details) {
-                    detailSelect.innerHTML = '<option value=""><?= $this->__('select') ?>...</option>';
-                    data.details.forEach(d => {
-                        const opt = document.createElement('option');
-                        opt.value = d.id;
-                        opt.textContent = d.sku + ' - ' + d.name + ' (' + (d.detail_type === 'printed' ? '<?= $this->__('detail_type_printed') ?>' : '<?= $this->__('detail_type_purchased') ?>') + ')';
-                        detailSelect.appendChild(opt);
-                    });
-                    detailsLoaded = true;
-                }
-            });
+        fetch('/catalog/api/products/details').then(r => r.json()).then(data => {
+            if (data.success && data.details) {
+                detailSelect.innerHTML = '<option value=""><?= $this->__('select') ?>...</option>';
+                data.details.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.id;
+                    opt.textContent = d.sku + ' - ' + d.name;
+                    detailSelect.appendChild(opt);
+                });
+                detailsLoaded = true;
+            }
+        });
     }
 
     function loadItems() {
-        fetch('/catalog/api/products/items')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && data.items) {
-                    itemSelect.innerHTML = '<option value=""><?= $this->__('select') ?>...</option>';
-                    data.items.forEach(i => {
-                        const opt = document.createElement('option');
-                        opt.value = i.id;
-                        opt.textContent = i.sku + ' - ' + i.name + (i.avg_cost > 0 ? ' (' + parseFloat(i.avg_cost).toFixed(2) + ')' : '');
-                        itemSelect.appendChild(opt);
-                    });
-                    itemsLoaded = true;
-                }
-            });
+        fetch('/catalog/api/products/items').then(r => r.json()).then(data => {
+            if (data.success && data.items) {
+                itemSelect.innerHTML = '<option value=""><?= $this->__('select') ?>...</option>';
+                data.items.forEach(i => {
+                    const opt = document.createElement('option');
+                    opt.value = i.id;
+                    opt.textContent = i.sku + ' - ' + i.name;
+                    itemSelect.appendChild(opt);
+                });
+                itemsLoaded = true;
+            }
+        });
     }
 
-    // Packaging handling - load on page load
+    // Add component form AJAX
+    const addComponentForm = document.querySelector('.add-component-form');
+    if (addComponentForm) {
+        addComponentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    updateCostSummary(data.costData);
+                    location.reload(); // Reload to show new component
+                } else {
+                    alert(data.error || 'Error adding component');
+                }
+            }).catch(err => { console.error(err); alert('Error'); });
+        });
+    }
+
+    // Component quantity update & remove - use event delegation
+    document.querySelectorAll('form[action*="/components/"][action$="/remove"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!confirm('<?= $this->__('confirm_remove_component') ?>')) return;
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    updateCostSummary(data.costData);
+                    this.closest('tr').remove();
+                }
+            });
+        });
+    });
+
+    document.querySelectorAll('form[action*="/components/"]:not([action*="/remove"])').forEach(form => {
+        if (form.classList.contains('add-component-form')) return;
+        const input = form.querySelector('input[name="quantity"]');
+        if (input) {
+            input.addEventListener('change', function() {
+                const formData = new FormData(form);
+                ajaxPost(form.action, formData).then(data => {
+                    if (data.success) {
+                        updateCostSummary(data.costData);
+                        // Update row costs
+                        const row = form.closest('tr');
+                        const comp = data.components.find(c => form.action.includes('/components/' + c.id));
+                        if (comp && row) {
+                            row.querySelector('td:nth-last-child(3)').textContent = formatCurrency(comp.calculated_cost);
+                            row.querySelector('td:nth-last-child(2) strong').textContent = formatCurrency(comp.total_cost);
+                        }
+                    }
+                });
+            });
+        }
+    });
+
+    // ==================== PACKAGING ====================
     const packagingSelect = document.getElementById('packagingSelect');
     if (packagingSelect) {
-        loadPackagingItems();
+        fetch('/catalog/api/products/packaging-items').then(r => r.json()).then(data => {
+            if (data.success && data.items) {
+                packagingSelect.innerHTML = '<option value=""><?= $this->__('select') ?>...</option>';
+                data.items.forEach(i => {
+                    const opt = document.createElement('option');
+                    opt.value = i.id;
+                    opt.textContent = i.sku + ' - ' + i.name;
+                    packagingSelect.appendChild(opt);
+                });
+            }
+        });
     }
 
-    function loadPackagingItems() {
-        fetch('/catalog/api/products/packaging-items')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && data.items) {
-                    packagingSelect.innerHTML = '<option value=""><?= $this->__('select') ?>...</option>';
-                    data.items.forEach(i => {
-                        const opt = document.createElement('option');
-                        opt.value = i.id;
-                        opt.textContent = i.sku + ' - ' + i.name + (i.avg_cost > 0 ? ' (' + parseFloat(i.avg_cost).toFixed(2) + ')' : '');
-                        packagingSelect.appendChild(opt);
-                    });
+    // Add packaging form AJAX
+    const addPackagingForm = document.querySelector('form[action*="/packaging"]:not([action*="/packaging/"])');
+    if (addPackagingForm) {
+        addPackagingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    updateCostSummary(data.costData);
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error adding packaging');
+                }
+            }).catch(err => { console.error(err); alert('Error'); });
+        });
+    }
+
+    // Packaging remove & update
+    document.querySelectorAll('form[action*="/packaging/"][action$="/remove"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!confirm('<?= $this->__('confirm_remove_packaging') ?>')) return;
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    updateCostSummary(data.costData);
+                    this.closest('tr').remove();
                 }
             });
+        });
+    });
+
+    document.querySelectorAll('form[action*="/packaging/"]:not([action*="/remove"])').forEach(form => {
+        const input = form.querySelector('input[name="quantity"]');
+        if (input) {
+            input.addEventListener('change', function() {
+                const formData = new FormData(form);
+                ajaxPost(form.action, formData).then(data => {
+                    if (data.success) {
+                        updateCostSummary(data.costData);
+                        const row = form.closest('tr');
+                        const pack = data.packaging.find(p => form.action.includes('/packaging/' + p.id));
+                        if (pack && row) {
+                            row.querySelector('td:nth-last-child(3)').textContent = formatCurrency(pack.calculated_cost);
+                            row.querySelector('td:nth-last-child(2) strong').textContent = formatCurrency(pack.total_cost);
+                        }
+                    }
+                });
+            });
+        }
+    });
+
+    // ==================== OPERATIONS ====================
+    // Add operation form AJAX
+    const addOperationForm = document.querySelector('.add-operation-form');
+    if (addOperationForm) {
+        addOperationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    updateCostSummary(data.costData);
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error adding operation');
+                }
+            }).catch(err => { console.error(err); alert('Error'); });
+        });
     }
 
-    // AJAX Operation Reordering
-    const productId = '<?= $product['id'] ?>';
-    const csrfToken = '<?= $this->e($csrfToken ?? '') ?>';
+    // Operation remove
+    document.querySelectorAll('form[action*="/operations/"][action$="/remove"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!confirm('<?= $this->__('confirm_remove_operation') ?>')) return;
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    updateCostSummary(data.costData);
+                    this.closest('tr').remove();
+                    updateRowNumbers();
+                    updateReorderButtons();
+                }
+            });
+        });
+    });
 
+    // Operation reordering
     function moveOperation(operationId, direction) {
         const url = `/catalog/products/${productId}/operations/${operationId}/move-${direction}`;
+        const formData = new FormData();
+        formData.append('_csrf_token', csrfToken);
 
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: '_csrf_token=' + encodeURIComponent(csrfToken)
-        })
-        .then(response => {
-            if (response.ok) {
-                // Reorder rows in DOM without page reload
+        ajaxPost(url, formData).then(data => {
+            if (data.success) {
                 reorderTableRows(operationId, direction);
             }
-        })
-        .catch(err => console.error('Move error:', err));
+        }).catch(err => console.error('Move error:', err));
     }
 
     function reorderTableRows(operationId, direction) {
         const tbody = document.getElementById('operationsBody');
         if (!tbody) return;
-
         const rows = Array.from(tbody.querySelectorAll('tr[data-operation-id]'));
         const currentIndex = rows.findIndex(r => r.dataset.operationId === String(operationId));
-
         if (currentIndex === -1) return;
-
         const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-
         if (swapIndex < 0 || swapIndex >= rows.length) return;
-
-        // Swap rows
         const currentRow = rows[currentIndex];
         const swapRow = rows[swapIndex];
-
         if (direction === 'up') {
             tbody.insertBefore(currentRow, swapRow);
         } else {
             tbody.insertBefore(swapRow, currentRow);
         }
-
-        // Update row numbers
         updateRowNumbers();
-
-        // Update button states
         updateReorderButtons();
     }
 
     function updateRowNumbers() {
         const tbody = document.getElementById('operationsBody');
         if (!tbody) return;
-
         tbody.querySelectorAll('tr[data-operation-id]').forEach((row, index) => {
             const numCell = row.querySelector('.op-number strong');
-            if (numCell) {
-                numCell.textContent = index + 1;
-            }
+            if (numCell) numCell.textContent = index + 1;
         });
     }
 
     function updateReorderButtons() {
         const tbody = document.getElementById('operationsBody');
         if (!tbody) return;
-
         const rows = tbody.querySelectorAll('tr[data-operation-id]');
         const count = rows.length;
-
         rows.forEach((row, index) => {
             const upBtn = row.querySelector('.move-up-btn');
             const downBtn = row.querySelector('.move-down-btn');
-
-            if (upBtn) {
-                upBtn.disabled = index === 0;
-                upBtn.style.opacity = index === 0 ? '0.3' : '1';
-            }
-
-            if (downBtn) {
-                downBtn.disabled = index === count - 1;
-                downBtn.style.opacity = index === count - 1 ? '0.3' : '1';
-            }
+            if (upBtn) { upBtn.disabled = index === 0; upBtn.style.opacity = index === 0 ? '0.3' : '1'; }
+            if (downBtn) { downBtn.disabled = index === count - 1; downBtn.style.opacity = index === count - 1 ? '0.3' : '1'; }
         });
     }
 
-    // Attach event handlers to reorder buttons
     document.querySelectorAll('.move-up-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            if (!this.disabled) {
-                moveOperation(this.dataset.id, 'up');
-            }
+            if (!this.disabled) moveOperation(this.dataset.id, 'up');
         });
     });
 
     document.querySelectorAll('.move-down-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            if (!this.disabled) {
-                moveOperation(this.dataset.id, 'down');
-            }
+            if (!this.disabled) moveOperation(this.dataset.id, 'down');
         });
     });
 
-    // Operations modal handling
+    // Edit operation modal
     const editModal = document.getElementById('editOperationModal');
     const editForm = document.getElementById('editOperationForm');
-    const editOpName = document.getElementById('editOpName');
-    const editOpDescription = document.getElementById('editOpDescription');
-    const editOpTime = document.getElementById('editOpTime');
-    const editOpRate = document.getElementById('editOpRate');
 
-    // Edit button handlers
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            ajaxPost(this.action, formData).then(data => {
+                if (data.success) {
+                    updateCostSummary(data.costData);
+                    editModal.style.display = 'none';
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error updating operation');
+                }
+            }).catch(err => { console.error(err); alert('Error'); });
+        });
+    }
+
     document.querySelectorAll('.edit-operation-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const id = this.dataset.id;
-            const name = this.dataset.name;
-            const description = this.dataset.description;
-            const time = this.dataset.time;
-            const rate = this.dataset.rate;
-            const components = this.dataset.components ? this.dataset.components.split(',') : [];
-
             editForm.action = '/catalog/products/<?= $product['id'] ?>/operations/' + id;
-            editOpName.value = name;
-            editOpDescription.value = description;
-            editOpTime.value = time;
-            editOpRate.value = rate;
-
-            // Set checkboxes for selected components
+            document.getElementById('editOpName').value = this.dataset.name || '';
+            document.getElementById('editOpDescription').value = this.dataset.description || '';
+            document.getElementById('editOpTime').value = this.dataset.time || 0;
+            document.getElementById('editOpRate').value = this.dataset.rate || 0;
+            const components = this.dataset.components ? this.dataset.components.split(',') : [];
             document.querySelectorAll('.edit-comp-checkbox').forEach(checkbox => {
                 checkbox.checked = components.includes(checkbox.value);
             });
-
             editModal.style.display = 'flex';
         });
     });
 
-    // Close modal handlers
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', function() {
             this.closest('.modal').style.display = 'none';
         });
     });
 
-    // Close modal on backdrop click
     if (editModal) {
         editModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.style.display = 'none';
-            }
+            if (e.target === this) this.style.display = 'none';
         });
     }
 });

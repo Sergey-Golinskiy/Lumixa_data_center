@@ -168,15 +168,29 @@ class ProductsController extends Controller
     }
 
     /**
+     * Check if request is AJAX
+     */
+    private function isAjax(): bool
+    {
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+    }
+
+    /**
      * Add component to product composition
      */
     public function addComponent(string $id): void
     {
         $this->requirePermission('catalog.products.composition');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
@@ -186,18 +200,30 @@ class ProductsController extends Controller
         $quantity = (float)($_POST['quantity'] ?? 1);
 
         if (!in_array($componentType, ['detail', 'item'])) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Invalid component type']);
+                return;
+            }
             $this->session->setFlash('error', 'Invalid component type');
             $this->redirect("/catalog/products/{$id}");
             return;
         }
 
         if ($componentType === 'detail' && $detailId <= 0) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Please select a detail']);
+                return;
+            }
             $this->session->setFlash('error', 'Please select a detail');
             $this->redirect("/catalog/products/{$id}");
             return;
         }
 
         if ($componentType === 'item' && $itemId <= 0) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Please select a component']);
+                return;
+            }
             $this->session->setFlash('error', 'Please select a component');
             $this->redirect("/catalog/products/{$id}");
             return;
@@ -218,6 +244,17 @@ class ProductsController extends Controller
             'quantity' => $quantity,
         ]);
 
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'components' => $costData['components'],
+                'message' => 'Component added successfully'
+            ]);
+            return;
+        }
+
         $this->session->setFlash('success', 'Component added successfully');
         $this->redirect("/catalog/products/{$id}");
     }
@@ -229,6 +266,7 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.composition');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $quantity = (float)($_POST['quantity'] ?? 1);
         $unitCost = (float)($_POST['unit_cost'] ?? 0);
@@ -246,6 +284,17 @@ class ProductsController extends Controller
             'quantity' => $quantity,
         ]);
 
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'components' => $costData['components'],
+                'message' => 'Component updated'
+            ]);
+            return;
+        }
+
         $this->session->setFlash('success', 'Component updated');
         $this->redirect("/catalog/products/{$id}");
     }
@@ -257,6 +306,7 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.composition');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $costingService = $this->getCostingService();
         $costingService->removeComponent((int)$componentId);
@@ -265,30 +315,18 @@ class ProductsController extends Controller
             'component_id' => $componentId,
         ]);
 
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'components' => $costData['components'],
+                'message' => 'Component removed'
+            ]);
+            return;
+        }
+
         $this->session->setFlash('success', 'Component removed');
-        $this->redirect("/catalog/products/{$id}");
-    }
-
-    /**
-     * Update assembly cost
-     */
-    public function updateAssemblyCost(string $id): void
-    {
-        $this->requirePermission('catalog.products.composition');
-        $this->validateCSRF();
-
-        $assemblyCost = (float)($_POST['assembly_cost'] ?? 0);
-
-        $this->db()->update('products', [
-            'assembly_cost' => $assemblyCost,
-            'updated_at' => date('Y-m-d H:i:s'),
-        ], ['id' => $id]);
-
-        // Recalculate total cost
-        $costingService = $this->getCostingService();
-        $costingService->updateProductCost((int)$id);
-
-        $this->session->setFlash('success', 'Assembly cost updated');
         $this->redirect("/catalog/products/{$id}");
     }
 
@@ -340,9 +378,14 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.packaging');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
@@ -350,6 +393,10 @@ class ProductsController extends Controller
         $quantity = (float)($_POST['quantity'] ?? 1);
 
         if ($itemId <= 0) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Please select a packaging item']);
+                return;
+            }
             $this->session->setFlash('error', 'Please select a packaging item');
             $this->redirect("/catalog/products/{$id}");
             return;
@@ -360,6 +407,17 @@ class ProductsController extends Controller
             'item_id' => $itemId,
             'quantity' => $quantity,
         ]);
+
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'packaging' => $costData['packaging'],
+                'message' => 'Packaging item added'
+            ]);
+            return;
+        }
 
         $this->session->setFlash('success', 'Packaging item added');
         $this->redirect("/catalog/products/{$id}");
@@ -372,9 +430,14 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.packaging');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
@@ -384,6 +447,17 @@ class ProductsController extends Controller
         $costingService->updatePackaging((int)$packagingId, [
             'quantity' => $quantity,
         ]);
+
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'packaging' => $costData['packaging'],
+                'message' => 'Packaging updated'
+            ]);
+            return;
+        }
 
         $this->session->setFlash('success', 'Packaging updated');
         $this->redirect("/catalog/products/{$id}");
@@ -396,14 +470,30 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.packaging');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
         $costingService = $this->getCostingService();
         $costingService->removePackaging((int)$packagingId);
+
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'packaging' => $costData['packaging'],
+                'message' => 'Packaging removed'
+            ]);
+            return;
+        }
 
         $this->session->setFlash('success', 'Packaging removed');
         $this->redirect("/catalog/products/{$id}");
@@ -730,9 +820,14 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.operations');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
@@ -743,6 +838,10 @@ class ProductsController extends Controller
         $componentIds = $_POST['component_ids'] ?? [];
 
         if (empty($name)) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Operation name is required']);
+                return;
+            }
             $this->session->setFlash('error', 'Operation name is required');
             $this->redirect("/catalog/products/{$id}");
             return;
@@ -757,6 +856,17 @@ class ProductsController extends Controller
             'component_ids' => is_array($componentIds) ? $componentIds : [],
         ]);
 
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'operations' => $costData['operations'],
+                'message' => 'Operation added'
+            ]);
+            return;
+        }
+
         $this->session->setFlash('success', 'Operation added');
         $this->redirect("/catalog/products/{$id}");
     }
@@ -768,9 +878,14 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.operations');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
@@ -789,6 +904,17 @@ class ProductsController extends Controller
             'component_ids' => is_array($componentIds) ? $componentIds : [],
         ]);
 
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'operations' => $costData['operations'],
+                'message' => 'Operation updated'
+            ]);
+            return;
+        }
+
         $this->session->setFlash('success', 'Operation updated');
         $this->redirect("/catalog/products/{$id}");
     }
@@ -800,14 +926,30 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.operations');
         $this->validateCSRF();
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
+            if ($isAjax) {
+                $this->json(['success' => false, 'error' => 'Product not found']);
+                return;
+            }
             $this->notFound();
         }
 
         $costingService = $this->getCostingService();
         $costingService->removeOperation((int)$operationId);
+
+        if ($isAjax) {
+            $costData = $costingService->calculateProductCost((int)$id);
+            $this->json([
+                'success' => true,
+                'costData' => $costData,
+                'operations' => $costData['operations'],
+                'message' => 'Operation removed'
+            ]);
+            return;
+        }
 
         $this->session->setFlash('success', 'Operation removed');
         $this->redirect("/catalog/products/{$id}");
@@ -820,9 +962,7 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.operations');
         $this->validateCSRF();
-
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {
@@ -884,9 +1024,7 @@ class ProductsController extends Controller
     {
         $this->requirePermission('catalog.products.operations');
         $this->validateCSRF();
-
-        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+        $isAjax = $this->isAjax();
 
         $product = $this->db()->fetch("SELECT * FROM products WHERE id = ?", [$id]);
         if (!$product) {

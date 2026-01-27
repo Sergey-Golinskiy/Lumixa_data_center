@@ -102,7 +102,6 @@ class ProductCostingService
             'operations' => $operations,
             'details_cost' => 0,
             'items_cost' => 0,
-            'assembly_cost' => 0,
             'labor_cost' => 0,
             'packaging_cost' => 0,
             'total_cost' => 0,
@@ -131,15 +130,8 @@ class ProductCostingService
             $result['total_time_minutes'] += (int)$operation['time_minutes'];
         }
 
-        // Get assembly cost from product (legacy field, may be deprecated)
-        $product = $this->db->fetch(
-            "SELECT assembly_cost FROM products WHERE id = ?",
-            [$productId]
-        );
-        $result['assembly_cost'] = (float)($product['assembly_cost'] ?? 0);
-
-        // Production cost (without packaging): components + labor + assembly
-        $result['total_cost'] = $result['details_cost'] + $result['items_cost'] + $result['labor_cost'] + $result['assembly_cost'];
+        // Production cost (without packaging): components + labor
+        $result['total_cost'] = $result['details_cost'] + $result['items_cost'] + $result['labor_cost'];
 
         // Total price (including packaging)
         $result['total_price'] = $result['total_cost'] + $result['packaging_cost'];
