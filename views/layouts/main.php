@@ -104,6 +104,9 @@
                             <?php if ($this->can('admin.product_categories.view')): ?>
                             <li><a href="/admin/product-categories" class="nav-link"><?= $this->__('nav_product_categories') ?></a></li>
                             <?php endif; ?>
+                            <?php if ($this->can('admin.product_collections.view')): ?>
+                            <li><a href="/admin/product-collections" class="nav-link"><?= $this->__('nav_product_collections') ?></a></li>
+                            <?php endif; ?>
                             <?php if ($this->can('admin.item_options.view')): ?>
                             <li><a href="/admin/item-options/materials" class="nav-link"><?= $this->__('nav_materials') ?></a></li>
                             <li><a href="/admin/item-options/manufacturers" class="nav-link"><?= $this->__('nav_manufacturers') ?></a></li>

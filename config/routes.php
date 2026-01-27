@@ -98,6 +98,14 @@ return function (Router $router) {
         $router->post('/product-categories/{id}', 'Admin\\ProductCategoriesController@update');
         $router->post('/product-categories/{id}/delete', 'Admin\\ProductCategoriesController@delete');
 
+        // Product Collections
+        $router->get('/product-collections', 'Admin\\ProductCollectionsController@index', 'admin.product-collections');
+        $router->get('/product-collections/create', 'Admin\\ProductCollectionsController@create', 'admin.product-collections.create');
+        $router->post('/product-collections', 'Admin\\ProductCollectionsController@store');
+        $router->get('/product-collections/{id}/edit', 'Admin\\ProductCollectionsController@edit', 'admin.product-collections.edit');
+        $router->post('/product-collections/{id}', 'Admin\\ProductCollectionsController@update');
+        $router->post('/product-collections/{id}/delete', 'Admin\\ProductCollectionsController@delete');
+
         // Item Options
         $router->get('/item-options/{group}', 'Admin\\ItemOptionsController@index', 'admin.item-options');
         $router->get('/item-options/{group}/create', 'Admin\\ItemOptionsController@create', 'admin.item-options.create');

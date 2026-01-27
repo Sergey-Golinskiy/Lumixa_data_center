@@ -54,13 +54,33 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="name"><?= $this->__('product_name') ?> *</label>
-                <input type="text" id="name" name="name" required
-                       value="<?= $this->e($product['name'] ?? $this->old('name')) ?>"
-                       placeholder="<?= $this->__('full_product_name') ?>">
-                <?php if ($this->hasError('name')): ?>
-                <span class="error"><?= $this->error('name') ?></span>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name"><?= $this->__('product_name') ?> *</label>
+                    <input type="text" id="name" name="name" required
+                           value="<?= $this->e($product['name'] ?? $this->old('name')) ?>"
+                           placeholder="<?= $this->__('full_product_name') ?>">
+                    <?php if ($this->hasError('name')): ?>
+                    <span class="error"><?= $this->error('name') ?></span>
+                    <?php endif; ?>
+                </div>
+
+                <?php if (!empty($collections)): ?>
+                <div class="form-group">
+                    <label for="collection_id"><?= $this->__('collection') ?></label>
+                    <select id="collection_id" name="collection_id">
+                        <option value=""><?= $this->__('no_collection') ?></option>
+                        <?php foreach ($collections as $coll): ?>
+                        <option value="<?= $this->e($coll['id']) ?>"
+                                <?= (string)$this->old('collection_id', $product['collection_id'] ?? '') === (string)$coll['id'] ? 'selected' : '' ?>>
+                            <?= $this->e($coll['name']) ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="text-muted">
+                        <a href="/admin/product-collections"><?= $this->__('manage_collections') ?></a>
+                    </small>
+                </div>
                 <?php endif; ?>
             </div>
 

@@ -514,11 +514,20 @@ class ProductsController extends Controller
             $categories = [];
         }
 
+        // Load collections if table exists
+        $collections = [];
+        if ($this->db()->tableExists('product_collections')) {
+            $collections = $this->db()->fetchAll(
+                "SELECT id, name FROM product_collections WHERE is_active = 1 ORDER BY name"
+            );
+        }
+
         $this->render('catalog/products/form', [
             'title' => 'Create Product',
             'product' => null,
             'categories' => $categories,
-            'categoryMode' => $categoryMode
+            'categoryMode' => $categoryMode,
+            'collections' => $collections
         ]);
     }
 
@@ -565,11 +574,20 @@ class ProductsController extends Controller
             $categories = [];
         }
 
+        // Load collections if table exists
+        $collections = [];
+        if ($this->db()->tableExists('product_collections')) {
+            $collections = $this->db()->fetchAll(
+                "SELECT id, name FROM product_collections WHERE is_active = 1 ORDER BY name"
+            );
+        }
+
         $this->render('catalog/products/form', [
             'title' => 'Copy Product: ' . $product['name'],
             'product' => $product,
             'categories' => $categories,
             'categoryMode' => $categoryMode,
+            'collections' => $collections,
             'isCopy' => true,
             'sourceProductId' => $id
         ]);
@@ -597,6 +615,11 @@ class ProductsController extends Controller
             $data['category_id'] = (int)($_POST['category_id'] ?? 0);
         } elseif ($categoryMode === 'legacy') {
             $data['category'] = trim($_POST['category'] ?? '');
+        }
+        // Handle collection_id if collections table exists
+        if ($this->db()->tableExists('product_collections')) {
+            $collectionId = (int)($_POST['collection_id'] ?? 0);
+            $data['collection_id'] = $collectionId > 0 ? $collectionId : null;
         }
         $imagePath = $this->storeImageUpload('image', 'products');
         if ($imagePath) {
@@ -708,11 +731,20 @@ class ProductsController extends Controller
             $categories = [];
         }
 
+        // Load collections if table exists
+        $collections = [];
+        if ($this->db()->tableExists('product_collections')) {
+            $collections = $this->db()->fetchAll(
+                "SELECT id, name FROM product_collections WHERE is_active = 1 ORDER BY name"
+            );
+        }
+
         $this->render('catalog/products/form', [
             'title' => "Edit: {$product['name']}",
             'product' => $product,
             'categories' => $categories,
-            'categoryMode' => $categoryMode
+            'categoryMode' => $categoryMode,
+            'collections' => $collections
         ]);
     }
 
@@ -743,6 +775,11 @@ class ProductsController extends Controller
             $data['category_id'] = (int)($_POST['category_id'] ?? 0);
         } elseif ($categoryMode === 'legacy') {
             $data['category'] = trim($_POST['category'] ?? '');
+        }
+        // Handle collection_id if collections table exists
+        if ($this->db()->tableExists('product_collections')) {
+            $collectionId = (int)($_POST['collection_id'] ?? 0);
+            $data['collection_id'] = $collectionId > 0 ? $collectionId : null;
         }
         $imagePath = $this->storeImageUpload('image', 'products');
         if ($imagePath) {
