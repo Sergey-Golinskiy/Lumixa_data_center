@@ -835,6 +835,8 @@ return [
     'product_collections_missing' => 'Таблиця колекцій відсутня. Запустіть міграції для її створення.',
     'confirm_delete_collection' => 'Видалити цю колекцію? Продукти будуть відкріплені від неї.',
     'manage_collections' => 'Керувати колекціями',
+    'collection_products_count' => ':count продукт(ів) у цій колекції',
+    'show_all_products' => 'Показати всі продукти',
 
     'create_material' => 'Створити матеріал',
     'edit_material' => 'Редагувати матеріал',

@@ -1,5 +1,18 @@
 <?php $this->section('content'); ?>
 
+<?php if (!empty($selectedCollection)): ?>
+<!-- Collection Banner -->
+<div class="collection-banner">
+    <div class="collection-banner-content">
+        <div class="collection-icon">&#128218;</div>
+        <div class="collection-info">
+            <h2><?= $this->e($selectedCollection['name']) ?></h2>
+            <p><?= $this->__('collection_products_count', ['count' => $total]) ?></p>
+        </div>
+    </div>
+    <a href="/catalog/products" class="btn btn-outline"><?= $this->__('show_all_products') ?></a>
+</div>
+<?php else: ?>
 <div class="page-header">
     <h1><?= $this->__('products') ?></h1>
     <div class="page-actions">
@@ -8,6 +21,7 @@
         <?php endif; ?>
     </div>
 </div>
+<?php endif; ?>
 
 <!-- Filters -->
 <div class="card" style="margin-bottom: 20px;">
@@ -83,6 +97,16 @@
                     <span class="info-label"><?= $this->__('category') ?>:</span>
                     <span class="info-value"><?= $this->e($product['category_name'] ?? '-') ?></span>
                 </div>
+                <?php if (!empty($product['collection_name'])): ?>
+                <div class="info-row">
+                    <span class="info-label"><?= $this->__('collection') ?>:</span>
+                    <span class="info-value">
+                        <a href="/catalog/products?collection_id=<?= $this->e($product['collection_id']) ?>" class="collection-tag">
+                            <?= $this->e($product['collection_name']) ?>
+                        </a>
+                    </span>
+                </div>
+                <?php endif; ?>
                 <div class="info-row">
                     <span class="info-label"><?= $this->__('base_price') ?>:</span>
                     <span class="info-value price"><?= number_format($product['base_price'], 2) ?></span>
@@ -146,6 +170,64 @@
 <?php endif; ?>
 
 <style>
+/* Collection Banner */
+.collection-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+.collection-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.collection-icon {
+    font-size: 32px;
+}
+.collection-info h2 {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+.collection-info p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 14px;
+}
+.collection-banner .btn-outline {
+    background: rgba(255,255,255,0.2);
+    border-color: white;
+    color: white;
+}
+.collection-banner .btn-outline:hover {
+    background: white;
+    color: #6366f1;
+}
+
+/* Collection Tag in Product Tile */
+.collection-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.collection-tag:hover {
+    transform: scale(1.05);
+    text-decoration: none;
+    color: white;
+}
+
 .page-header {
     display: flex;
     justify-content: space-between;

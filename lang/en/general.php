@@ -836,6 +836,8 @@ return [
     'product_collections_missing' => 'Product collections table is missing. Run migrations to create it.',
     'confirm_delete_collection' => 'Delete this collection? Products will be unassigned from it.',
     'manage_collections' => 'Manage collections',
+    'collection_products_count' => ':count product(s) in this collection',
+    'show_all_products' => 'Show All Products',
 
     'create_material' => 'Create Material',
     'edit_material' => 'Edit Material',

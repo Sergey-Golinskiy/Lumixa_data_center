@@ -43,6 +43,21 @@
                 <span class="detail-label"><?= $this->__('category') ?></span>
                 <span class="detail-value"><?= $this->e($product['category_name'] ?? $product['category'] ?? '-') ?></span>
             </div>
+            <?php if (!empty($product['collection_name'])): ?>
+            <div class="detail-row">
+                <span class="detail-label"><?= $this->__('collection') ?></span>
+                <span class="detail-value">
+                    <a href="/catalog/products?collection_id=<?= $this->e($product['collection_id']) ?>" target="_blank" class="collection-link">
+                        <span class="badge badge-collection"><?= $this->e($product['collection_name']) ?></span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-left: 4px;">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                </span>
+            </div>
+            <?php endif; ?>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('base_price') ?></span>
                 <span class="detail-value"><?= $this->currency($product['base_price'] ?? 0) ?></span>
@@ -730,6 +745,37 @@
 .detail-row:last-child { border-bottom: none; }
 .detail-label { flex: 0 0 120px; color: var(--text-muted); font-size: 13px; }
 .detail-value { flex: 1; }
+
+/* Collection Link */
+.collection-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.collection-link:hover {
+    text-decoration: none;
+}
+.collection-link:hover .badge-collection {
+    transform: scale(1.05);
+}
+.badge-collection {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
+}
+.collection-link svg {
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+.collection-link:hover svg {
+    opacity: 1;
+}
 
 /* Cost Summary */
 .cost-summary { margin-bottom: 20px; }

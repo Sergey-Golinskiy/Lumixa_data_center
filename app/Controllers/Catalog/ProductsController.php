@@ -29,6 +29,7 @@ class ProductsController extends Controller
 
         $search = $_GET['search'] ?? '';
         $category = $_GET['category'] ?? '';
+        $collectionId = $_GET['collection_id'] ?? '';
         $status = $_GET['status'] ?? '';
         $page = max(1, (int)($_GET['page'] ?? 1));
         $perPage = 25;
@@ -53,6 +54,11 @@ class ProductsController extends Controller
             $params[] = $category;
         }
 
+        if ($collectionId) {
+            $where[] = "p.collection_id = ?";
+            $params[] = $collectionId;
+        }
+
         if ($status === 'active') {
             $where[] = "p.is_active = 1";
         } elseif ($status === 'inactive') {
@@ -71,10 +77,11 @@ class ProductsController extends Controller
         $offset = ($page - 1) * $perPage;
         if ($categoryMode === 'table') {
             $products = $this->db()->fetchAll(
-                "SELECT p.*, COALESCE(pc.name, p.category) as category_name,
+                "SELECT p.*, COALESCE(pc.name, p.category) as category_name, pcol.name as collection_name,
                         (SELECT COUNT(*) FROM variants WHERE product_id = p.id) as variant_count
                  FROM products p
                  LEFT JOIN product_categories pc ON p.category_id = pc.id
+                 LEFT JOIN product_collections pcol ON p.collection_id = pcol.id
                  WHERE {$whereClause}
                  ORDER BY p.code
                  LIMIT {$perPage} OFFSET {$offset}",
@@ -82,9 +89,10 @@ class ProductsController extends Controller
             );
         } else {
             $products = $this->db()->fetchAll(
-                "SELECT p.*, p.category as category_name,
+                "SELECT p.*, p.category as category_name, pcol.name as collection_name,
                         (SELECT COUNT(*) FROM variants WHERE product_id = p.id) as variant_count
                  FROM products p
+                 LEFT JOIN product_collections pcol ON p.collection_id = pcol.id
                  WHERE {$whereClause}
                  ORDER BY p.code
                  LIMIT {$perPage} OFFSET {$offset}",
@@ -108,13 +116,31 @@ class ProductsController extends Controller
             $categories = [];
         }
 
+        // Get collections for filter
+        $collections = [];
+        $selectedCollection = null;
+        if ($this->db()->tableExists('product_collections')) {
+            $collections = $this->db()->fetchAll(
+                "SELECT id, name FROM product_collections WHERE is_active = 1 ORDER BY name"
+            );
+            if ($collectionId) {
+                $selectedCollection = $this->db()->fetch(
+                    "SELECT id, name FROM product_collections WHERE id = ?",
+                    [$collectionId]
+                );
+            }
+        }
+
         $this->render('catalog/products/index', [
-            'title' => 'Products',
+            'title' => $selectedCollection ? $selectedCollection['name'] : 'Products',
             'products' => $products,
             'categories' => $categories,
+            'collections' => $collections,
             'categoryMode' => $categoryMode,
             'search' => $search,
             'category' => $category,
+            'collectionId' => $collectionId,
+            'selectedCollection' => $selectedCollection,
             'status' => $status,
             'page' => $page,
             'perPage' => $perPage,
@@ -134,16 +160,18 @@ class ProductsController extends Controller
 
         if ($categoryMode === 'table') {
             $product = $this->db()->fetch(
-                "SELECT p.*, COALESCE(pc.name, p.category) as category_name
+                "SELECT p.*, COALESCE(pc.name, p.category) as category_name, pcol.name as collection_name
                  FROM products p
                  LEFT JOIN product_categories pc ON p.category_id = pc.id
+                 LEFT JOIN product_collections pcol ON p.collection_id = pcol.id
                  WHERE p.id = ?",
                 [$id]
             );
         } else {
             $product = $this->db()->fetch(
-                "SELECT p.*, p.category as category_name
+                "SELECT p.*, p.category as category_name, pcol.name as collection_name
                  FROM products p
+                 LEFT JOIN product_collections pcol ON p.collection_id = pcol.id
                  WHERE p.id = ?",
                 [$id]
             );

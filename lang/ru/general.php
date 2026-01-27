@@ -835,6 +835,8 @@ return [
     'product_collections_missing' => 'Таблица коллекций отсутствует. Запустите миграции для её создания.',
     'confirm_delete_collection' => 'Удалить эту коллекцию? Продукты будут откреплены от неё.',
     'manage_collections' => 'Управлять коллекциями',
+    'collection_products_count' => ':count продукт(ов) в этой коллекции',
+    'show_all_products' => 'Показать все продукты',
 
     'create_material' => 'Создать материал',
     'edit_material' => 'Редактировать материал',
