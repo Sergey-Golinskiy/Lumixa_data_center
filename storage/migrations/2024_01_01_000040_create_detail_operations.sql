@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS detail_operations (
 
     -- Resources that can be selected for this operation
     material_id INT UNSIGNED NULL COMMENT 'Material/filament for this operation',
-    printer_id INT UNSIGNED NULL COMMENT 'Printer for this operation',
+    printer_id BIGINT UNSIGNED NULL COMMENT 'Printer for this operation',
     tool_id INT UNSIGNED NULL COMMENT 'Tool/instrument for this operation',
 
     sort_order INT DEFAULT 0,

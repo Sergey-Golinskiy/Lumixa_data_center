@@ -779,7 +779,7 @@ class DetailsController extends Controller
                 time_minutes INT NOT NULL DEFAULT 0,
                 labor_rate DECIMAL(15,4) DEFAULT 0,
                 material_id INT UNSIGNED NULL,
-                printer_id INT UNSIGNED NULL,
+                printer_id BIGINT UNSIGNED NULL,
                 tool_id INT UNSIGNED NULL,
                 sort_order INT DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
