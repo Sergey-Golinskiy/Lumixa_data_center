@@ -223,6 +223,13 @@ return function (Router $router) {
         $router->get('/details/{id}/copy', 'Catalog\\DetailsController@copy', 'catalog.details.create');
         $router->post('/details/{id}', 'Catalog\\DetailsController@update');
 
+        // Detail Operations (Routing)
+        $router->post('/details/{id}/operations', 'Catalog\\DetailsController@addOperation');
+        $router->post('/details/{id}/operations/{operationId}', 'Catalog\\DetailsController@updateOperation');
+        $router->post('/details/{id}/operations/{operationId}/remove', 'Catalog\\DetailsController@removeOperation');
+        $router->post('/details/{id}/operations/{operationId}/move-up', 'Catalog\\DetailsController@moveOperationUp');
+        $router->post('/details/{id}/operations/{operationId}/move-down', 'Catalog\\DetailsController@moveOperationDown');
+
         // Detail Routing
         $router->get('/detail-routing', 'Catalog\\DetailRoutingController@index', 'catalog.detail-routing');
         $router->get('/detail-routing/create', 'Catalog\\DetailRoutingController@create', 'catalog.detail-routing.create');

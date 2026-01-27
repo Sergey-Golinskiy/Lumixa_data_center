@@ -132,13 +132,27 @@ class DetailsController extends Controller
             $costBreakdown = $this->costingService->getCostBreakdown($costData);
         }
 
+        // Load detail operations
+        $operations = $this->getDetailOperations((int)$id);
+        $laborCost = $this->calculateLaborCost($operations);
+
+        // Load available resources for operations
+        $materials = $this->getMaterials();
+        $printers = $this->getPrinters();
+        $tools = $this->getTools();
+
         $this->render('catalog/details/show', [
             'title' => $detail['name'],
             'detail' => $detail,
             'activeRouting' => $activeRouting,
             'routingOperations' => $routingOperations,
             'costData' => $costData,
-            'costBreakdown' => $costBreakdown
+            'costBreakdown' => $costBreakdown,
+            'operations' => $operations,
+            'laborCost' => $laborCost,
+            'materials' => $materials,
+            'printers' => $printers,
+            'tools' => $tools
         ]);
     }
 
@@ -471,5 +485,327 @@ class DetailsController extends Controller
         $item = $this->itemService->create($itemData, [], $userId);
 
         return (int)$item['id'];
+    }
+
+    /**
+     * Get tools (items of type 'tool')
+     */
+    private function getTools(): array
+    {
+        return $this->db()->fetchAll(
+            "SELECT i.id, i.sku, i.name
+             FROM items i
+             WHERE i.type = 'tool' AND i.is_active = 1
+             ORDER BY i.name"
+        );
+    }
+
+    /**
+     * Get detail operations with resources
+     */
+    private function getDetailOperations(int $detailId): array
+    {
+        if (!$this->db()->tableExists('detail_operations')) {
+            return [];
+        }
+
+        return $this->db()->fetchAll(
+            "SELECT o.*,
+                    m.sku AS material_sku, m.name AS material_name,
+                    p.name AS printer_name,
+                    t.sku AS tool_sku, t.name AS tool_name
+             FROM detail_operations o
+             LEFT JOIN items m ON o.material_id = m.id
+             LEFT JOIN printers p ON o.printer_id = p.id
+             LEFT JOIN items t ON o.tool_id = t.id
+             WHERE o.detail_id = ?
+             ORDER BY o.sort_order, o.id",
+            [$detailId]
+        );
+    }
+
+    /**
+     * Calculate total labor cost from operations
+     */
+    private function calculateLaborCost(array $operations): array
+    {
+        $totalMinutes = 0;
+        $totalCost = 0;
+
+        foreach ($operations as $op) {
+            $minutes = (int)($op['time_minutes'] ?? 0);
+            $rate = (float)($op['labor_rate'] ?? 0);
+            $opCost = ($minutes / 60) * $rate;
+
+            $totalMinutes += $minutes;
+            $totalCost += $opCost;
+        }
+
+        return [
+            'total_minutes' => $totalMinutes,
+            'total_cost' => $totalCost
+        ];
+    }
+
+    /**
+     * Add operation to detail
+     */
+    public function addOperation(string $detailId): void
+    {
+        $this->requirePermission('catalog.details.edit');
+        $this->validateCsrf();
+
+        $detail = $this->db()->fetch("SELECT * FROM details WHERE id = ?", [$detailId]);
+        if (!$detail) {
+            $this->notFound();
+        }
+
+        // Ensure table exists
+        $this->ensureOperationsTableExists();
+
+        $maxSort = (int)$this->db()->fetchColumn(
+            "SELECT COALESCE(MAX(sort_order), 0) FROM detail_operations WHERE detail_id = ?",
+            [$detailId]
+        );
+
+        $data = [
+            'detail_id' => (int)$detailId,
+            'name' => trim($_POST['name'] ?? ''),
+            'description' => trim($_POST['description'] ?? ''),
+            'time_minutes' => (int)($_POST['time_minutes'] ?? 0),
+            'labor_rate' => (float)($_POST['labor_rate'] ?? 0),
+            'material_id' => !empty($_POST['material_id']) ? (int)$_POST['material_id'] : null,
+            'printer_id' => !empty($_POST['printer_id']) ? (int)$_POST['printer_id'] : null,
+            'tool_id' => !empty($_POST['tool_id']) ? (int)$_POST['tool_id'] : null,
+            'sort_order' => $maxSort + 1
+        ];
+
+        if (empty($data['name'])) {
+            if ($this->isAjax()) {
+                $this->jsonResponse(['success' => false, 'error' => 'Operation name is required']);
+            }
+            $this->session->setFlash('error', 'Operation name is required');
+            $this->redirect("/catalog/details/{$detailId}");
+            return;
+        }
+
+        $operationId = $this->db()->insert('detail_operations', $data);
+
+        $this->audit('detail.operation.added', 'detail_operations', $operationId, null, $data);
+
+        if ($this->isAjax()) {
+            $operations = $this->getDetailOperations((int)$detailId);
+            $laborCost = $this->calculateLaborCost($operations);
+            $this->jsonResponse([
+                'success' => true,
+                'operations' => $operations,
+                'laborCost' => $laborCost
+            ]);
+        }
+
+        $this->session->setFlash('success', 'Operation added');
+        $this->redirect("/catalog/details/{$detailId}");
+    }
+
+    /**
+     * Update operation
+     */
+    public function updateOperation(string $detailId, string $operationId): void
+    {
+        $this->requirePermission('catalog.details.edit');
+        $this->validateCsrf();
+
+        $operation = $this->db()->fetch(
+            "SELECT * FROM detail_operations WHERE id = ? AND detail_id = ?",
+            [$operationId, $detailId]
+        );
+
+        if (!$operation) {
+            if ($this->isAjax()) {
+                $this->jsonResponse(['success' => false, 'error' => 'Operation not found']);
+            }
+            $this->notFound();
+        }
+
+        $data = [
+            'name' => trim($_POST['name'] ?? $operation['name']),
+            'description' => trim($_POST['description'] ?? ''),
+            'time_minutes' => (int)($_POST['time_minutes'] ?? 0),
+            'labor_rate' => (float)($_POST['labor_rate'] ?? 0),
+            'material_id' => !empty($_POST['material_id']) ? (int)$_POST['material_id'] : null,
+            'printer_id' => !empty($_POST['printer_id']) ? (int)$_POST['printer_id'] : null,
+            'tool_id' => !empty($_POST['tool_id']) ? (int)$_POST['tool_id'] : null
+        ];
+
+        $this->db()->update('detail_operations', $data, ['id' => $operationId]);
+
+        $this->audit('detail.operation.updated', 'detail_operations', $operationId, $operation, $data);
+
+        if ($this->isAjax()) {
+            $operations = $this->getDetailOperations((int)$detailId);
+            $laborCost = $this->calculateLaborCost($operations);
+            $this->jsonResponse([
+                'success' => true,
+                'operations' => $operations,
+                'laborCost' => $laborCost
+            ]);
+        }
+
+        $this->session->setFlash('success', 'Operation updated');
+        $this->redirect("/catalog/details/{$detailId}");
+    }
+
+    /**
+     * Remove operation
+     */
+    public function removeOperation(string $detailId, string $operationId): void
+    {
+        $this->requirePermission('catalog.details.edit');
+        $this->validateCsrf();
+
+        $operation = $this->db()->fetch(
+            "SELECT * FROM detail_operations WHERE id = ? AND detail_id = ?",
+            [$operationId, $detailId]
+        );
+
+        if (!$operation) {
+            if ($this->isAjax()) {
+                $this->jsonResponse(['success' => false, 'error' => 'Operation not found']);
+            }
+            $this->notFound();
+        }
+
+        $this->db()->delete('detail_operations', ['id' => $operationId]);
+
+        $this->audit('detail.operation.removed', 'detail_operations', $operationId, $operation, null);
+
+        if ($this->isAjax()) {
+            $operations = $this->getDetailOperations((int)$detailId);
+            $laborCost = $this->calculateLaborCost($operations);
+            $this->jsonResponse([
+                'success' => true,
+                'operations' => $operations,
+                'laborCost' => $laborCost
+            ]);
+        }
+
+        $this->session->setFlash('success', 'Operation removed');
+        $this->redirect("/catalog/details/{$detailId}");
+    }
+
+    /**
+     * Move operation up
+     */
+    public function moveOperationUp(string $detailId, string $operationId): void
+    {
+        $this->moveOperation($detailId, $operationId, 'up');
+    }
+
+    /**
+     * Move operation down
+     */
+    public function moveOperationDown(string $detailId, string $operationId): void
+    {
+        $this->moveOperation($detailId, $operationId, 'down');
+    }
+
+    /**
+     * Move operation in specified direction
+     */
+    private function moveOperation(string $detailId, string $operationId, string $direction): void
+    {
+        $this->requirePermission('catalog.details.edit');
+        $this->validateCsrf();
+
+        $operations = $this->db()->fetchAll(
+            "SELECT id, sort_order FROM detail_operations WHERE detail_id = ? ORDER BY sort_order, id",
+            [$detailId]
+        );
+
+        $currentIndex = null;
+        foreach ($operations as $i => $op) {
+            if ($op['id'] == $operationId) {
+                $currentIndex = $i;
+                break;
+            }
+        }
+
+        if ($currentIndex === null) {
+            if ($this->isAjax()) {
+                $this->jsonResponse(['success' => false, 'error' => 'Operation not found']);
+            }
+            $this->notFound();
+        }
+
+        $swapIndex = $direction === 'up' ? $currentIndex - 1 : $currentIndex + 1;
+
+        if ($swapIndex < 0 || $swapIndex >= count($operations)) {
+            if ($this->isAjax()) {
+                $this->jsonResponse(['success' => true, 'message' => 'Already at boundary']);
+            }
+            $this->redirect("/catalog/details/{$detailId}");
+            return;
+        }
+
+        // Swap sort orders
+        $currentOp = $operations[$currentIndex];
+        $swapOp = $operations[$swapIndex];
+
+        $this->db()->update('detail_operations', ['sort_order' => $swapOp['sort_order']], ['id' => $currentOp['id']]);
+        $this->db()->update('detail_operations', ['sort_order' => $currentOp['sort_order']], ['id' => $swapOp['id']]);
+
+        if ($this->isAjax()) {
+            $this->jsonResponse(['success' => true]);
+        }
+
+        $this->redirect("/catalog/details/{$detailId}");
+    }
+
+    /**
+     * Ensure detail_operations table exists
+     */
+    private function ensureOperationsTableExists(): void
+    {
+        if ($this->db()->tableExists('detail_operations')) {
+            return;
+        }
+
+        $this->db()->exec("
+            CREATE TABLE IF NOT EXISTS detail_operations (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                detail_id INT UNSIGNED NOT NULL,
+                name VARCHAR(255) NOT NULL,
+                description TEXT NULL,
+                time_minutes INT NOT NULL DEFAULT 0,
+                labor_rate DECIMAL(15,4) DEFAULT 0,
+                material_id INT UNSIGNED NULL,
+                printer_id INT UNSIGNED NULL,
+                tool_id INT UNSIGNED NULL,
+                sort_order INT DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX idx_detail_operations_detail (detail_id),
+                FOREIGN KEY (detail_id) REFERENCES details(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
+    }
+
+    /**
+     * Check if request is AJAX
+     */
+    private function isAjax(): bool
+    {
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+    }
+
+    /**
+     * Send JSON response
+     */
+    private function jsonResponse(array $data): void
+    {
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
     }
 }

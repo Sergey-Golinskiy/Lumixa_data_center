@@ -271,6 +271,232 @@
 </div>
 <?php endif; ?>
 
+<!-- Detail Operations (Routing) -->
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <?= $this->__('detail_routing') ?>
+        <span class="badge badge-secondary"><?= count($operations ?? []) ?> <?= $this->__('operations') ?></span>
+        <?php if (($laborCost['total_minutes'] ?? 0) > 0): ?>
+        <span class="badge badge-info"><?= $laborCost['total_minutes'] ?> <?= $this->__('minutes_short') ?></span>
+        <?php endif; ?>
+        <?php if (($laborCost['total_cost'] ?? 0) > 0): ?>
+        <span class="cost-total-badge"><?= $this->currency($laborCost['total_cost']) ?></span>
+        <?php endif; ?>
+    </div>
+    <div class="card-body">
+        <?php if ($this->can('catalog.details.edit')): ?>
+        <!-- Add Operation Form -->
+        <div class="add-component-section">
+            <form method="POST" action="/catalog/details/<?= $detail['id'] ?>/operations" class="add-operation-form">
+                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+
+                <div class="operation-form-grid">
+                    <!-- Operation Name -->
+                    <div class="form-group">
+                        <label><?= $this->__('operation_name') ?> *</label>
+                        <input type="text" name="name" required placeholder="<?= $this->__('operation_name_placeholder') ?>">
+                    </div>
+
+                    <!-- Time and Rate -->
+                    <div class="form-row-inline">
+                        <div class="form-group">
+                            <label><?= $this->__('time_minutes') ?></label>
+                            <input type="number" name="time_minutes" value="0" min="0" step="1">
+                        </div>
+                        <div class="form-group">
+                            <label><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
+                            <input type="number" name="labor_rate" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <!-- Resources Selection -->
+                    <div class="form-group">
+                        <label><?= $this->__('material') ?></label>
+                        <select name="material_id">
+                            <option value=""><?= $this->__('select_material') ?></option>
+                            <?php foreach ($materials ?? [] as $mat): ?>
+                            <option value="<?= $mat['id'] ?>">
+                                <?= $this->e($mat['sku']) ?> - <?= $this->e($mat['name']) ?>
+                                <?= !empty($mat['filament_alias']) ? ' (' . $this->e($mat['filament_alias']) . ')' : '' ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $this->__('printer') ?></label>
+                        <select name="printer_id">
+                            <option value=""><?= $this->__('select_printer') ?></option>
+                            <?php foreach ($printers ?? [] as $pr): ?>
+                            <option value="<?= $pr['id'] ?>">
+                                <?= $this->e($pr['name']) ?><?= !empty($pr['model']) ? ' - ' . $this->e($pr['model']) : '' ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><?= $this->__('tool') ?></label>
+                        <select name="tool_id">
+                            <option value=""><?= $this->__('select_tool') ?></option>
+                            <?php foreach ($tools ?? [] as $tool): ?>
+                            <option value="<?= $tool['id'] ?>"><?= $this->e($tool['sku']) ?> - <?= $this->e($tool['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group form-group-full">
+                        <label><?= $this->__('description') ?></label>
+                        <textarea name="description" rows="2" placeholder="<?= $this->__('instructions_placeholder') ?>"></textarea>
+                    </div>
+                </div>
+
+                <!-- Add Button -->
+                <div class="form-actions-center" style="margin-top: 15px;">
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        <?= $this->__('add_operation') ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <?php endif; ?>
+
+        <!-- Operations Table -->
+        <div class="table-container" style="margin-top: 20px;">
+            <table id="operationsTable">
+                <thead>
+                    <tr>
+                        <?php if ($this->can('catalog.details.edit')): ?>
+                        <th style="width: 60px;"><?= $this->__('order') ?></th>
+                        <?php endif; ?>
+                        <th style="width: 40px;">#</th>
+                        <th><?= $this->__('operation_name') ?></th>
+                        <th><?= $this->__('resources') ?></th>
+                        <th class="text-right"><?= $this->__('time_minutes') ?></th>
+                        <th class="text-right"><?= $this->__('labor_rate') ?></th>
+                        <th class="text-right"><?= $this->__('operation_cost') ?></th>
+                        <?php if ($this->can('catalog.details.edit')): ?>
+                        <th style="width: 80px;"><?= $this->__('actions') ?></th>
+                        <?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody id="operationsBody">
+                    <?php if (empty($operations)): ?>
+                    <tr>
+                        <td colspan="<?= $this->can('catalog.details.edit') ? '8' : '6' ?>" class="text-center text-muted"><?= $this->__('no_operations') ?></td>
+                    </tr>
+                    <?php else: ?>
+                    <?php $opNum = 1; $opCount = count($operations); foreach ($operations as $index => $operation): ?>
+                    <?php $opCost = ((int)($operation['time_minutes'] ?? 0) / 60) * (float)($operation['labor_rate'] ?? 0); ?>
+                    <tr data-operation-id="<?= $operation['id'] ?>">
+                        <?php if ($this->can('catalog.details.edit')): ?>
+                        <td class="reorder-cell">
+                            <div class="reorder-buttons">
+                                <form method="POST" action="/catalog/details/<?= $detail['id'] ?>/operations/<?= $operation['id'] ?>/move-up" style="display:inline;">
+                                    <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline reorder-btn" title="<?= $this->__('move_up') ?>"
+                                            <?= $index === 0 ? 'disabled style="opacity: 0.3;"' : '' ?>>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M18 15l-6-6-6 6"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <form method="POST" action="/catalog/details/<?= $detail['id'] ?>/operations/<?= $operation['id'] ?>/move-down" style="display:inline;">
+                                    <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline reorder-btn" title="<?= $this->__('move_down') ?>"
+                                            <?= $index === $opCount - 1 ? 'disabled style="opacity: 0.3;"' : '' ?>>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M6 9l6 6 6-6"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <?php endif; ?>
+                        <td class="op-number"><strong><?= $opNum++ ?></strong></td>
+                        <td>
+                            <strong><?= $this->e($operation['name'] ?? '') ?></strong>
+                            <?php if (!empty($operation['description'])): ?>
+                            <br><small class="text-muted"><?= nl2br($this->e($operation['description'])) ?></small>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <div class="operation-resources">
+                                <?php if (!empty($operation['material_sku'])): ?>
+                                <span class="badge badge-material" title="<?= $this->e($operation['material_name'] ?? '') ?>">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 3px;">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                    </svg>
+                                    <?= $this->e($operation['material_sku']) ?>
+                                </span>
+                                <?php endif; ?>
+                                <?php if (!empty($operation['printer_name'])): ?>
+                                <span class="badge badge-printer" title="<?= $this->__('printer') ?>">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 3px;">
+                                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                    </svg>
+                                    <?= $this->e($operation['printer_name']) ?>
+                                </span>
+                                <?php endif; ?>
+                                <?php if (!empty($operation['tool_sku'])): ?>
+                                <span class="badge badge-tool" title="<?= $this->e($operation['tool_name'] ?? '') ?>">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 3px;">
+                                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                                    </svg>
+                                    <?= $this->e($operation['tool_sku']) ?>
+                                </span>
+                                <?php endif; ?>
+                                <?php if (empty($operation['material_sku']) && empty($operation['printer_name']) && empty($operation['tool_sku'])): ?>
+                                <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                        <td class="text-right"><?= (int)($operation['time_minutes'] ?? 0) ?> <?= $this->__('minutes_short') ?></td>
+                        <td class="text-right"><?= $this->currency($operation['labor_rate'] ?? 0) ?>/<?= $this->__('hour_short') ?></td>
+                        <td class="text-right"><strong><?= $this->currency($opCost) ?></strong></td>
+                        <?php if ($this->can('catalog.details.edit')): ?>
+                        <td>
+                            <form method="POST" action="/catalog/details/<?= $detail['id'] ?>/operations/<?= $operation['id'] ?>/remove" style="display:inline;" onsubmit="return confirm('<?= $this->__('confirm_remove_operation') ?>');">
+                                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                <button type="submit" class="btn btn-sm btn-danger" title="<?= $this->__('delete') ?>">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </td>
+                        <?php endif; ?>
+                    </tr>
+                    <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+                <?php if (!empty($operations)): ?>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="<?= $this->can('catalog.details.edit') ? '4' : '3' ?>" class="text-right"><strong><?= $this->__('total') ?>:</strong></td>
+                        <td class="text-right"><strong><?= $laborCost['total_minutes'] ?? 0 ?> <?= $this->__('minutes_short') ?></strong></td>
+                        <td></td>
+                        <td class="text-right"><strong><?= $this->currency($laborCost['total_cost'] ?? 0) ?></strong></td>
+                        <?php if ($this->can('catalog.details.edit')): ?>
+                        <td></td>
+                        <?php endif; ?>
+                    </tr>
+                </tfoot>
+                <?php endif; ?>
+            </table>
+        </div>
+    </div>
+</div>
+
 <style>
 /* Detail Grid Layout */
 .detail-grid {
@@ -488,6 +714,118 @@
     padding: 15px 18px;
     border-radius: 8px;
     margin-bottom: 20px;
+}
+
+/* Operations Section */
+.add-component-section {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+}
+
+.operation-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-row-inline {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row-inline .form-group {
+    flex: 1;
+}
+
+.form-actions-center {
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 900px) {
+    .operation-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Operation Resources Badges */
+.operation-resources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.badge-material {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-printer {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-tool {
+    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Reorder Buttons */
+.reorder-cell {
+    padding: 5px !important;
+}
+
+.reorder-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.reorder-btn {
+    padding: 4px 6px !important;
+    min-width: auto !important;
+}
+
+/* Operation Number */
+.op-number {
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+/* Total Row */
+.total-row {
+    background: var(--bg-secondary);
+    font-weight: 600;
+}
+
+.total-row td {
+    padding: 15px;
+    border-top: 2px solid var(--border);
 }
 
 /* Text utilities */
