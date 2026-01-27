@@ -13,6 +13,19 @@ ini_set('log_errors', '1');
 // Define base path
 define('BASE_PATH', dirname(__DIR__));
 
+// Load configuration early to check environment
+$config = require BASE_PATH . '/config/config.php';
+
+// HTTPS enforcement for production
+$isProduction = ($config['app_env'] ?? 'dev') === 'prod';
+$isHttps = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+
+if ($isProduction && !$isHttps) {
+    $httpsUrl = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    header('Location: ' . $httpsUrl, true, 301);
+    exit;
+}
+
 // Load global helpers
 require_once BASE_PATH . '/app/helpers.php';
 
@@ -45,6 +58,15 @@ header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
 header('X-XSS-Protection: 1; mode=block');
 header('Referrer-Policy: strict-origin-when-cross-origin');
+header("Permissions-Policy: geolocation=(), microphone=(), camera=()");
+
+// Content-Security-Policy - allow same-origin scripts, styles, images
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'self'");
+
+// HSTS header only in production with HTTPS
+if ($isProduction && $isHttps) {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
 
 // Start output buffering
 ob_start();

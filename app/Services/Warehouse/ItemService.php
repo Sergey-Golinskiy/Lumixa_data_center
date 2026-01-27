@@ -115,7 +115,9 @@ class ItemService
         $page = min($page, $totalPages);
         $offset = ($page - 1) * $perPage;
 
-        // Get items
+        // Get items - cast LIMIT/OFFSET to int to prevent SQL injection
+        $perPage = (int)$perPage;
+        $offset = (int)$offset;
         $items = $this->db->fetchAll(
             "SELECT i.*,
                     COALESCE(SUM(sb.on_hand), 0) as total_on_hand,
@@ -331,6 +333,8 @@ class ItemService
      */
     public function getMovementHistory(int $itemId, int $limit = 50): array
     {
+        // Cast limit to int to prevent SQL injection
+        $limit = (int)$limit;
         return $this->db->fetchAll(
             "SELECT sm.*, d.document_number, d.type as doc_type
              FROM stock_movements sm
@@ -347,6 +351,8 @@ class ItemService
      */
     public function search(string $term, int $limit = 10): array
     {
+        // Cast limit to int to prevent SQL injection
+        $limit = (int)$limit;
         return $this->db->fetchAll(
             "SELECT id, sku, name, type, unit
              FROM items

@@ -137,10 +137,14 @@ class Database
         $columns = array_keys($data);
         $placeholders = array_fill(0, count($columns), '?');
 
+        // Escape table and column names to prevent SQL injection
+        $escapedTable = $this->quoteIdentifier($table);
+        $escapedColumns = array_map([$this, 'quoteIdentifier'], $columns);
+
         $sql = sprintf(
             "INSERT INTO %s (%s) VALUES (%s)",
-            $table,
-            implode(', ', $columns),
+            $escapedTable,
+            implode(', ', $escapedColumns),
             implode(', ', $placeholders)
         );
 
@@ -157,20 +161,25 @@ class Database
         $setClauses = [];
         $params = [];
 
+        // Escape table name to prevent SQL injection
+        $escapedTable = $this->quoteIdentifier($table);
+
         foreach ($data as $column => $value) {
-            $setClauses[] = "{$column} = ?";
+            // Escape column names to prevent SQL injection
+            $setClauses[] = $this->quoteIdentifier($column) . " = ?";
             $params[] = $value;
         }
 
         $whereClauses = [];
         foreach ($where as $column => $value) {
-            $whereClauses[] = "{$column} = ?";
+            // Escape column names to prevent SQL injection
+            $whereClauses[] = $this->quoteIdentifier($column) . " = ?";
             $params[] = $value;
         }
 
         $sql = sprintf(
             "UPDATE %s SET %s WHERE %s",
-            $table,
+            $escapedTable,
             implode(', ', $setClauses),
             implode(' AND ', $whereClauses)
         );
@@ -187,14 +196,18 @@ class Database
         $whereClauses = [];
         $params = [];
 
+        // Escape table name to prevent SQL injection
+        $escapedTable = $this->quoteIdentifier($table);
+
         foreach ($where as $column => $value) {
-            $whereClauses[] = "{$column} = ?";
+            // Escape column names to prevent SQL injection
+            $whereClauses[] = $this->quoteIdentifier($column) . " = ?";
             $params[] = $value;
         }
 
         $sql = sprintf(
             "DELETE FROM %s WHERE %s",
-            $table,
+            $escapedTable,
             implode(' AND ', $whereClauses)
         );
 

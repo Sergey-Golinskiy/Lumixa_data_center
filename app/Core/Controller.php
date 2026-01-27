@@ -89,9 +89,11 @@ abstract class Controller
 
     /**
      * Get request input
+     * POST parameters take precedence over GET parameters for security
      */
     protected function input(?string $key = null, $default = null)
     {
+        // POST takes precedence over GET to prevent GET from overriding secure POST data
         $input = array_merge($_GET, $_POST);
 
         if ($key === null) {
@@ -439,11 +441,15 @@ abstract class Controller
      */
     private function checkUnique(string $table, string $column, $value, ?int $exceptId = null): bool
     {
-        $sql = "SELECT COUNT(*) FROM {$table} WHERE {$column} = ?";
+        // Escape table and column names to prevent SQL injection
+        $escapedTable = $this->db()->quoteIdentifier($table);
+        $escapedColumn = $this->db()->quoteIdentifier($column);
+
+        $sql = "SELECT COUNT(*) FROM {$escapedTable} WHERE {$escapedColumn} = ?";
         $params = [$value];
 
         if ($exceptId) {
-            $sql .= " AND id != ?";
+            $sql .= " AND `id` != ?";
             $params[] = $exceptId;
         }
 
