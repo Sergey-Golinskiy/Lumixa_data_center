@@ -149,6 +149,9 @@ class DetailsController extends Controller
         $printers = $this->getPrinters();
         $tools = $this->getTools();
 
+        // Get products that use this detail
+        $usedInProducts = $this->getProductsUsingDetail((int)$id);
+
         $this->render('catalog/details/show', [
             'title' => $detail['name'],
             'detail' => $detail,
@@ -160,7 +163,8 @@ class DetailsController extends Controller
             'laborCost' => $laborCost,
             'materials' => $materials,
             'printers' => $printers,
-            'tools' => $tools
+            'tools' => $tools,
+            'usedInProducts' => $usedInProducts
         ]);
     }
 
@@ -505,6 +509,28 @@ class DetailsController extends Controller
              FROM items i
              WHERE i.type = 'tool' AND i.is_active = 1
              ORDER BY i.name"
+        );
+    }
+
+    /**
+     * Get products that use this detail in their composition
+     */
+    private function getProductsUsingDetail(int $detailId): array
+    {
+        if (!$this->db()->tableExists('product_components')) {
+            return [];
+        }
+
+        return $this->db()->fetchAll(
+            "SELECT p.id, p.code, p.name, p.image_path, p.is_active,
+                    pc.quantity,
+                    c.name AS category_name
+             FROM product_components pc
+             JOIN products p ON pc.product_id = p.id
+             LEFT JOIN categories c ON p.category_id = c.id
+             WHERE pc.component_type = 'detail' AND pc.detail_id = ?
+             ORDER BY p.code",
+            [$detailId]
         );
     }
 

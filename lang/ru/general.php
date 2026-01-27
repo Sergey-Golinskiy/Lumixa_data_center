@@ -1067,6 +1067,7 @@ return [
     'detail_information' => 'Информация о детали',
     'print_settings' => 'Настройки печати',
     'product_composition' => 'Состав изделия',
+    'used_in_products' => 'Входит в изделия',
     'details_cost' => 'Стоимость деталей',
     'components_cost' => 'Стоимость компонентов',
     'total_components_cost' => 'Итого стоимость состава',

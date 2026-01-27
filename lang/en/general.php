@@ -1068,6 +1068,7 @@ return [
     'detail_information' => 'Detail Information',
     'print_settings' => 'Print Settings',
     'product_composition' => 'Product Composition',
+    'used_in_products' => 'Used in Products',
     'details_cost' => 'Details Cost',
     'components_cost' => 'Components Cost',
     'total_components_cost' => 'Total Components Cost',

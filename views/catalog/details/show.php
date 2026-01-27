@@ -167,6 +167,56 @@
     <?php endif; ?>
 </div>
 
+<!-- Used in Products Section -->
+<?php if (!empty($usedInProducts)): ?>
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+        <?= $this->__('used_in_products') ?>
+        <span class="badge badge-secondary"><?= count($usedInProducts) ?></span>
+    </div>
+    <div class="card-body">
+        <div class="products-grid">
+            <?php foreach ($usedInProducts as $product): ?>
+            <a href="/catalog/products/<?= $product['id'] ?>" class="product-card-link">
+                <div class="product-card-mini">
+                    <div class="product-card-image">
+                        <?php if (!empty($product['image_path'])): ?>
+                        <img src="/<?= $this->e(ltrim($product['image_path'], '/')) ?>" alt="<?= $this->e($product['name']) ?>">
+                        <?php else: ?>
+                        <div class="product-image-placeholder">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.4">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                            </svg>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="product-card-info">
+                        <div class="product-card-code"><?= $this->e($product['code']) ?></div>
+                        <div class="product-card-name"><?= $this->e($product['name']) ?></div>
+                        <?php if (!empty($product['category_name'])): ?>
+                        <div class="product-card-category"><?= $this->e($product['category_name']) ?></div>
+                        <?php endif; ?>
+                        <div class="product-card-qty">
+                            <span class="qty-label"><?= $this->__('quantity') ?>:</span>
+                            <strong><?= $this->number($product['quantity'], 4) ?></strong>
+                        </div>
+                    </div>
+                    <?php if (!$product['is_active']): ?>
+                    <span class="product-inactive-badge"><?= $this->__('inactive') ?></span>
+                    <?php endif; ?>
+                </div>
+            </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Production Cost Section (only for printed details) -->
 <?php if ($detail['detail_type'] === 'printed' && isset($costData)): ?>
 <div class="card" style="margin-top: 20px;">
@@ -919,6 +969,114 @@
 .text-right { text-align: right; }
 .text-center { text-align: center; }
 .text-muted { color: var(--text-muted); }
+
+/* Products Grid */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.product-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.product-card-mini {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.product-card-mini:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.product-card-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-primary);
+}
+
+.product-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+}
+
+.product-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.product-card-code {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--primary);
+}
+
+.product-card-name {
+    font-size: 0.85rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.product-card-category {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.product-card-qty {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.product-card-qty .qty-label {
+    margin-right: 4px;
+}
+
+.product-card-qty strong {
+    color: var(--text);
+}
+
+.product-inactive-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 9px;
+    text-transform: uppercase;
+    background: var(--danger);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
 
 /* Modal */
 .modal {
