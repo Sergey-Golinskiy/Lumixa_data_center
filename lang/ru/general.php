@@ -89,6 +89,9 @@ return [
     'filament_color' => 'Цвет филамента',
     'filament_diameter' => 'Диаметр филамента',
     'filament_alias' => 'Псевдоним филамента',
+    'filament_aliases' => 'Псевдонимы филамента',
+    'alias_color' => 'Цвет псевдонима',
+    'preview' => 'Предварительный просмотр',
 
     // Navigation - Warehouse
     'nav_warehouse' => 'Склад',

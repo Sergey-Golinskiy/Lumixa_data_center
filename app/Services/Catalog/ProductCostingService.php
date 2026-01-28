@@ -28,6 +28,17 @@ class ProductCostingService
             return [];
         }
 
+        $hasColorColumn = $this->db->tableExists('item_option_values')
+            && $this->db->columnExists('item_option_values', 'color');
+
+        $aliasColorSelect = $hasColorColumn
+            ? ", (SELECT iov.color FROM item_option_values iov
+                  WHERE iov.group_key = 'filament_alias' AND iov.name = (
+                      SELECT ia2.attribute_value FROM item_attributes ia2
+                      WHERE ia2.item_id = mat.id AND ia2.attribute_name = 'filament_alias' LIMIT 1
+                  ) LIMIT 1) AS material_alias_color"
+            : ", NULL AS material_alias_color";
+
         $components = $this->db->fetchAll(
             "SELECT pc.*,
                     d.sku AS detail_sku, d.name AS detail_name, d.detail_type, d.image_path AS detail_image,
@@ -37,6 +48,7 @@ class ProductCostingService
                     mat.name AS material_name, mat.sku AS material_sku,
                     (SELECT ia.attribute_value FROM item_attributes ia
                      WHERE ia.item_id = mat.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS material_alias
+                    {$aliasColorSelect}
              FROM product_components pc
              LEFT JOIN details d ON pc.detail_id = d.id AND pc.component_type = 'detail'
              LEFT JOIN items i ON pc.item_id = i.id AND pc.component_type = 'item'

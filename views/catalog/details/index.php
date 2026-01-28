@@ -81,7 +81,7 @@
                     <span class="info-value">
                         <?php if ($detail['material_item_id']): ?>
                         <?php if (!empty($detail['material_filament_alias'])): ?>
-                        <span class="badge badge-info"><?= $this->e($detail['material_filament_alias']) ?></span>
+                        <span class="badge badge-info"<?php if (!empty($detail['material_alias_color'])): ?> style="background: <?= $this->e($detail['material_alias_color']) ?>; color: <?= $this->contrastColor($detail['material_alias_color']) ?>"<?php endif; ?>><?= $this->e($detail['material_filament_alias']) ?></span>
                         <small class="text-muted"><?= $this->e($detail['material_sku'] ?? '') ?></small>
                         <?php else: ?>
                         <?= $this->e($detail['material_sku'] ?? '') ?>

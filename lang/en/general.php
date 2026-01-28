@@ -89,6 +89,9 @@ return [
     'filament_color' => 'Filament Color',
     'filament_diameter' => 'Filament Diameter',
     'filament_alias' => 'Filament Alias',
+    'filament_aliases' => 'Filament Aliases',
+    'alias_color' => 'Alias Color',
+    'preview' => 'Preview',
 
     // Navigation - Warehouse
     'nav_warehouse' => 'Warehouse',

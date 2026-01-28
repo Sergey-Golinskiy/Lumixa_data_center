@@ -1,5 +1,7 @@
 <?php $this->section('content'); ?>
 
+<?php $colCount = 3 + ($showFilament ? 1 : 0) + (!empty($showColor) ? 1 : 0); ?>
+
 <div class="page-header">
     <h1><?= $this->e($groupLabel) ?></h1>
     <div class="page-actions">
@@ -16,6 +18,9 @@
                 <thead>
                     <tr>
                         <th><?= $this->__('name') ?></th>
+                        <?php if (!empty($showColor)): ?>
+                        <th><?= $this->__('alias_color') ?></th>
+                        <?php endif; ?>
                         <?php if ($showFilament): ?>
                         <th><?= $this->__('filament') ?></th>
                         <?php endif; ?>
@@ -26,12 +31,24 @@
                 <tbody>
                     <?php if (empty($options)): ?>
                     <tr>
-                        <td colspan="<?= $showFilament ? 4 : 3 ?>" class="text-center text-muted"><?= $this->__('no_results') ?></td>
+                        <td colspan="<?= $colCount ?>" class="text-center text-muted"><?= $this->__('no_results') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($options as $option): ?>
                     <tr>
                         <td><strong><?= $this->e($option['name']) ?></strong></td>
+                        <?php if (!empty($showColor)): ?>
+                        <td>
+                            <?php if (!empty($option['color'])): ?>
+                            <span class="alias-color-badge" style="background: <?= $this->e($option['color']) ?>; color: <?= $this->contrastColor($option['color']) ?>;">
+                                <?= $this->e($option['name']) ?>
+                            </span>
+                            <small class="text-muted"><?= $this->e($option['color']) ?></small>
+                            <?php else: ?>
+                            <span class="text-muted">—</span>
+                            <?php endif; ?>
+                        </td>
+                        <?php endif; ?>
                         <?php if ($showFilament): ?>
                         <td>
                             <?= $option['is_filament'] ? $this->__('yes') : $this->__('no') ?>
@@ -65,5 +82,16 @@
         </div>
     </div>
 </div>
+
+<style>
+.alias-color-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 8px;
+}
+</style>
 
 <?php $this->endSection(); ?>

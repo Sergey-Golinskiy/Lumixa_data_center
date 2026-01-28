@@ -106,6 +106,9 @@
                 <span class="detail-value">
                     <?php if (!empty($detail['material_item_id'])): ?>
                     <a href="/warehouse/items/<?= $detail['material_item_id'] ?>" class="material-link">
+                        <?php if (!empty($detail['material_filament_alias'])): ?>
+                        <span class="badge badge-alias"<?php if (!empty($aliasColor)): ?> style="background: <?= $this->e($aliasColor) ?>; color: <?= $this->contrastColor($aliasColor) ?>"<?php endif; ?>><?= $this->e($detail['material_filament_alias']) ?></span>
+                        <?php endif; ?>
                         <span class="badge badge-material"><?= $this->e($detail['material_sku'] ?? '') ?></span>
                         <?= !empty($detail['material_name']) ? ' ' . $this->e($detail['material_name']) : '' ?>
                     </a>
@@ -736,6 +739,16 @@
     font-size: 11px;
     font-weight: 500;
     margin-right: 8px;
+}
+
+.badge-alias {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 6px;
 }
 
 /* Print Parameters */

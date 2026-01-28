@@ -72,13 +72,16 @@ class DetailsController extends Controller
             $params
         );
 
-        // Calculate production cost for each detail
+        // Fetch alias colors and calculate production cost for each detail
+        $aliasColors = $this->getAliasColors();
         foreach ($details as &$detail) {
             $detail['production_cost'] = null;
             if ($detail['detail_type'] === 'printed') {
                 $costData = $this->costingService->calculateCost($detail);
                 $detail['production_cost'] = $costData['total_cost'] ?? 0;
             }
+            $alias = $detail['material_filament_alias'] ?? '';
+            $detail['material_alias_color'] = $aliasColors[$alias] ?? null;
         }
         unset($detail);
 
@@ -110,7 +113,9 @@ class DetailsController extends Controller
 
         $detail = $this->db()->fetch(
             "SELECT d.*, m.sku AS material_sku, m.name AS material_name,
-                    {$printerSelect}
+                    {$printerSelect},
+                    (SELECT ia.attribute_value FROM item_attributes ia
+                     WHERE ia.item_id = m.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS material_filament_alias
              FROM details d
              LEFT JOIN items m ON d.material_item_id = m.id
              LEFT JOIN printers p ON d.printer_id = p.id
@@ -162,6 +167,10 @@ class DetailsController extends Controller
         // Get products that use this detail
         $usedInProducts = $this->getProductsUsingDetail((int)$id);
 
+        // Get alias color
+        $aliasColors = $this->getAliasColors();
+        $aliasColor = $aliasColors[$detail['material_filament_alias'] ?? ''] ?? null;
+
         $this->render('catalog/details/show', [
             'title' => $detail['name'],
             'detail' => $detail,
@@ -174,7 +183,8 @@ class DetailsController extends Controller
             'materials' => $materials,
             'printers' => $printers,
             'tools' => $tools,
-            'usedInProducts' => $usedInProducts
+            'usedInProducts' => $usedInProducts,
+            'aliasColor' => $aliasColor
         ]);
     }
 
@@ -803,6 +813,28 @@ class DetailsController extends Controller
         }
 
         $this->redirect("/catalog/details/{$id}");
+    }
+
+    /**
+     * Get alias color lookup map from item_option_values
+     */
+    private function getAliasColors(): array
+    {
+        if (!$this->db()->tableExists('item_option_values')
+            || !$this->db()->columnExists('item_option_values', 'color')) {
+            return [];
+        }
+
+        $rows = $this->db()->fetchAll(
+            "SELECT name, color FROM item_option_values
+             WHERE group_key = 'filament_alias' AND color IS NOT NULL AND color != ''"
+        );
+
+        $map = [];
+        foreach ($rows as $row) {
+            $map[$row['name']] = $row['color'];
+        }
+        return $map;
     }
 
     /**

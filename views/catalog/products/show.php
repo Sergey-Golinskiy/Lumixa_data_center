@@ -247,7 +247,7 @@
                         </td>
                         <td>
                             <?php if ($component['component_type'] === 'detail' && !empty($component['material_name'])): ?>
-                            <span class="badge badge-material"><?= $this->e($component['material_alias'] ?? $component['material_sku'] ?? '') ?></span>
+                            <span class="badge badge-material"<?php if (!empty($component['material_alias_color'])): ?> style="background: <?= $this->e($component['material_alias_color']) ?>; color: <?= $this->contrastColor($component['material_alias_color']) ?>"<?php endif; ?>><?= $this->e($component['material_alias'] ?? $component['material_sku'] ?? '') ?></span>
                             <small class="text-muted"><?= $this->e($component['material_name']) ?></small>
                             <?php else: ?>
                             <span class="text-muted">-</span>

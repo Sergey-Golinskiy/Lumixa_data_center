@@ -32,7 +32,8 @@ class ItemOptionsController extends Controller
             'key' => 'filament_alias',
             'label' => 'filament_aliases',
             'singular' => 'filament_alias',
-            'supports_filament' => false
+            'supports_filament' => false,
+            'supports_color' => true
         ]
     ];
 
@@ -59,7 +60,8 @@ class ItemOptionsController extends Controller
             'options' => $options,
             'group' => $group,
             'groupLabel' => $translator->get($config['label']),
-            'showFilament' => $config['supports_filament']
+            'showFilament' => $config['supports_filament'],
+            'showColor' => !empty($config['supports_color']) && $this->db()->columnExists('item_option_values', 'color')
         ]);
     }
 
@@ -83,7 +85,8 @@ class ItemOptionsController extends Controller
             'option' => null,
             'group' => $group,
             'groupLabel' => $translator->get($config['label']),
-            'showFilament' => $config['supports_filament']
+            'showFilament' => $config['supports_filament'],
+            'showColor' => !empty($config['supports_color']) && $this->db()->columnExists('item_option_values', 'color')
         ]);
     }
 
@@ -132,13 +135,19 @@ class ItemOptionsController extends Controller
             return;
         }
 
-        $id = $this->db()->insert('item_option_values', [
+        $insertData = [
             'group_key' => $config['key'],
             'name' => $data['name'],
             'is_active' => $data['is_active'],
             'is_filament' => $data['is_filament'],
             'created_at' => date('Y-m-d H:i:s')
-        ]);
+        ];
+
+        if (!empty($config['supports_color']) && $this->db()->columnExists('item_option_values', 'color')) {
+            $insertData['color'] = !empty($_POST['color']) ? trim($_POST['color']) : null;
+        }
+
+        $id = $this->db()->insert('item_option_values', $insertData);
 
         $this->audit('item_option.created', 'item_option_values', $id, null, $data);
         $this->session->setFlash('success', $translator->get('item_option_created_success'));
@@ -174,7 +183,8 @@ class ItemOptionsController extends Controller
             'option' => $option,
             'group' => $group,
             'groupLabel' => $translator->get($config['label']),
-            'showFilament' => $config['supports_filament']
+            'showFilament' => $config['supports_filament'],
+            'showColor' => !empty($config['supports_color']) && $this->db()->columnExists('item_option_values', 'color')
         ]);
     }
 
@@ -235,12 +245,18 @@ class ItemOptionsController extends Controller
         $oldName = $option['name'];
         $newName = $data['name'];
 
-        $this->db()->update('item_option_values', [
+        $updateData = [
             'name' => $newName,
             'is_active' => $data['is_active'],
             'is_filament' => $data['is_filament'],
             'updated_at' => date('Y-m-d H:i:s')
-        ], ['id' => $id]);
+        ];
+
+        if (!empty($config['supports_color']) && $this->db()->columnExists('item_option_values', 'color')) {
+            $updateData['color'] = !empty($_POST['color']) ? trim($_POST['color']) : null;
+        }
+
+        $this->db()->update('item_option_values', $updateData, ['id' => $id]);
 
         // If name changed, update all item_attributes records that use this value
         if ($oldName !== $newName) {
