@@ -72,6 +72,16 @@ class DetailsController extends Controller
             $params
         );
 
+        // Calculate production cost for each detail
+        foreach ($details as &$detail) {
+            $detail['production_cost'] = null;
+            if ($detail['detail_type'] === 'printed') {
+                $costData = $this->costingService->calculateCost($detail);
+                $detail['production_cost'] = $costData['total_cost'] ?? 0;
+            }
+        }
+        unset($detail);
+
         $this->render('catalog/details/index', [
             'title' => $this->app->getTranslator()->get('details'),
             'details' => $details,

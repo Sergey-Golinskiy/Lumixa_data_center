@@ -54,7 +54,7 @@
         </div>
         <div class="detail-tile-content">
             <div class="detail-tile-header">
-                <div class="detail-sku"><?= $this->e($detail['sku']) ?></div>
+                <a href="/catalog/details/<?= $detail['id'] ?>" class="detail-sku"><?= $this->e($detail['sku']) ?></a>
                 <div class="detail-status">
                     <?php if (!empty($detail['is_active'])): ?>
                     <span class="badge badge-success"><?= $this->__('active') ?></span>
@@ -80,7 +80,12 @@
                     <span class="info-label"><?= $this->__('material') ?>:</span>
                     <span class="info-value">
                         <?php if ($detail['material_item_id']): ?>
+                        <?php if (!empty($detail['material_filament_alias'])): ?>
+                        <span class="badge badge-info"><?= $this->e($detail['material_filament_alias']) ?></span>
+                        <small class="text-muted"><?= $this->e($detail['material_sku'] ?? '') ?></small>
+                        <?php else: ?>
                         <?= $this->e($detail['material_sku'] ?? '') ?>
+                        <?php endif; ?>
                         <?php
                         $materialDetails = [];
                         if (!empty($detail['material_color'])) $materialDetails[] = $detail['material_color'];
@@ -103,6 +108,17 @@
                 <div class="detail-info-row">
                     <span class="info-label"><?= $this->__('print_time_minutes') ?>:</span>
                     <span class="info-value"><?= $detail['print_time_minutes'] ? $this->e($detail['print_time_minutes']) . ' min' : '-' ?></span>
+                </div>
+
+                <div class="detail-info-row">
+                    <span class="info-label"><?= $this->__('production_cost') ?>:</span>
+                    <span class="info-value">
+                        <?php if ($detail['production_cost'] !== null && $detail['production_cost'] > 0): ?>
+                        <strong><?= number_format($detail['production_cost'], 2) ?></strong>
+                        <?php else: ?>
+                        <span class="text-muted">-</span>
+                        <?php endif; ?>
+                    </span>
                 </div>
                 <?php endif; ?>
             </div>
@@ -232,11 +248,17 @@
     margin-bottom: 5px;
 }
 
-.detail-sku {
+a.detail-sku {
     font-weight: 700;
     font-size: 1.1rem;
     color: var(--primary, #007bff);
     font-family: monospace;
+    text-decoration: none;
+}
+
+a.detail-sku:hover {
+    text-decoration: underline;
+    opacity: 0.85;
 }
 
 .detail-name {
