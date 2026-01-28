@@ -246,7 +246,13 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?php if ($component['component_type'] === 'detail' && !empty($component['material_name'])): ?>
+                            <?php if ($component['component_type'] === 'detail' && !empty($component['detail_materials']) && count($component['detail_materials']) > 1): ?>
+                            <div class="composition-materials-list">
+                                <?php foreach ($component['detail_materials'] as $dm): ?>
+                                <span class="badge badge-material"<?php if (!empty($dm['alias_color'])): ?> style="background: <?= $this->e($dm['alias_color']) ?>; color: <?= $this->contrastColor($dm['alias_color']) ?>"<?php endif; ?>><?= $this->e($dm['filament_alias'] ?: $dm['material_sku']) ?></span>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php elseif ($component['component_type'] === 'detail' && !empty($component['material_name'])): ?>
                             <span class="badge badge-material"<?php if (!empty($component['material_alias_color'])): ?> style="background: <?= $this->e($component['material_alias_color']) ?>; color: <?= $this->contrastColor($component['material_alias_color']) ?>"<?php endif; ?>><?= $this->e($component['material_alias'] ?? $component['material_sku'] ?? '') ?></span>
                             <small class="text-muted"><?= $this->e($component['material_name']) ?></small>
                             <?php else: ?>
@@ -754,6 +760,13 @@
 .detail-row:last-child { border-bottom: none; }
 .detail-label { flex: 0 0 120px; color: var(--text-muted); font-size: 13px; }
 .detail-value { flex: 1; }
+
+/* Multi-material in composition */
+.composition-materials-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
 
 /* Collection Link */
 .collection-link {

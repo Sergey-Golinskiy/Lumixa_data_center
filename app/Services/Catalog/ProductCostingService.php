@@ -64,8 +64,81 @@ class ProductCostingService
             $component['calculated_cost'] = $this->calculateComponentCost($component);
             $component['total_cost'] = $component['calculated_cost'] * (float)$component['quantity'];
         }
+        unset($component);
+
+        // Load multi-material data for detail components
+        $this->loadDetailMaterials($components);
 
         return $components;
+    }
+
+    /**
+     * Load multi-material data for detail components in composition
+     */
+    private function loadDetailMaterials(array &$components): void
+    {
+        if (!$this->db->tableExists('detail_materials')) {
+            foreach ($components as &$c) {
+                $c['detail_materials'] = [];
+            }
+            return;
+        }
+
+        // Collect detail IDs
+        $detailIds = [];
+        foreach ($components as $c) {
+            if ($c['component_type'] === 'detail' && !empty($c['detail_id'])) {
+                $detailIds[] = (int)$c['detail_id'];
+            }
+        }
+
+        if (empty($detailIds)) {
+            foreach ($components as &$c) {
+                $c['detail_materials'] = [];
+            }
+            return;
+        }
+
+        // Batch load materials
+        $placeholders = implode(',', array_fill(0, count($detailIds), '?'));
+
+        $hasColorColumn = $this->db->tableExists('item_option_values')
+            && $this->db->columnExists('item_option_values', 'color');
+
+        $aliasColorJoin = $hasColorColumn
+            ? "LEFT JOIN item_option_values iov ON iov.group_key = 'filament_alias' AND iov.name = (
+                   SELECT ia2.attribute_value FROM item_attributes ia2
+                   WHERE ia2.item_id = m.id AND ia2.attribute_name = 'filament_alias' LIMIT 1
+               )"
+            : "";
+        $aliasColorCol = $hasColorColumn ? ", iov.color AS alias_color" : ", NULL AS alias_color";
+
+        $rows = $this->db->fetchAll(
+            "SELECT dm.detail_id, dm.material_item_id, dm.material_qty_grams,
+                    m.sku AS material_sku, m.name AS material_name,
+                    (SELECT ia.attribute_value FROM item_attributes ia
+                     WHERE ia.item_id = m.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS filament_alias
+                    {$aliasColorCol}
+             FROM detail_materials dm
+             JOIN items m ON dm.material_item_id = m.id
+             {$aliasColorJoin}
+             WHERE dm.detail_id IN ({$placeholders})
+             ORDER BY dm.detail_id, dm.sort_order, dm.id",
+            $detailIds
+        );
+
+        $grouped = [];
+        foreach ($rows as $row) {
+            $grouped[$row['detail_id']][] = $row;
+        }
+
+        foreach ($components as &$c) {
+            $c['detail_materials'] = [];
+            if ($c['component_type'] === 'detail' && !empty($c['detail_id'])) {
+                $c['detail_materials'] = $grouped[(int)$c['detail_id']] ?? [];
+            }
+        }
+        unset($c);
     }
 
     /**
