@@ -214,10 +214,6 @@ return function (Router $router) {
         $router->post('/products/{id}/operations/{operationId}/move-down', 'Catalog\\ProductsController@moveOperationDown');
         $router->get('/api/products/{id}/components', 'Catalog\\ProductsController@apiGetProductComponents');
 
-        // Product Specification (BOM)
-        $router->get('/products/{id}/specification', 'Catalog\\ProductsController@specification', 'catalog.products.specification');
-        $router->get('/products/{id}/specification/pdf', 'Catalog\\ProductsController@specificationPdf', 'catalog.products.specification.pdf');
-
         // Details
         $router->get('/details', 'Catalog\\DetailsController@index', 'catalog.details');
         $router->get('/details/create', 'Catalog\\DetailsController@create', 'catalog.details.create');
@@ -243,16 +239,6 @@ return function (Router $router) {
         $router->post('/detail-routing/{id}', 'Catalog\\DetailRoutingController@update');
         $router->post('/detail-routing/{id}/activate', 'Catalog\\DetailRoutingController@activate');
         $router->post('/detail-routing/{id}/archive', 'Catalog\\DetailRoutingController@archive');
-
-        // BOM
-        $router->get('/bom', 'Catalog\\BOMController@index', 'catalog.bom');
-        $router->get('/bom/create', 'Catalog\\BOMController@create', 'catalog.bom.create');
-        $router->post('/bom', 'Catalog\\BOMController@store');
-        $router->get('/bom/{id}', 'Catalog\\BOMController@show', 'catalog.bom.show');
-        $router->get('/bom/{id}/edit', 'Catalog\\BOMController@edit', 'catalog.bom.edit');
-        $router->post('/bom/{id}', 'Catalog\\BOMController@update');
-        $router->post('/bom/{id}/activate', 'Catalog\\BOMController@activate');
-        $router->post('/bom/{id}/archive', 'Catalog\\BOMController@archive');
 
     }, ['AuthMiddleware', 'CSRFMiddleware']);
 
