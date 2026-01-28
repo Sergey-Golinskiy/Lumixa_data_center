@@ -240,14 +240,6 @@ return function (Router $router) {
         $router->post('/detail-routing/{id}/activate', 'Catalog\\DetailRoutingController@activate');
         $router->post('/detail-routing/{id}/archive', 'Catalog\\DetailRoutingController@archive');
 
-        // Variants
-        $router->get('/variants', 'Catalog\\VariantsController@index', 'catalog.variants');
-        $router->get('/variants/create', 'Catalog\\VariantsController@create', 'catalog.variants.create');
-        $router->post('/variants', 'Catalog\\VariantsController@store');
-        $router->get('/variants/{id}', 'Catalog\\VariantsController@show', 'catalog.variants.show');
-        $router->get('/variants/{id}/edit', 'Catalog\\VariantsController@edit', 'catalog.variants.edit');
-        $router->post('/variants/{id}', 'Catalog\\VariantsController@update');
-
         // BOM
         $router->get('/bom', 'Catalog\\BOMController@index', 'catalog.bom');
         $router->get('/bom/create', 'Catalog\\BOMController@create', 'catalog.bom.create');
@@ -312,7 +304,6 @@ return function (Router $router) {
         $router->get('/plan', 'Costing\\CostingController@plan', 'costing.plan');
         $router->get('/actual', 'Costing\\CostingController@actual', 'costing.actual');
         $router->get('/compare', 'Costing\\CostingController@compare', 'costing.compare');
-        $router->get('/variant/{id}', 'Costing\\CostingController@variant', 'costing.variant');
 
     }, ['AuthMiddleware', 'CSRFMiddleware']);
 

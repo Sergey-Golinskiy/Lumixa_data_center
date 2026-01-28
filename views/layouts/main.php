@@ -90,7 +90,6 @@
                             <?php if ($this->can('catalog.details.view')): ?>
                             <li><a href="/catalog/details" class="nav-link"><?= $this->__('nav_details') ?></a></li>
                             <?php endif; ?>
-                            <li><a href="/catalog/variants" class="nav-link"><?= $this->__('nav_variants') ?></a></li>
                             <li><a href="/catalog/bom" class="nav-link"><?= $this->__('nav_bom') ?></a></li>
                             <li><a href="/catalog/routing" class="nav-link"><?= $this->__('nav_routing') ?></a></li>
                         </ul>
