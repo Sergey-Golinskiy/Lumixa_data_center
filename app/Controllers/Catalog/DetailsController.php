@@ -527,7 +527,7 @@ class DetailsController extends Controller
                     c.name AS category_name
              FROM product_components pc
              JOIN products p ON pc.product_id = p.id
-             LEFT JOIN categories c ON p.category_id = c.id
+             LEFT JOIN product_categories c ON p.category_id = c.id
              WHERE pc.component_type = 'detail' AND pc.detail_id = ?
              ORDER BY p.code",
             [$detailId]
