@@ -101,6 +101,32 @@
             <?= $this->__('print_settings') ?>
         </div>
         <div class="card-body">
+            <?php if (!empty($detailMaterials) && count($detailMaterials) > 1): ?>
+            <!-- Multi-material display -->
+            <div class="detail-row">
+                <span class="detail-label"><?= $this->__('materials') ?> (<?= count($detailMaterials) ?>)</span>
+                <span class="detail-value">
+                    <?= $this->__('multi_color_printing') ?>
+                </span>
+            </div>
+            <?php foreach ($detailMaterials as $dm): ?>
+            <div class="detail-row detail-row-sub">
+                <span class="detail-label">
+                    <strong><?= $this->e($dm['material_qty_grams']) ?></strong> <?= $this->__('grams_short') ?>
+                </span>
+                <span class="detail-value">
+                    <a href="/warehouse/items/<?= $dm['material_item_id'] ?>" class="material-link">
+                        <?php if (!empty($dm['filament_alias'])): ?>
+                        <span class="badge badge-alias"<?php if (!empty($dm['alias_color'])): ?> style="background: <?= $this->e($dm['alias_color']) ?>; color: <?= $this->contrastColor($dm['alias_color']) ?>"<?php endif; ?>><?= $this->e($dm['filament_alias']) ?></span>
+                        <?php endif; ?>
+                        <span class="badge badge-material"><?= $this->e($dm['material_sku'] ?? '') ?></span>
+                        <?= !empty($dm['material_name']) ? ' ' . $this->e($dm['material_name']) : '' ?>
+                    </a>
+                </span>
+            </div>
+            <?php endforeach; ?>
+            <?php else: ?>
+            <!-- Single material display -->
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('material') ?></span>
                 <span class="detail-value">
@@ -117,6 +143,7 @@
                     <?php endif; ?>
                 </span>
             </div>
+            <?php endif; ?>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('printer') ?></span>
                 <span class="detail-value">
@@ -134,6 +161,7 @@
                     <?php endif; ?>
                 </span>
             </div>
+            <?php if (empty($detailMaterials) || count($detailMaterials) <= 1): ?>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('material_qty_grams') ?></span>
                 <span class="detail-value">
@@ -144,6 +172,7 @@
                     <?php endif; ?>
                 </span>
             </div>
+            <?php endif; ?>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('print_time_minutes') ?></span>
                 <span class="detail-value">
@@ -656,6 +685,12 @@
     padding: 12px 0;
     border-bottom: 1px solid var(--border);
     align-items: flex-start;
+}
+
+.detail-row-sub {
+    padding: 8px 0 8px 20px;
+    border-bottom: 1px dashed var(--border);
+    font-size: 0.95rem;
 }
 .detail-row:last-child {
     border-bottom: none;

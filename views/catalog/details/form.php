@@ -44,39 +44,64 @@
             </div>
 
             <div class="detail-printing-fields">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="material_item_id"><?= $this->__('material') ?></label>
-                        <select id="material_item_id" name="material_item_id" class="material-select">
-                            <option value=""><?= $this->__('select_material') ?></option>
-                            <?php foreach ($materials as $material): ?>
-                            <?php
-                            $materialInfo = [];
-                            if (!empty($material['manufacturer'])) $materialInfo[] = $material['manufacturer'];
-                            if (!empty($material['plastic_type'])) $materialInfo[] = $material['plastic_type'];
-                            if (!empty($material['color'])) $materialInfo[] = $material['color'];
-                            if (!empty($material['filament_alias'])) $materialInfo[] = $material['filament_alias'];
-
-                            // Первая строка: SKU - Название
-                            $line1 = $material['sku'] . ' - ' . $material['name'];
-                            // Вторая строка: атрибуты с отступом
-                            $line2 = !empty($materialInfo) ? '    ' . implode(' | ', $materialInfo) : '';
-                            $optionText = $line2 ? $line1 . "\n" . $line2 : $line1;
-                            ?>
-                            <option value="<?= $material['id'] ?>"
-                                    data-manufacturer="<?= $this->e($material['manufacturer'] ?? '') ?>"
-                                    data-plastic-type="<?= $this->e($material['plastic_type'] ?? '') ?>"
-                                    data-color="<?= $this->e($material['color'] ?? '') ?>"
-                                    data-alias="<?= $this->e($material['filament_alias'] ?? '') ?>"
-                                    <?= (string)$this->old('material_item_id', $detail['material_item_id'] ?? '') === (string)$material['id'] ? 'selected' : '' ?>>
+                <!-- Multi-material section -->
+                <div class="form-group">
+                    <label><?= $this->__('materials') ?> <small class="text-muted">(<?= $this->__('multi_color_printing') ?>)</small></label>
+                    <div id="materialsContainer">
+                        <?php
+                        $existingMaterials = $detailMaterials ?? [];
+                        // Fall back to legacy single material if no multi-material data
+                        if (empty($existingMaterials) && !empty($detail['material_item_id'])) {
+                            $existingMaterials = [[
+                                'material_item_id' => $detail['material_item_id'],
+                                'material_qty_grams' => $detail['material_qty_grams'] ?? 0
+                            ]];
+                        }
+                        if (empty($existingMaterials)) {
+                            $existingMaterials = [['material_item_id' => '', 'material_qty_grams' => 0]];
+                        }
+                        foreach ($existingMaterials as $mi => $dm):
+                        ?>
+                        <div class="material-row" data-index="<?= $mi ?>">
+                            <div class="material-row-fields">
+                                <select name="materials[<?= $mi ?>][item_id]" class="material-select">
+                                    <option value=""><?= $this->__('select_material') ?></option>
+                                    <?php foreach ($materials as $material): ?>
+                                    <?php
+                                    $materialInfo = [];
+                                    if (!empty($material['manufacturer'])) $materialInfo[] = $material['manufacturer'];
+                                    if (!empty($material['plastic_type'])) $materialInfo[] = $material['plastic_type'];
+                                    if (!empty($material['color'])) $materialInfo[] = $material['color'];
+                                    if (!empty($material['filament_alias'])) $materialInfo[] = $material['filament_alias'];
+                                    $line1 = $material['sku'] . ' - ' . $material['name'];
+                                    $line2 = !empty($materialInfo) ? '    ' . implode(' | ', $materialInfo) : '';
+                                    $optionText = $line2 ? $line1 . "\n" . $line2 : $line1;
+                                    ?>
+                                    <option value="<?= $material['id'] ?>"
+                                            <?= (string)($dm['material_item_id'] ?? '') === (string)$material['id'] ? 'selected' : '' ?>>
 <?= $this->e($optionText) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <?php if ($this->hasError('material_item_id')): ?>
-                        <span class="error"><?= $this->e($this->error('material_item_id')) ?></span>
-                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="material-qty-group">
+                                    <input type="number" name="materials[<?= $mi ?>][qty_grams]" step="0.01" min="0"
+                                           value="<?= $this->e($dm['material_qty_grams'] ?? 0) ?>"
+                                           placeholder="<?= $this->__('grams_short') ?>" class="material-qty-input">
+                                    <span class="input-suffix"><?= $this->__('grams_short') ?></span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-danger remove-material-btn" title="<?= $this->__('delete') ?>">&times;</button>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
                     </div>
+                    <button type="button" id="addMaterialBtn" class="btn btn-sm btn-outline" style="margin-top: 8px;">
+                        + <?= $this->__('add_material') ?>
+                    </button>
+                    <?php if ($this->hasError('material_item_id')): ?>
+                    <span class="error"><?= $this->e($this->error('material_item_id')) ?></span>
+                    <?php endif; ?>
+                </div>
 
+                <div class="form-row">
                     <div class="form-group">
                         <label for="printer_id"><?= $this->__('printer') ?></label>
                         <select id="printer_id" name="printer_id">
@@ -89,17 +114,6 @@
                         </select>
                         <?php if ($this->hasError('printer_id')): ?>
                         <span class="error"><?= $this->e($this->error('printer_id')) ?></span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="material_qty_grams"><?= $this->__('material_qty_grams') ?></label>
-                        <input type="number" id="material_qty_grams" name="material_qty_grams" step="0.01"
-                               value="<?= $this->e($this->old('material_qty_grams', $detail['material_qty_grams'] ?? 0)) ?>">
-                        <?php if ($this->hasError('material_qty_grams')): ?>
-                        <span class="error"><?= $this->e($this->error('material_qty_grams')) ?></span>
                         <?php endif; ?>
                     </div>
 
@@ -176,13 +190,63 @@ document.addEventListener('DOMContentLoaded', () => {
 
     typeSelect?.addEventListener('change', updatePrintingFields);
     updatePrintingFields();
+
+    // Multi-material management
+    const container = document.getElementById('materialsContainer');
+    const addBtn = document.getElementById('addMaterialBtn');
+    let materialIndex = container.querySelectorAll('.material-row').length;
+
+    // Build options HTML from first select (template)
+    const firstSelect = container.querySelector('.material-select');
+    const optionsHtml = firstSelect ? firstSelect.innerHTML : '<option value="">-</option>';
+
+    addBtn.addEventListener('click', () => {
+        const row = document.createElement('div');
+        row.className = 'material-row';
+        row.dataset.index = materialIndex;
+        row.innerHTML = `
+            <div class="material-row-fields">
+                <select name="materials[${materialIndex}][item_id]" class="material-select">
+                    ${optionsHtml}
+                </select>
+                <div class="material-qty-group">
+                    <input type="number" name="materials[${materialIndex}][qty_grams]" step="0.01" min="0"
+                           value="0" placeholder="<?= $this->__('grams_short') ?>" class="material-qty-input">
+                    <span class="input-suffix"><?= $this->__('grams_short') ?></span>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger remove-material-btn" title="<?= $this->__('delete') ?>">&times;</button>
+            </div>
+        `;
+        container.appendChild(row);
+        materialIndex++;
+        updateRemoveButtons();
+    });
+
+    container.addEventListener('click', (e) => {
+        if (e.target.closest('.remove-material-btn')) {
+            const row = e.target.closest('.material-row');
+            if (container.querySelectorAll('.material-row').length > 1) {
+                row.remove();
+            }
+            updateRemoveButtons();
+        }
+    });
+
+    function updateRemoveButtons() {
+        const rows = container.querySelectorAll('.material-row');
+        rows.forEach(row => {
+            const btn = row.querySelector('.remove-material-btn');
+            if (btn) btn.style.visibility = rows.length > 1 ? 'visible' : 'hidden';
+        });
+    }
+
+    updateRemoveButtons();
 });
 </script>
 
 <style>
 .detail-printing-fields.is-hidden { display: none; }
 
-/* Improved material select dropdown */
 .material-select {
     font-size: 13px;
     max-width: 100%;
@@ -195,6 +259,62 @@ document.addEventListener('DOMContentLoaded', () => {
     line-height: 1.6;
     white-space: pre-wrap;
     font-family: monospace;
+}
+
+#materialsContainer {
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 8px;
+    padding: 12px;
+    background: var(--bg-secondary, #f8f9fa);
+}
+
+.material-row {
+    margin-bottom: 8px;
+}
+
+.material-row:last-child {
+    margin-bottom: 0;
+}
+
+.material-row-fields {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.material-row-fields .material-select {
+    flex: 1;
+    min-width: 0;
+}
+
+.material-qty-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.material-qty-input {
+    width: 100px;
+    text-align: right;
+}
+
+.input-suffix {
+    font-size: 0.85rem;
+    color: var(--text-muted, #6b7280);
+    white-space: nowrap;
+}
+
+.remove-material-btn {
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    line-height: 1;
 }
 </style>
 

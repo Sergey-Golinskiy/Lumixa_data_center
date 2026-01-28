@@ -41,8 +41,8 @@ class ProductCostingService
 
         $components = $this->db->fetchAll(
             "SELECT pc.*,
-                    d.sku AS detail_sku, d.name AS detail_name, d.detail_type, d.image_path AS detail_image,
-                    d.material_item_id, d.material_qty_grams, d.print_time_minutes,
+                    d.id AS detail_record_id, d.sku AS detail_sku, d.name AS detail_name, d.detail_type, d.image_path AS detail_image,
+                    d.material_item_id, d.material_qty_grams, d.print_time_minutes, d.printer_id AS detail_printer_id,
                     i.sku AS item_sku, i.name AS item_name, i.image_path AS item_image,
                     COALESCE(sb.avg_cost, 0) AS item_avg_cost,
                     mat.name AS material_name, mat.sku AS material_sku,
@@ -81,9 +81,10 @@ class ProductCostingService
         if ($component['component_type'] === 'detail') {
             // Calculate detail production cost
             $detailData = [
+                'id' => $component['detail_record_id'] ?? $component['detail_id'] ?? null,
                 'detail_type' => $component['detail_type'] ?? 'printed',
                 'material_item_id' => $component['material_item_id'] ?? null,
-                'printer_id' => $component['printer_id'] ?? null,
+                'printer_id' => $component['detail_printer_id'] ?? $component['printer_id'] ?? null,
                 'material_qty_grams' => $component['material_qty_grams'] ?? 0,
                 'print_time_minutes' => $component['print_time_minutes'] ?? 0,
             ];

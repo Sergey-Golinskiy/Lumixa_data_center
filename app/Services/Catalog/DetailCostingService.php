@@ -45,29 +45,48 @@ class DetailCostingService
         }
 
         $printTimeHours = ((float)($detail['print_time_minutes'] ?? 0)) / 60;
-        $materialQtyGrams = (float)($detail['material_qty_grams'] ?? 0);
-
-        if ($materialQtyGrams <= 0) {
-            $result['missing_data'][] = 'material_qty';
-        }
 
         if ($printTimeHours <= 0) {
             $result['missing_data'][] = 'print_time';
         }
 
-        // Get material cost (weighted average from stock)
+        // Load multi-material data if available
+        $detailMaterials = $this->getDetailMaterials($detail);
+        $totalMaterialCost = 0;
+        $totalMaterialQtyGrams = 0;
         $materialCostPerGram = 0;
-        if (!empty($detail['material_item_id'])) {
-            $materialCostPerGram = $this->getMaterialCostPerGram((int)$detail['material_item_id']);
-            if ($materialCostPerGram <= 0) {
-                $result['missing_data'][] = 'material_price';
+
+        if (!empty($detailMaterials)) {
+            foreach ($detailMaterials as $dm) {
+                $qty = (float)($dm['material_qty_grams'] ?? 0);
+                $costPerGram = $this->getMaterialCostPerGram((int)$dm['material_item_id']);
+                $totalMaterialCost += $qty * $costPerGram;
+                $totalMaterialQtyGrams += $qty;
+            }
+            // Average cost per gram for display
+            if ($totalMaterialQtyGrams > 0) {
+                $materialCostPerGram = $totalMaterialCost / $totalMaterialQtyGrams;
             }
         } else {
-            $result['missing_data'][] = 'material_not_selected';
+            // Legacy single-material fallback
+            $totalMaterialQtyGrams = (float)($detail['material_qty_grams'] ?? 0);
+            if (!empty($detail['material_item_id'])) {
+                $materialCostPerGram = $this->getMaterialCostPerGram((int)$detail['material_item_id']);
+                $totalMaterialCost = $totalMaterialQtyGrams * $materialCostPerGram;
+                if ($materialCostPerGram <= 0) {
+                    $result['missing_data'][] = 'material_price';
+                }
+            } else {
+                $result['missing_data'][] = 'material_not_selected';
+            }
+        }
+
+        if ($totalMaterialQtyGrams <= 0) {
+            $result['missing_data'][] = 'material_qty';
         }
 
         $result['material_cost_per_gram'] = $materialCostPerGram;
-        $result['material_cost'] = $materialQtyGrams * $materialCostPerGram;
+        $result['material_cost'] = $totalMaterialCost;
 
         // Get printer costs
         $printerData = null;
@@ -115,12 +134,29 @@ class DetailCostingService
 
         // Add calculation details for display
         $result['calculation_details'] = [
-            'material_qty_grams' => $materialQtyGrams,
+            'material_qty_grams' => $totalMaterialQtyGrams,
+            'material_count' => count($detailMaterials),
             'print_time_minutes' => (int)($detail['print_time_minutes'] ?? 0),
             'print_time_hours' => round($printTimeHours, 2),
         ];
 
         return $result;
+    }
+
+    /**
+     * Load multi-material data for a detail
+     */
+    private function getDetailMaterials(array $detail): array
+    {
+        $detailId = (int)($detail['id'] ?? 0);
+        if ($detailId <= 0 || !$this->db->tableExists('detail_materials')) {
+            return [];
+        }
+
+        return $this->db->fetchAll(
+            "SELECT material_item_id, material_qty_grams FROM detail_materials WHERE detail_id = ? ORDER BY sort_order",
+            [$detailId]
+        );
     }
 
     /**

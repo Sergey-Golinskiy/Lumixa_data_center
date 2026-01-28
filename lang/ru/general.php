@@ -1151,4 +1151,7 @@ return [
     'order' => 'Порядок',
     'move_up' => 'Вверх',
     'move_down' => 'Вниз',
+
+    // Multi-material / multi-color printing
+    'multi_color_printing' => 'Многоцветная печать',
 ];

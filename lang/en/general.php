@@ -1152,4 +1152,7 @@ return [
     'order' => 'Order',
     'move_up' => 'Move Up',
     'move_down' => 'Move Down',
+
+    // Multi-material / multi-color printing
+    'multi_color_printing' => 'Multi-color printing',
 ];

@@ -76,6 +76,25 @@
                 </div>
 
                 <?php if ($detail['detail_type'] === 'printed'): ?>
+                <?php if (!empty($detail['detail_materials']) && count($detail['detail_materials']) > 1): ?>
+                <!-- Multi-material display -->
+                <div class="detail-info-row detail-info-row-multi">
+                    <span class="info-label"><?= $this->__('materials') ?>:</span>
+                    <span class="info-value detail-materials-list">
+                        <?php foreach ($detail['detail_materials'] as $dm): ?>
+                        <span class="detail-material-badge">
+                            <?php if (!empty($dm['filament_alias'])): ?>
+                            <span class="badge badge-info"<?php if (!empty($dm['alias_color'])): ?> style="background: <?= $this->e($dm['alias_color']) ?>; color: <?= $this->contrastColor($dm['alias_color']) ?>"<?php endif; ?>><?= $this->e($dm['filament_alias']) ?></span>
+                            <?php else: ?>
+                            <span class="badge badge-secondary"><?= $this->e($dm['material_sku'] ?? '') ?></span>
+                            <?php endif; ?>
+                            <small class="text-muted"><?= $this->e($dm['material_qty_grams'] ?? 0) ?> <?= $this->__('grams_short') ?></small>
+                        </span>
+                        <?php endforeach; ?>
+                    </span>
+                </div>
+                <?php else: ?>
+                <!-- Single material display -->
                 <div class="detail-info-row">
                     <span class="info-label"><?= $this->__('material') ?>:</span>
                     <span class="info-value">
@@ -85,14 +104,6 @@
                         <small class="text-muted"><?= $this->e($detail['material_sku'] ?? '') ?></small>
                         <?php else: ?>
                         <?= $this->e($detail['material_sku'] ?? '') ?>
-                        <?php endif; ?>
-                        <?php
-                        $materialDetails = [];
-                        if (!empty($detail['material_color'])) $materialDetails[] = $detail['material_color'];
-                        if (!empty($detail['material_plastic_type'])) $materialDetails[] = $detail['material_plastic_type'];
-                        if (!empty($materialDetails)):
-                        ?>
-                        <small class="text-muted">(<?= implode(', ', $materialDetails) ?>)</small>
                         <?php endif; ?>
                         <?php else: ?>
                         <span class="text-muted">-</span>
@@ -104,6 +115,7 @@
                     <span class="info-label"><?= $this->__('material_qty_grams') ?>:</span>
                     <span class="info-value"><?= $detail['material_qty_grams'] ? $this->e($detail['material_qty_grams']) . ' g' : '-' ?></span>
                 </div>
+                <?php endif; ?>
 
                 <div class="detail-info-row">
                     <span class="info-label"><?= $this->__('print_time_minutes') ?>:</span>
@@ -306,6 +318,26 @@ a.detail-sku:hover {
 .detail-tile-actions .btn {
     flex: 1;
     text-align: center;
+}
+
+/* Multi-material display */
+.detail-info-row-multi {
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-materials-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: right;
+}
+
+.detail-material-badge {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
 }
 
 /* Pagination */

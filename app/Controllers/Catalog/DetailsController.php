@@ -72,6 +72,10 @@ class DetailsController extends Controller
             $params
         );
 
+        // Batch-load multi-material data for all details
+        $detailIds = array_column($details, 'id');
+        $allDetailMaterials = $this->getDetailMaterialsBatch($detailIds);
+
         // Fetch alias colors and calculate production cost for each detail
         $aliasColors = $this->getAliasColors();
         foreach ($details as &$detail) {
@@ -80,6 +84,13 @@ class DetailsController extends Controller
                 $costData = $this->costingService->calculateCost($detail);
                 $detail['production_cost'] = $costData['total_cost'] ?? 0;
             }
+            // Attach multi-material data
+            $detail['detail_materials'] = $allDetailMaterials[$detail['id']] ?? [];
+            foreach ($detail['detail_materials'] as &$dm) {
+                $dm['alias_color'] = $aliasColors[$dm['filament_alias'] ?? ''] ?? null;
+            }
+            unset($dm);
+            // Legacy single alias color
             $alias = $detail['material_filament_alias'] ?? '';
             $detail['material_alias_color'] = $aliasColors[$alias] ?? null;
         }
@@ -167,8 +178,17 @@ class DetailsController extends Controller
         // Get products that use this detail
         $usedInProducts = $this->getProductsUsingDetail((int)$id);
 
-        // Get alias color
+        // Get alias colors and detail materials
         $aliasColors = $this->getAliasColors();
+        $detailMaterials = $this->getDetailMaterials((int)$id);
+
+        // Enrich materials with alias colors
+        foreach ($detailMaterials as &$dm) {
+            $dm['alias_color'] = $aliasColors[$dm['filament_alias'] ?? ''] ?? null;
+        }
+        unset($dm);
+
+        // Legacy single alias color for backward compat
         $aliasColor = $aliasColors[$detail['material_filament_alias'] ?? ''] ?? null;
 
         $this->render('catalog/details/show', [
@@ -184,7 +204,8 @@ class DetailsController extends Controller
             'printers' => $printers,
             'tools' => $tools,
             'usedInProducts' => $usedInProducts,
-            'aliasColor' => $aliasColor
+            'aliasColor' => $aliasColor,
+            'detailMaterials' => $detailMaterials
         ]);
     }
 
@@ -202,7 +223,8 @@ class DetailsController extends Controller
             'title' => $this->app->getTranslator()->get('create_detail'),
             'detail' => null,
             'materials' => $materials,
-            'printers' => $printers
+            'printers' => $printers,
+            'detailMaterials' => []
         ]);
     }
 
@@ -219,6 +241,9 @@ class DetailsController extends Controller
             $this->notFound();
         }
 
+        // Load materials from source detail
+        $detailMaterials = $this->getDetailMaterials((int)$id);
+
         // Modify SKU to indicate it's a copy
         $detail['sku'] = $detail['sku'] . '-COPY';
         $detail['id'] = null; // Clear ID so form treats it as new
@@ -231,6 +256,7 @@ class DetailsController extends Controller
             'detail' => $detail,
             'materials' => $materials,
             'printers' => $printers,
+            'detailMaterials' => $detailMaterials,
             'isCopy' => true
         ]);
     }
@@ -263,6 +289,9 @@ class DetailsController extends Controller
                 'created_at' => date('Y-m-d H:i:s')
             ]));
 
+            // Save multi-material data
+            $this->saveDetailMaterials((int)$detailId, $_POST['materials'] ?? []);
+
             $this->audit('detail.created', 'details', $detailId, null, $data);
             $this->db()->commit();
 
@@ -289,6 +318,8 @@ class DetailsController extends Controller
             $this->notFound();
         }
 
+        $detailMaterials = $this->getDetailMaterials((int)$id);
+
         $materials = $this->getMaterials();
         $printers = $this->getPrinters();
 
@@ -296,7 +327,8 @@ class DetailsController extends Controller
             'title' => $this->app->getTranslator()->get('edit_detail'),
             'detail' => $detail,
             'materials' => $materials,
-            'printers' => $printers
+            'printers' => $printers,
+            'detailMaterials' => $detailMaterials
         ]);
     }
 
@@ -331,6 +363,9 @@ class DetailsController extends Controller
             $data['item_id'] = $itemId;
 
             $this->db()->update('details', $data, ['id' => $id]);
+
+            // Save multi-material data
+            $this->saveDetailMaterials((int)$id, $_POST['materials'] ?? []);
 
             $this->audit('detail.updated', 'details', $id, $detail, $data);
             $this->db()->commit();
@@ -384,13 +419,35 @@ class DetailsController extends Controller
 
     private function getDetailPayload(bool $isUpdate = false, ?array $existing = null): array
     {
+        // Parse multi-material data from form
+        $postMaterials = $_POST['materials'] ?? [];
+        $firstMaterialId = null;
+        $totalQtyGrams = 0;
+
+        foreach ($postMaterials as $mat) {
+            $matId = (int)($mat['item_id'] ?? 0);
+            $matQty = (float)($mat['qty_grams'] ?? 0);
+            if ($matId > 0) {
+                if ($firstMaterialId === null) {
+                    $firstMaterialId = $matId;
+                }
+                $totalQtyGrams += $matQty;
+            }
+        }
+
+        // Fall back to legacy single-material fields if no multi-material data
+        if ($firstMaterialId === null && !empty($_POST['material_item_id'])) {
+            $firstMaterialId = (int)$_POST['material_item_id'];
+            $totalQtyGrams = (float)($_POST['material_qty_grams'] ?? 0);
+        }
+
         $data = [
             'sku' => strtoupper(trim($_POST['sku'] ?? '')),
             'name' => trim($_POST['name'] ?? ''),
             'detail_type' => $_POST['detail_type'] ?? '',
-            'material_item_id' => (int)($_POST['material_item_id'] ?? 0),
+            'material_item_id' => $firstMaterialId,
             'printer_id' => (int)($_POST['printer_id'] ?? 0),
-            'material_qty_grams' => (float)($_POST['material_qty_grams'] ?? 0),
+            'material_qty_grams' => $totalQtyGrams,
             'print_time_minutes' => (int)($_POST['print_time_minutes'] ?? 0),
             'print_parameters' => trim($_POST['print_parameters'] ?? ''),
             'is_active' => isset($_POST['is_active']) ? 1 : 0
@@ -813,6 +870,150 @@ class DetailsController extends Controller
         }
 
         $this->redirect("/catalog/details/{$id}");
+    }
+
+    /**
+     * Get materials for a single detail from detail_materials table
+     */
+    private function getDetailMaterials(int $detailId): array
+    {
+        if (!$this->db()->tableExists('detail_materials')) {
+            // Fall back to legacy single material
+            return $this->getLegacyMaterial($detailId);
+        }
+
+        $materials = $this->db()->fetchAll(
+            "SELECT dm.*, m.sku AS material_sku, m.name AS material_name,
+                    (SELECT ia.attribute_value FROM item_attributes ia
+                     WHERE ia.item_id = m.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS filament_alias
+             FROM detail_materials dm
+             JOIN items m ON dm.material_item_id = m.id
+             WHERE dm.detail_id = ?
+             ORDER BY dm.sort_order, dm.id",
+            [$detailId]
+        );
+
+        if (empty($materials)) {
+            return $this->getLegacyMaterial($detailId);
+        }
+
+        return $materials;
+    }
+
+    /**
+     * Fall back to legacy single material from details table
+     */
+    private function getLegacyMaterial(int $detailId): array
+    {
+        $detail = $this->db()->fetch(
+            "SELECT d.material_item_id, d.material_qty_grams,
+                    m.sku AS material_sku, m.name AS material_name,
+                    (SELECT ia.attribute_value FROM item_attributes ia
+                     WHERE ia.item_id = m.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS filament_alias
+             FROM details d
+             LEFT JOIN items m ON d.material_item_id = m.id
+             WHERE d.id = ? AND d.material_item_id IS NOT NULL",
+            [$detailId]
+        );
+
+        if (!$detail || empty($detail['material_item_id'])) {
+            return [];
+        }
+
+        return [[
+            'material_item_id' => $detail['material_item_id'],
+            'material_qty_grams' => $detail['material_qty_grams'],
+            'material_sku' => $detail['material_sku'],
+            'material_name' => $detail['material_name'],
+            'filament_alias' => $detail['filament_alias'],
+            'sort_order' => 0
+        ]];
+    }
+
+    /**
+     * Batch-load materials for multiple details
+     */
+    private function getDetailMaterialsBatch(array $detailIds): array
+    {
+        if (empty($detailIds)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($detailIds as $id) {
+            $result[$id] = [];
+        }
+
+        if ($this->db()->tableExists('detail_materials')) {
+            $placeholders = implode(',', array_fill(0, count($detailIds), '?'));
+            $rows = $this->db()->fetchAll(
+                "SELECT dm.*, m.sku AS material_sku, m.name AS material_name,
+                        (SELECT ia.attribute_value FROM item_attributes ia
+                         WHERE ia.item_id = m.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS filament_alias
+                 FROM detail_materials dm
+                 JOIN items m ON dm.material_item_id = m.id
+                 WHERE dm.detail_id IN ({$placeholders})
+                 ORDER BY dm.detail_id, dm.sort_order, dm.id",
+                $detailIds
+            );
+
+            foreach ($rows as $row) {
+                $result[$row['detail_id']][] = $row;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Save multi-material data for a detail
+     */
+    private function saveDetailMaterials(int $detailId, array $postMaterials): void
+    {
+        if (!$this->db()->tableExists('detail_materials')) {
+            $this->ensureDetailMaterialsTable();
+        }
+
+        // Delete existing
+        $this->db()->delete('detail_materials', ['detail_id' => $detailId]);
+
+        // Insert new materials
+        $sortOrder = 0;
+        foreach ($postMaterials as $mat) {
+            $matId = (int)($mat['item_id'] ?? 0);
+            $matQty = (float)($mat['qty_grams'] ?? 0);
+            if ($matId > 0) {
+                $this->db()->insert('detail_materials', [
+                    'detail_id' => $detailId,
+                    'material_item_id' => $matId,
+                    'material_qty_grams' => $matQty,
+                    'sort_order' => $sortOrder++
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Ensure detail_materials table exists
+     */
+    private function ensureDetailMaterialsTable(): void
+    {
+        if ($this->db()->tableExists('detail_materials')) {
+            return;
+        }
+
+        $this->db()->exec("
+            CREATE TABLE IF NOT EXISTS detail_materials (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                detail_id INT UNSIGNED NOT NULL,
+                material_item_id INT UNSIGNED NOT NULL,
+                material_qty_grams DECIMAL(10,2) NOT NULL DEFAULT 0,
+                sort_order INT DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_detail_materials_detail (detail_id),
+                FOREIGN KEY (detail_id) REFERENCES details(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
     }
 
     /**
