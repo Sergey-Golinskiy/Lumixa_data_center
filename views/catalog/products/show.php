@@ -190,6 +190,7 @@
                         <th><?= $this->__('sku') ?></th>
                         <th><?= $this->__('name') ?></th>
                         <th><?= $this->__('type') ?></th>
+                        <th><?= $this->__('material') ?></th>
                         <th class="text-right"><?= $this->__('quantity') ?></th>
                         <th class="text-right"><?= $this->__('unit_cost') ?></th>
                         <th class="text-right"><?= $this->__('total_cost') ?></th>
@@ -201,7 +202,7 @@
                 <tbody>
                     <?php if (empty($components)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_components') ?></td>
+                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_components') ?></td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($components as $component): ?>
@@ -244,6 +245,14 @@
                             <span class="badge badge-component"><?= $this->__('component') ?></span>
                             <?php endif; ?>
                         </td>
+                        <td>
+                            <?php if ($component['component_type'] === 'detail' && !empty($component['material_name'])): ?>
+                            <span class="badge badge-material"><?= $this->e($component['material_alias'] ?? $component['material_sku'] ?? '') ?></span>
+                            <small class="text-muted"><?= $this->e($component['material_name']) ?></small>
+                            <?php else: ?>
+                            <span class="text-muted">-</span>
+                            <?php endif; ?>
+                        </td>
                         <td class="text-right">
                             <?php if ($this->can('catalog.products.composition')): ?>
                             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/components/<?= $component['id'] ?>" style="display:inline;">
@@ -274,7 +283,7 @@
                 <?php if (!empty($components)): ?>
                 <tfoot>
                     <tr class="total-row">
-                        <td colspan="6" class="text-right"><strong><?= $this->__('total_components_cost') ?>:</strong></td>
+                        <td colspan="7" class="text-right"><strong><?= $this->__('total_components_cost') ?>:</strong></td>
                         <td class="text-right"><strong><?= $this->currency(($costData['details_cost'] ?? 0) + ($costData['items_cost'] ?? 0)) ?></strong></td>
                         <?php if ($this->can('catalog.products.composition')): ?>
                         <td></td>
