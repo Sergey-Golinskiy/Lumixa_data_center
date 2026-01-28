@@ -205,6 +205,7 @@ class DetailsController extends Controller
             'tools' => $tools,
             'usedInProducts' => $usedInProducts,
             'aliasColor' => $aliasColor,
+            'aliasColors' => $aliasColors,
             'detailMaterials' => $detailMaterials
         ]);
     }
@@ -620,7 +621,7 @@ class DetailsController extends Controller
             return [];
         }
 
-        return $this->db()->fetchAll(
+        $operations = $this->db()->fetchAll(
             "SELECT o.*,
                     m.sku AS material_sku, m.name AS material_name,
                     p.name AS printer_name,
@@ -633,6 +634,102 @@ class DetailsController extends Controller
              ORDER BY o.sort_order, o.id",
             [$detailId]
         );
+
+        // Load multi-material data for each operation
+        if ($this->db()->tableExists('detail_operation_materials')) {
+            $opIds = array_column($operations, 'id');
+            $opMaterials = $this->getOperationMaterialsBatch($opIds);
+            foreach ($operations as &$op) {
+                $op['operation_materials'] = $opMaterials[$op['id']] ?? [];
+            }
+            unset($op);
+        } else {
+            foreach ($operations as &$op) {
+                $op['operation_materials'] = [];
+            }
+            unset($op);
+        }
+
+        return $operations;
+    }
+
+    /**
+     * Batch-load materials for multiple operations
+     */
+    private function getOperationMaterialsBatch(array $operationIds): array
+    {
+        if (empty($operationIds)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($operationIds as $id) {
+            $result[$id] = [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($operationIds), '?'));
+        $rows = $this->db()->fetchAll(
+            "SELECT om.*, m.sku AS material_sku, m.name AS material_name,
+                    (SELECT ia.attribute_value FROM item_attributes ia
+                     WHERE ia.item_id = m.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS filament_alias
+             FROM detail_operation_materials om
+             JOIN items m ON om.material_id = m.id
+             WHERE om.operation_id IN ({$placeholders})
+             ORDER BY om.operation_id, om.sort_order, om.id",
+            $operationIds
+        );
+
+        foreach ($rows as $row) {
+            $result[$row['operation_id']][] = $row;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Save multiple materials for an operation
+     */
+    private function saveOperationMaterials(int $operationId, array $materialIds): void
+    {
+        if (!$this->db()->tableExists('detail_operation_materials')) {
+            $this->ensureOperationMaterialsTable();
+        }
+
+        $this->db()->delete('detail_operation_materials', ['operation_id' => $operationId]);
+
+        $sortOrder = 0;
+        foreach ($materialIds as $matId) {
+            $matId = (int)$matId;
+            if ($matId > 0) {
+                $this->db()->insert('detail_operation_materials', [
+                    'operation_id' => $operationId,
+                    'material_id' => $matId,
+                    'sort_order' => $sortOrder++
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Ensure detail_operation_materials table exists
+     */
+    private function ensureOperationMaterialsTable(): void
+    {
+        if ($this->db()->tableExists('detail_operation_materials')) {
+            return;
+        }
+
+        $this->db()->exec("
+            CREATE TABLE IF NOT EXISTS detail_operation_materials (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                operation_id INT NOT NULL,
+                material_id INT UNSIGNED NOT NULL,
+                sort_order INT DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_op_materials_operation (operation_id),
+                FOREIGN KEY (operation_id) REFERENCES detail_operations(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        ");
     }
 
     /**
@@ -679,13 +776,19 @@ class DetailsController extends Controller
             [$id]
         );
 
+        // Parse material IDs - support both multi-select and legacy single
+        $materialIds = $_POST['material_ids'] ?? [];
+        if (empty($materialIds) && !empty($_POST['material_id'])) {
+            $materialIds = [(int)$_POST['material_id']];
+        }
+
         $data = [
             'detail_id' => (int)$id,
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
             'time_minutes' => (int)($_POST['time_minutes'] ?? 0),
             'labor_rate' => (float)($_POST['labor_rate'] ?? 0),
-            'material_id' => !empty($_POST['material_id']) ? (int)$_POST['material_id'] : null,
+            'material_id' => !empty($materialIds) ? (int)$materialIds[0] : null,
             'printer_id' => !empty($_POST['printer_id']) ? (int)$_POST['printer_id'] : null,
             'tool_id' => !empty($_POST['tool_id']) ? (int)$_POST['tool_id'] : null,
             'sort_order' => $maxSort + 1
@@ -701,6 +804,11 @@ class DetailsController extends Controller
         }
 
         $operationId = $this->db()->insert('detail_operations', $data);
+
+        // Save multi-material data
+        if (!empty($materialIds)) {
+            $this->saveOperationMaterials((int)$operationId, $materialIds);
+        }
 
         $this->audit('detail.operation.added', 'detail_operations', $operationId, null, $data);
 
@@ -738,17 +846,26 @@ class DetailsController extends Controller
             $this->notFound();
         }
 
+        // Parse material IDs - support both multi-select and legacy single
+        $materialIds = $_POST['material_ids'] ?? [];
+        if (empty($materialIds) && !empty($_POST['material_id'])) {
+            $materialIds = [(int)$_POST['material_id']];
+        }
+
         $data = [
             'name' => trim($_POST['name'] ?? $operation['name']),
             'description' => trim($_POST['description'] ?? ''),
             'time_minutes' => (int)($_POST['time_minutes'] ?? 0),
             'labor_rate' => (float)($_POST['labor_rate'] ?? 0),
-            'material_id' => !empty($_POST['material_id']) ? (int)$_POST['material_id'] : null,
+            'material_id' => !empty($materialIds) ? (int)$materialIds[0] : null,
             'printer_id' => !empty($_POST['printer_id']) ? (int)$_POST['printer_id'] : null,
             'tool_id' => !empty($_POST['tool_id']) ? (int)$_POST['tool_id'] : null
         ];
 
         $this->db()->update('detail_operations', $data, ['id' => $operationId]);
+
+        // Save multi-material data
+        $this->saveOperationMaterials((int)$operationId, $materialIds);
 
         $this->audit('detail.operation.updated', 'detail_operations', $operationId, $operation, $data);
 

@@ -291,10 +291,14 @@
                 </thead>
                 <tbody>
                     <?php foreach ($costBreakdown as $item): ?>
-                    <tr>
+                    <tr<?php if (!empty($item['is_sub'])): ?> class="cost-row-sub"<?php endif; ?>>
                         <td>
                             <span class="cost-icon cost-icon-<?= $this->e($item['type']) ?>"></span>
+                            <?php if (!empty($item['label_raw'])): ?>
+                            <?= $this->e($item['label_raw']) ?>
+                            <?php else: ?>
                             <?= $this->__($item['label']) ?>
+                            <?php endif; ?>
                         </td>
                         <td class="text-muted"><code><?= $this->e($item['details']) ?></code></td>
                         <td class="text-right"><?= $this->currency($item['value']) ?></td>
@@ -310,7 +314,6 @@
             </table>
         </div>
 
-        <?php if (!empty($costData['printer'])): ?>
         <div class="cost-info-panel">
             <div class="cost-info-header">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 6px;">
@@ -320,34 +323,78 @@
                 </svg>
                 <?= $this->__('calculation_parameters') ?>
             </div>
-            <div class="cost-info-grid">
-                <div class="cost-info-item">
-                    <span class="cost-info-label"><?= $this->__('material_cost_per_gram') ?>:</span>
-                    <span class="cost-info-value"><?= number_format($costData['material_cost_per_gram'], 4) ?></span>
+            <div class="cost-params-groups">
+                <!-- Materials Group -->
+                <div class="cost-params-group">
+                    <div class="cost-params-group-title">
+                        <span class="cost-icon cost-icon-material"></span>
+                        <?= $this->__('materials') ?>
+                    </div>
+                    <?php
+                    $matDetails = $costData['material_details'] ?? [];
+                    if (count($matDetails) > 1):
+                        foreach ($matDetails as $md):
+                    ?>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->e($md['filament_alias'] ?: $md['material_sku']) ?>:</span>
+                        <span class="cost-info-value"><?= number_format($md['cost_per_gram'], 4) ?> / <?= $this->__('grams_short') ?> &times; <?= number_format($md['qty_grams'], 2) ?> <?= $this->__('grams_short') ?></span>
+                    </div>
+                    <?php endforeach; else: ?>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('material_cost_per_gram') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['material_cost_per_gram'], 4) ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('material_qty_grams') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['calculation_details']['material_qty_grams'] ?? 0, 2) ?> <?= $this->__('grams_short') ?></span>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <div class="cost-info-item">
-                    <span class="cost-info-label"><?= $this->__('print_time_hours') ?>:</span>
-                    <span class="cost-info-value"><?= $costData['calculation_details']['print_time_hours'] ?? 0 ?> <?= $this->__('hours_short') ?></span>
+
+                <!-- Print Time Group -->
+                <div class="cost-params-group">
+                    <div class="cost-params-group-title">
+                        <span class="cost-icon cost-icon-electricity"></span>
+                        <?= $this->__('print_time_hours') ?>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('print_time_minutes') ?>:</span>
+                        <span class="cost-info-value"><?= $costData['calculation_details']['print_time_minutes'] ?? 0 ?> <?= $this->__('minutes_short') ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('print_time_hours') ?>:</span>
+                        <span class="cost-info-value"><?= $costData['calculation_details']['print_time_hours'] ?? 0 ?> <?= $this->__('hours_short') ?></span>
+                    </div>
                 </div>
-                <div class="cost-info-item">
-                    <span class="cost-info-label"><?= $this->__('printer_power') ?>:</span>
-                    <span class="cost-info-value"><?= $costData['printer']['power_watts'] ?? 0 ?> <?= $this->__('watts_short') ?></span>
+
+                <?php if (!empty($costData['printer'])): ?>
+                <!-- Printer Group -->
+                <div class="cost-params-group">
+                    <div class="cost-params-group-title">
+                        <span class="cost-icon cost-icon-amortization"></span>
+                        <?= $this->__('printer') ?>
+                        <small class="text-muted"><?= $this->e($costData['printer']['name'] ?? '') ?><?= !empty($costData['printer']['model']) ? ' - ' . $this->e($costData['printer']['model']) : '' ?></small>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('printer_power') ?>:</span>
+                        <span class="cost-info-value"><?= $costData['printer']['power_watts'] ?? 0 ?> <?= $this->__('watts_short') ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('electricity_rate') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['printer']['electricity_cost_per_kwh'] ?? 0, 4) ?> / <?= $this->__('kwh_short') ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('amortization_rate') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['printer']['amortization_per_hour'] ?? 0, 4) ?> / <?= $this->__('hour_short') ?></span>
+                    </div>
+                    <div class="cost-info-item">
+                        <span class="cost-info-label"><?= $this->__('maintenance_rate') ?>:</span>
+                        <span class="cost-info-value"><?= number_format($costData['printer']['maintenance_per_hour'] ?? 0, 4) ?> / <?= $this->__('hour_short') ?></span>
+                    </div>
                 </div>
-                <div class="cost-info-item">
-                    <span class="cost-info-label"><?= $this->__('electricity_rate') ?>:</span>
-                    <span class="cost-info-value"><?= number_format($costData['printer']['electricity_cost_per_kwh'] ?? 0, 4) ?> / <?= $this->__('kwh_short') ?></span>
-                </div>
-                <div class="cost-info-item">
-                    <span class="cost-info-label"><?= $this->__('amortization_rate') ?>:</span>
-                    <span class="cost-info-value"><?= number_format($costData['printer']['amortization_per_hour'] ?? 0, 4) ?> / <?= $this->__('hour_short') ?></span>
-                </div>
-                <div class="cost-info-item">
-                    <span class="cost-info-label"><?= $this->__('maintenance_rate') ?>:</span>
-                    <span class="cost-info-value"><?= number_format($costData['printer']['maintenance_per_hour'] ?? 0, 4) ?> / <?= $this->__('hour_short') ?></span>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
-        <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>
@@ -394,18 +441,23 @@
                         </div>
                     </div>
 
-                    <!-- Resources Selection -->
-                    <div class="form-group">
-                        <label><?= $this->__('material') ?></label>
-                        <select name="material_id">
-                            <option value=""><?= $this->__('select_material') ?></option>
+                    <!-- Multi-material Selection -->
+                    <div class="form-group form-group-full">
+                        <label><?= $this->__('materials') ?></label>
+                        <div class="material-checkboxes">
                             <?php foreach ($materials ?? [] as $mat): ?>
-                            <option value="<?= $mat['id'] ?>">
-                                <?= $this->e($mat['sku']) ?> - <?= $this->e($mat['name']) ?>
-                                <?= !empty($mat['filament_alias']) ? ' (' . $this->e($mat['filament_alias']) . ')' : '' ?>
-                            </option>
+                            <label class="material-checkbox-label">
+                                <input type="checkbox" name="material_ids[]" value="<?= $mat['id'] ?>">
+                                <span class="material-checkbox-badge">
+                                    <?php if (!empty($mat['filament_alias'])): ?>
+                                    <strong><?= $this->e($mat['filament_alias']) ?></strong>
+                                    <?php endif; ?>
+                                    <span><?= $this->e($mat['sku']) ?></span>
+                                    <small><?= $this->e($mat['name']) ?></small>
+                                </span>
+                            </label>
                             <?php endforeach; ?>
-                        </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -511,11 +563,26 @@
                         </td>
                         <td>
                             <div class="operation-resources">
-                                <?php if (!empty($operation['material_sku'])): ?>
+                                <?php
+                                $opMats = $operation['operation_materials'] ?? [];
+                                $hasMaterials = false;
+                                if (!empty($opMats)):
+                                    $hasMaterials = true;
+                                    $aliasColors = $aliasColors ?? [];
+                                    foreach ($opMats as $om):
+                                        $omColor = $aliasColors[$om['filament_alias'] ?? ''] ?? null;
+                                ?>
+                                <span class="badge badge-material" title="<?= $this->e($om['material_name'] ?? '') ?>"<?php if ($omColor): ?> style="background: <?= $this->e($omColor) ?>; color: <?= $this->contrastColor($omColor) ?>"<?php endif; ?>>
+                                    <?php if (!empty($om['filament_alias'])): ?>
+                                    <?= $this->e($om['filament_alias']) ?>
+                                    <?php else: ?>
+                                    <?= $this->e($om['material_sku'] ?? '') ?>
+                                    <?php endif; ?>
+                                </span>
+                                <?php endforeach; ?>
+                                <?php elseif (!empty($operation['material_sku'])): ?>
+                                <?php $hasMaterials = true; ?>
                                 <span class="badge badge-material" title="<?= $this->e($operation['material_name'] ?? '') ?>">
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 3px;">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                    </svg>
                                     <?= $this->e($operation['material_sku']) ?>
                                 </span>
                                 <?php endif; ?>
@@ -536,7 +603,7 @@
                                     <?= $this->e($operation['tool_sku']) ?>
                                 </span>
                                 <?php endif; ?>
-                                <?php if (empty($operation['material_sku']) && empty($operation['printer_name']) && empty($operation['tool_sku'])): ?>
+                                <?php if (!$hasMaterials && empty($operation['printer_name']) && empty($operation['tool_sku'])): ?>
                                 <span class="text-muted">-</span>
                                 <?php endif; ?>
                             </div>
@@ -552,7 +619,7 @@
                                     data-description="<?= $this->e($operation['description'] ?? '') ?>"
                                     data-time="<?= $operation['time_minutes'] ?? 0 ?>"
                                     data-rate="<?= $operation['labor_rate'] ?? 0 ?>"
-                                    data-material="<?= $operation['material_id'] ?? '' ?>"
+                                    data-materials="<?= $this->e(implode(',', array_column($operation['operation_materials'] ?? [], 'material_id')) ?: ($operation['material_id'] ?? '')) ?>"
                                     data-printer="<?= $operation['printer_id'] ?? '' ?>"
                                     data-tool="<?= $operation['tool_id'] ?? '' ?>"
                                     title="<?= $this->__('edit') ?>">
@@ -620,16 +687,20 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label><?= $this->__('material') ?></label>
-                    <select name="material_id" id="editOpMaterial">
-                        <option value=""><?= $this->__('select_material') ?></option>
+                    <label><?= $this->__('materials') ?></label>
+                    <div class="material-checkboxes" id="editOpMaterials">
                         <?php foreach ($materials ?? [] as $mat): ?>
-                        <option value="<?= $mat['id'] ?>">
-                            <?= $this->e($mat['sku']) ?> - <?= $this->e($mat['name']) ?>
-                            <?= !empty($mat['filament_alias']) ? ' (' . $this->e($mat['filament_alias']) . ')' : '' ?>
-                        </option>
+                        <label class="material-checkbox-label">
+                            <input type="checkbox" name="material_ids[]" value="<?= $mat['id'] ?>" class="edit-op-mat-cb">
+                            <span class="material-checkbox-badge">
+                                <?php if (!empty($mat['filament_alias'])): ?>
+                                <strong><?= $this->e($mat['filament_alias']) ?></strong>
+                                <?php endif; ?>
+                                <span><?= $this->e($mat['sku']) ?></span>
+                            </span>
+                        </label>
                         <?php endforeach; ?>
-                    </select>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label><?= $this->__('printer') ?></label>
@@ -854,6 +925,11 @@
 .cost-icon-maintenance { background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); }
 .cost-icon-labor { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); }
 
+/* Cost sub-rows (multi-material) */
+.cost-row-sub td:first-child {
+    padding-left: 30px;
+}
+
 /* Cost info panel */
 .cost-info-panel {
     background: var(--bg-secondary);
@@ -870,24 +946,52 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-.cost-info-grid {
+
+/* Grouped parameters */
+.cost-params-groups {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
 }
+.cost-params-group {
+    background: var(--bg-primary);
+    border-radius: 8px;
+    padding: 14px;
+    border: 1px solid var(--border);
+}
+.cost-params-group-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text);
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cost-params-group-title small {
+    font-weight: 400;
+    margin-left: auto;
+}
+
 .cost-info-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
+    padding: 6px 0;
     border-bottom: 1px dashed var(--border);
+}
+.cost-info-item:last-child {
+    border-bottom: none;
 }
 .cost-info-label {
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 .cost-info-value {
     font-weight: 600;
     font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+    font-size: 0.85rem;
     color: var(--text);
 }
 
@@ -1186,6 +1290,53 @@
     flex: 1;
 }
 
+/* Material checkboxes */
+.material-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 0;
+}
+.material-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+.material-checkbox-label input[type="checkbox"] {
+    display: none;
+}
+.material-checkbox-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
+    font-size: 12px;
+    transition: all 0.2s;
+}
+.material-checkbox-badge strong {
+    color: var(--primary);
+}
+.material-checkbox-badge small {
+    color: var(--text-muted);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.material-checkbox-label input[type="checkbox"]:checked + .material-checkbox-badge {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+}
+.material-checkbox-label input[type="checkbox"]:checked + .material-checkbox-badge strong,
+.material-checkbox-label input[type="checkbox"]:checked + .material-checkbox-badge small {
+    color: rgba(255,255,255,0.85);
+}
+
 /* Edit button in operations */
 .edit-operation-btn {
     margin-right: 5px;
@@ -1235,7 +1386,13 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('editOpDescription').value = this.dataset.description || '';
             document.getElementById('editOpTime').value = this.dataset.time || 0;
             document.getElementById('editOpRate').value = this.dataset.rate || 0;
-            document.getElementById('editOpMaterial').value = this.dataset.material || '';
+
+            // Multi-material checkboxes
+            const matIds = (this.dataset.materials || '').split(',').filter(Boolean);
+            document.querySelectorAll('.edit-op-mat-cb').forEach(cb => {
+                cb.checked = matIds.includes(cb.value);
+            });
+
             document.getElementById('editOpPrinter').value = this.dataset.printer || '';
             document.getElementById('editOpTool').value = this.dataset.tool || '';
             editModal.style.display = 'flex';

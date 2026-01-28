@@ -55,13 +55,28 @@ class DetailCostingService
         $totalMaterialCost = 0;
         $totalMaterialQtyGrams = 0;
         $materialCostPerGram = 0;
+        $materialDetails = []; // per-material breakdown for display
 
         if (!empty($detailMaterials)) {
             foreach ($detailMaterials as $dm) {
                 $qty = (float)($dm['material_qty_grams'] ?? 0);
-                $costPerGram = $this->getMaterialCostPerGram((int)$dm['material_item_id']);
-                $totalMaterialCost += $qty * $costPerGram;
+                $matItemId = (int)$dm['material_item_id'];
+                $costPerGram = $this->getMaterialCostPerGram($matItemId);
+                $matCost = $qty * $costPerGram;
+                $totalMaterialCost += $matCost;
                 $totalMaterialQtyGrams += $qty;
+
+                // Get material name/alias for display
+                $matInfo = $this->getMaterialInfo($matItemId);
+                $materialDetails[] = [
+                    'material_item_id' => $matItemId,
+                    'material_name' => $matInfo['name'] ?? '',
+                    'material_sku' => $matInfo['sku'] ?? '',
+                    'filament_alias' => $matInfo['filament_alias'] ?? '',
+                    'qty_grams' => $qty,
+                    'cost_per_gram' => $costPerGram,
+                    'cost' => $matCost,
+                ];
             }
             // Average cost per gram for display
             if ($totalMaterialQtyGrams > 0) {
@@ -71,11 +86,22 @@ class DetailCostingService
             // Legacy single-material fallback
             $totalMaterialQtyGrams = (float)($detail['material_qty_grams'] ?? 0);
             if (!empty($detail['material_item_id'])) {
-                $materialCostPerGram = $this->getMaterialCostPerGram((int)$detail['material_item_id']);
+                $matItemId = (int)$detail['material_item_id'];
+                $materialCostPerGram = $this->getMaterialCostPerGram($matItemId);
                 $totalMaterialCost = $totalMaterialQtyGrams * $materialCostPerGram;
                 if ($materialCostPerGram <= 0) {
                     $result['missing_data'][] = 'material_price';
                 }
+                $matInfo = $this->getMaterialInfo($matItemId);
+                $materialDetails[] = [
+                    'material_item_id' => $matItemId,
+                    'material_name' => $matInfo['name'] ?? '',
+                    'material_sku' => $matInfo['sku'] ?? '',
+                    'filament_alias' => $matInfo['filament_alias'] ?? '',
+                    'qty_grams' => $totalMaterialQtyGrams,
+                    'cost_per_gram' => $materialCostPerGram,
+                    'cost' => $totalMaterialCost,
+                ];
             } else {
                 $result['missing_data'][] = 'material_not_selected';
             }
@@ -87,6 +113,7 @@ class DetailCostingService
 
         $result['material_cost_per_gram'] = $materialCostPerGram;
         $result['material_cost'] = $totalMaterialCost;
+        $result['material_details'] = $materialDetails;
 
         // Get printer costs
         $printerData = null;
@@ -245,13 +272,44 @@ class DetailCostingService
     }
 
     /**
+     * Get material info (name, sku, alias) for display
+     */
+    private function getMaterialInfo(int $materialItemId): array
+    {
+        $item = $this->db->fetch(
+            "SELECT i.id, i.sku, i.name,
+                    (SELECT ia.attribute_value FROM item_attributes ia
+                     WHERE ia.item_id = i.id AND ia.attribute_name = 'filament_alias' LIMIT 1) AS filament_alias
+             FROM items i WHERE i.id = ?",
+            [$materialItemId]
+        );
+        return $item ?: ['sku' => '', 'name' => '', 'filament_alias' => ''];
+    }
+
+    /**
      * Get cost breakdown for display
      */
     public function getCostBreakdown(array $costData): array
     {
         $breakdown = [];
 
-        if ($costData['material_cost'] > 0) {
+        $materialDetails = $costData['material_details'] ?? [];
+        if (count($materialDetails) > 1) {
+            // Show each material separately
+            foreach ($materialDetails as $md) {
+                if ($md['cost'] > 0) {
+                    $label = $md['filament_alias'] ?: ($md['material_sku'] ?: 'material_cost');
+                    $breakdown[] = [
+                        'type' => 'material',
+                        'label_raw' => $label,
+                        'label' => 'material_cost',
+                        'value' => $md['cost'],
+                        'details' => sprintf('%.2f g × %.4f', $md['qty_grams'], $md['cost_per_gram']),
+                        'is_sub' => true,
+                    ];
+                }
+            }
+        } elseif ($costData['material_cost'] > 0) {
             $breakdown[] = [
                 'type' => 'material',
                 'label' => 'material_cost',
