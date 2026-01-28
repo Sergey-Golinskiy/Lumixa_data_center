@@ -250,16 +250,6 @@ return function (Router $router) {
         $router->post('/bom/{id}/activate', 'Catalog\\BOMController@activate');
         $router->post('/bom/{id}/archive', 'Catalog\\BOMController@archive');
 
-        // Routing
-        $router->get('/routing', 'Catalog\\RoutingController@index', 'catalog.routing');
-        $router->get('/routing/create', 'Catalog\\RoutingController@create', 'catalog.routing.create');
-        $router->post('/routing', 'Catalog\\RoutingController@store');
-        $router->get('/routing/{id}', 'Catalog\\RoutingController@show', 'catalog.routing.show');
-        $router->get('/routing/{id}/edit', 'Catalog\\RoutingController@edit', 'catalog.routing.edit');
-        $router->post('/routing/{id}', 'Catalog\\RoutingController@update');
-        $router->post('/routing/{id}/activate', 'Catalog\\RoutingController@activate');
-        $router->post('/routing/{id}/archive', 'Catalog\\RoutingController@archive');
-
     }, ['AuthMiddleware', 'CSRFMiddleware']);
 
     // ========================================
