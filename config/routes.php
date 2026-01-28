@@ -214,6 +214,10 @@ return function (Router $router) {
         $router->post('/products/{id}/operations/{operationId}/move-down', 'Catalog\\ProductsController@moveOperationDown');
         $router->get('/api/products/{id}/components', 'Catalog\\ProductsController@apiGetProductComponents');
 
+        // Product Specification (BOM)
+        $router->get('/products/{id}/specification', 'Catalog\\ProductsController@specification', 'catalog.products.specification');
+        $router->get('/products/{id}/specification/pdf', 'Catalog\\ProductsController@specificationPdf', 'catalog.products.specification.pdf');
+
         // Details
         $router->get('/details', 'Catalog\\DetailsController@index', 'catalog.details');
         $router->get('/details/create', 'Catalog\\DetailsController@create', 'catalog.details.create');
