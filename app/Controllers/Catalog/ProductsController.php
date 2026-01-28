@@ -1192,8 +1192,9 @@ class ProductsController extends Controller
             $this->notFound();
         }
 
-        // Render PDF view
-        $html = $this->renderToString('catalog/products/specification-pdf', [
+        // Use View class without layout for PDF
+        $this->view->setLayout(null);
+        $html = $this->view->render('catalog/products/specification-pdf', [
             'product' => $specData['product'],
             'components' => $specData['components'],
             'packaging' => $specData['packaging'],
