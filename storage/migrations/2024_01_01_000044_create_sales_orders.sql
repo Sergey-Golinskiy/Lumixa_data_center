@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS sales_order_items (
     order_id INT UNSIGNED NOT NULL,
 
     -- Product reference (can be linked to local catalog or just text)
-    product_id INT UNSIGNED DEFAULT NULL COMMENT 'Reference to local products table',
+    product_id INT DEFAULT NULL COMMENT 'Reference to local products table',
     external_product_id VARCHAR(100) DEFAULT NULL COMMENT 'Product ID from source system',
 
     -- Item details
