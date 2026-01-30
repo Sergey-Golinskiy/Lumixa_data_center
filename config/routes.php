@@ -127,6 +127,8 @@ return function (Router $router) {
         $router->post('/integrations/woocommerce', 'Admin\\IntegrationsController@updateWooCommerce');
         $router->post('/integrations/woocommerce/test', 'Admin\\IntegrationsController@testWooCommerce');
         $router->post('/integrations/woocommerce/sync', 'Admin\\IntegrationsController@syncWooCommerce');
+        $router->post('/integrations/woocommerce/sync-statuses', 'Admin\\IntegrationsController@syncWooCommerceStatuses');
+        $router->post('/integrations/woocommerce/status', 'Admin\\IntegrationsController@updateWooCommerceStatus');
 
     }, ['AdminMiddleware', 'CSRFMiddleware']);
 

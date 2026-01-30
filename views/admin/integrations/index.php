@@ -119,6 +119,78 @@
         </div>
     </div>
 
+    <!-- WooCommerce Order Statuses -->
+    <div class="card">
+        <div class="card-header">
+            <?= $this->__('woocommerce_order_statuses') ?>
+            <button type="button" class="btn btn-sm btn-secondary" id="sync-woo-statuses">
+                <?= $this->__('sync_statuses') ?>
+            </button>
+        </div>
+        <div class="card-body">
+            <?php if (empty($woocommerceStatuses)): ?>
+                <p class="text-muted"><?= $this->__('no_statuses_synced') ?></p>
+                <p class="small"><?= $this->__('test_connection_to_sync_statuses') ?></p>
+            <?php else: ?>
+                <p class="small text-muted"><?= $this->__('status_mapping_help') ?></p>
+                <table class="data-table statuses-table">
+                    <thead>
+                        <tr>
+                            <th><?= $this->__('woocommerce_status') ?></th>
+                            <th><?= $this->__('orders_count') ?></th>
+                            <th><?= $this->__('internal_status') ?></th>
+                            <th><?= $this->__('sync_orders') ?></th>
+                            <th><?= $this->__('last_synced') ?></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($woocommerceStatuses as $status): ?>
+                        <tr data-status-id="<?= $status['id'] ?>">
+                            <td>
+                                <strong><?= $this->e($status['external_name']) ?></strong>
+                                <br><small class="text-muted"><?= $this->e($status['external_code']) ?></small>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge badge-secondary"><?= $status['order_count'] ?></span>
+                            </td>
+                            <td>
+                                <select class="status-mapping-select" data-status-id="<?= $status['id'] ?>">
+                                    <option value=""><?= $this->__('no_mapping') ?></option>
+                                    <?php foreach ($internalStatuses as $internal): ?>
+                                        <option value="<?= $internal ?>" <?= $status['internal_status'] === $internal ? 'selected' : '' ?>>
+                                            <?= $this->__('order_status_' . $internal) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td class="text-center">
+                                <label class="switch">
+                                    <input type="checkbox" class="status-active-toggle" data-status-id="<?= $status['id'] ?>"
+                                           <?= $status['is_active'] ? 'checked' : '' ?>>
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td>
+                                <?php if ($status['last_synced_at']): ?>
+                                    <?= $this->datetime($status['last_synced_at']) ?>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-secondary save-status-btn" data-status-id="<?= $status['id'] ?>">
+                                    <?= $this->__('save') ?>
+                                </button>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <!-- Sync History -->
     <?php if (!empty($syncLogs)): ?>
     <div class="card">
@@ -254,6 +326,74 @@
     padding-top: 0 !important;
     border-top: none !important;
 }
+
+/* Status mapping table */
+.statuses-table .status-mapping-select {
+    min-width: 150px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Toggle switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .3s;
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--success);
+}
+
+input:checked + .slider:before {
+    transform: translateX(18px);
+}
+
+.status-saved {
+    color: var(--success);
+    margin-left: 8px;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 </style>
 
 <script>
@@ -289,6 +429,83 @@ document.getElementById('test-woo-connection').addEventListener('click', functio
         btn.disabled = false;
         result.textContent = '<?= $this->__('connection_error') ?>';
         result.className = 'error';
+    });
+});
+
+// Sync WooCommerce statuses
+document.getElementById('sync-woo-statuses')?.addEventListener('click', function() {
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = '<?= $this->__('syncing') ?>...';
+
+    const formData = new FormData();
+    formData.append('_csrf_token', '<?= $this->e($csrfToken) ?>');
+
+    fetch('/admin/integrations/woocommerce/sync-statuses', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.textContent = '<?= $this->__('sync_statuses') ?>';
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert(data.message || '<?= $this->__('sync_failed') ?>');
+        }
+    })
+    .catch(error => {
+        btn.disabled = false;
+        btn.textContent = '<?= $this->__('sync_statuses') ?>';
+        alert('<?= $this->__('connection_error') ?>');
+    });
+});
+
+// Save status mapping
+document.querySelectorAll('.save-status-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const statusId = this.dataset.statusId;
+        const row = document.querySelector('tr[data-status-id="' + statusId + '"]');
+        const internalStatus = row.querySelector('.status-mapping-select').value;
+        const isActive = row.querySelector('.status-active-toggle').checked;
+
+        btn.disabled = true;
+        btn.textContent = '<?= $this->__('saving') ?>...';
+
+        const formData = new FormData();
+        formData.append('_csrf_token', '<?= $this->e($csrfToken) ?>');
+        formData.append('status_id', statusId);
+        formData.append('internal_status', internalStatus);
+        if (isActive) {
+            formData.append('is_active', '1');
+        }
+
+        fetch('/admin/integrations/woocommerce/status', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.textContent = '<?= $this->__('save') ?>';
+            if (data.success) {
+                // Show saved indicator
+                const savedSpan = document.createElement('span');
+                savedSpan.className = 'status-saved';
+                savedSpan.textContent = '✓';
+                btn.parentNode.appendChild(savedSpan);
+                setTimeout(() => savedSpan.remove(), 2000);
+            } else {
+                alert(data.message || '<?= $this->__('save_failed') ?>');
+            }
+        })
+        .catch(error => {
+            btn.disabled = false;
+            btn.textContent = '<?= $this->__('save') ?>';
+            alert('<?= $this->__('connection_error') ?>');
+        });
     });
 });
 </script>

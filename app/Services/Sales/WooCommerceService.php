@@ -56,12 +56,17 @@ class WooCommerceService
             $response = $this->makeRequest('GET', '/wp-json/wc/v3/system_status');
 
             if ($response['success']) {
+                // Sync order statuses after successful connection test
+                $statusSync = $this->syncOrderStatuses();
+
                 return [
                     'success' => true,
                     'store_info' => [
                         'version' => $response['data']['environment']['version'] ?? 'unknown',
                         'wc_version' => $response['data']['environment']['wc_version'] ?? 'unknown',
-                    ]
+                    ],
+                    'statuses_synced' => $statusSync['synced'] ?? 0,
+                    'statuses_added' => $statusSync['added'] ?? 0
                 ];
             }
 
@@ -69,6 +74,167 @@ class WooCommerceService
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
         }
+    }
+
+    /**
+     * Sync order statuses from WooCommerce
+     * Fetches available order statuses and adds any new ones to our system
+     */
+    public function syncOrderStatuses(): array
+    {
+        $synced = 0;
+        $added = 0;
+
+        try {
+            // Fetch order totals by status from WooCommerce
+            // This endpoint returns all statuses with their order counts
+            $response = $this->makeRequest('GET', '/wp-json/wc/v3/reports/orders/totals');
+
+            if (!$response['success']) {
+                $this->app->getLogger()->warning('Failed to fetch WooCommerce order statuses', [
+                    'error' => $response['error'] ?? 'Unknown error'
+                ]);
+                return ['synced' => 0, 'added' => 0, 'error' => $response['error']];
+            }
+
+            $wcStatuses = $response['data'] ?? [];
+
+            if (!$this->db->tableExists('external_order_statuses')) {
+                return ['synced' => 0, 'added' => 0, 'error' => 'Table not found'];
+            }
+
+            foreach ($wcStatuses as $wcStatus) {
+                // WooCommerce returns status with "wc-" prefix in slug but clean name
+                $statusCode = $wcStatus['slug'] ?? '';
+                $statusName = $wcStatus['name'] ?? $statusCode;
+                $orderCount = (int)($wcStatus['total'] ?? 0);
+
+                // Remove "wc-" prefix if present for storage
+                $cleanCode = preg_replace('/^wc-/', '', $statusCode);
+
+                if (empty($cleanCode)) {
+                    continue;
+                }
+
+                // Check if status already exists
+                $existing = $this->db->fetch(
+                    "SELECT id, external_name FROM external_order_statuses
+                     WHERE integration_type = 'woocommerce' AND external_code = ?",
+                    [$cleanCode]
+                );
+
+                if ($existing) {
+                    // Update order count and name if changed
+                    $this->db->update('external_order_statuses', [
+                        'external_name' => $statusName,
+                        'order_count' => $orderCount,
+                        'last_synced_at' => date('Y-m-d H:i:s'),
+                        'updated_at' => date('Y-m-d H:i:s')
+                    ], ['id' => $existing['id']]);
+                    $synced++;
+                } else {
+                    // Add new status with default mapping
+                    $internalStatus = $this->guessInternalStatus($cleanCode);
+
+                    $this->db->insert('external_order_statuses', [
+                        'integration_type' => 'woocommerce',
+                        'external_code' => $cleanCode,
+                        'external_name' => $statusName,
+                        'internal_status' => $internalStatus,
+                        'is_active' => 1,
+                        'order_count' => $orderCount,
+                        'last_synced_at' => date('Y-m-d H:i:s'),
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                    $added++;
+                    $synced++;
+
+                    $this->app->getLogger()->info('Added new WooCommerce order status', [
+                        'external_code' => $cleanCode,
+                        'external_name' => $statusName,
+                        'internal_status' => $internalStatus
+                    ]);
+                }
+            }
+
+            return ['synced' => $synced, 'added' => $added];
+
+        } catch (\Exception $e) {
+            $this->app->getLogger()->error('Failed to sync WooCommerce order statuses', [
+                'error' => $e->getMessage()
+            ]);
+            return ['synced' => 0, 'added' => 0, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Guess internal status mapping for a WooCommerce status code
+     */
+    private function guessInternalStatus(string $wcStatus): ?string
+    {
+        // Standard WooCommerce status mappings
+        $map = [
+            'pending' => 'pending',
+            'processing' => 'processing',
+            'on-hold' => 'on_hold',
+            'completed' => 'completed',
+            'cancelled' => 'cancelled',
+            'refunded' => 'refunded',
+            'failed' => 'cancelled',
+            'checkout-draft' => 'pending',
+        ];
+
+        // First check exact match
+        if (isset($map[$wcStatus])) {
+            return $map[$wcStatus];
+        }
+
+        // Try to guess based on status name keywords
+        $lowerStatus = strtolower($wcStatus);
+
+        if (strpos($lowerStatus, 'pending') !== false || strpos($lowerStatus, 'wait') !== false) {
+            return 'pending';
+        }
+        if (strpos($lowerStatus, 'process') !== false || strpos($lowerStatus, 'progress') !== false) {
+            return 'processing';
+        }
+        if (strpos($lowerStatus, 'hold') !== false || strpos($lowerStatus, 'pause') !== false) {
+            return 'on_hold';
+        }
+        if (strpos($lowerStatus, 'ship') !== false || strpos($lowerStatus, 'sent') !== false || strpos($lowerStatus, 'dispatch') !== false) {
+            return 'shipped';
+        }
+        if (strpos($lowerStatus, 'deliver') !== false || strpos($lowerStatus, 'receiv') !== false) {
+            return 'delivered';
+        }
+        if (strpos($lowerStatus, 'complet') !== false || strpos($lowerStatus, 'done') !== false || strpos($lowerStatus, 'finish') !== false) {
+            return 'completed';
+        }
+        if (strpos($lowerStatus, 'cancel') !== false || strpos($lowerStatus, 'fail') !== false || strpos($lowerStatus, 'reject') !== false) {
+            return 'cancelled';
+        }
+        if (strpos($lowerStatus, 'refund') !== false || strpos($lowerStatus, 'return') !== false) {
+            return 'refunded';
+        }
+
+        // Default to pending for unknown statuses
+        return 'pending';
+    }
+
+    /**
+     * Get synced WooCommerce statuses from database
+     */
+    public function getWooCommerceStatuses(): array
+    {
+        if (!$this->db->tableExists('external_order_statuses')) {
+            return [];
+        }
+
+        return $this->db->fetchAll(
+            "SELECT * FROM external_order_statuses
+             WHERE integration_type = 'woocommerce'
+             ORDER BY external_name"
+        );
     }
 
     /**
@@ -84,6 +250,9 @@ class WooCommerceService
             return ['success' => false, 'error' => 'Missing API credentials'];
         }
 
+        // Sync order statuses before syncing orders
+        $this->syncOrderStatuses();
+
         // Start sync log
         $logId = $this->startSyncLog($triggeredBy);
 
@@ -94,8 +263,12 @@ class WooCommerceService
         $perPage = 50;
 
         try {
-            // Get statuses to sync
-            $statuses = explode(',', $this->settings['sync_order_statuses'] ?? 'processing,completed');
+            // Get active statuses to sync from external_order_statuses table
+            $statuses = $this->getActiveStatusCodes();
+            if (empty($statuses)) {
+                // Fallback to settings if no statuses in database
+                $statuses = explode(',', $this->settings['sync_order_statuses'] ?? 'processing,completed');
+            }
             $lastSyncOrderId = (int)($this->settings['last_sync_order_id'] ?? 0);
 
             // Fetch orders page by page
@@ -334,9 +507,24 @@ class WooCommerceService
 
     /**
      * Map WooCommerce status to internal status
+     * Uses synced status mappings from database, falls back to defaults
      */
     private function mapWcStatus(string $wcStatus): string
     {
+        // Try to get mapping from database
+        if ($this->db->tableExists('external_order_statuses')) {
+            $mapping = $this->db->fetch(
+                "SELECT internal_status FROM external_order_statuses
+                 WHERE integration_type = 'woocommerce' AND external_code = ?",
+                [$wcStatus]
+            );
+
+            if ($mapping && $mapping['internal_status']) {
+                return $mapping['internal_status'];
+            }
+        }
+
+        // Default mappings as fallback
         $map = [
             'pending' => 'pending',
             'processing' => 'processing',
@@ -348,6 +536,23 @@ class WooCommerceService
         ];
 
         return $map[$wcStatus] ?? 'pending';
+    }
+
+    /**
+     * Get active status codes to sync
+     */
+    private function getActiveStatusCodes(): array
+    {
+        if (!$this->db->tableExists('external_order_statuses')) {
+            return [];
+        }
+
+        $rows = $this->db->fetchAll(
+            "SELECT external_code FROM external_order_statuses
+             WHERE integration_type = 'woocommerce' AND is_active = 1"
+        );
+
+        return array_column($rows, 'external_code');
     }
 
     /**

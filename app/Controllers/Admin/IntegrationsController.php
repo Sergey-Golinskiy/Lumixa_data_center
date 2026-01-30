@@ -18,11 +18,15 @@ class IntegrationsController extends Controller
 
         $woocommerceSettings = $this->getIntegrationSettings('woocommerce');
         $syncLogs = $this->getRecentSyncLogs('woocommerce', 10);
+        $woocommerceStatuses = $this->getExternalOrderStatuses('woocommerce');
+        $internalStatuses = ['pending', 'processing', 'on_hold', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
 
         $this->view('admin/integrations/index', [
             'title' => $this->app->getTranslator()->get('integrations'),
             'woocommerceSettings' => $woocommerceSettings,
-            'syncLogs' => $syncLogs
+            'syncLogs' => $syncLogs,
+            'woocommerceStatuses' => $woocommerceStatuses,
+            'internalStatuses' => $internalStatuses
         ]);
     }
 
@@ -242,6 +246,108 @@ class IntegrationsController extends Controller
              LIMIT ?",
             [$type, $limit]
         );
+    }
+
+    /**
+     * Get external order statuses for an integration
+     */
+    private function getExternalOrderStatuses(string $type): array
+    {
+        if (!$this->db()->tableExists('external_order_statuses')) {
+            return [];
+        }
+
+        return $this->db()->fetchAll(
+            "SELECT * FROM external_order_statuses WHERE integration_type = ? ORDER BY external_name",
+            [$type]
+        );
+    }
+
+    /**
+     * Update WooCommerce status mapping
+     */
+    public function updateWooCommerceStatus(): void
+    {
+        $this->requirePermission('admin.access');
+
+        $translator = $this->app->getTranslator();
+
+        if (!$this->validateCsrf()) {
+            $this->jsonResponse(['success' => false, 'message' => $translator->get('invalid_security_token')]);
+            return;
+        }
+
+        $statusId = (int)$this->post('status_id');
+        $internalStatus = $this->post('internal_status');
+        $isActive = $this->post('is_active') ? 1 : 0;
+
+        if (!$statusId) {
+            $this->jsonResponse(['success' => false, 'message' => $translator->get('invalid_status_id')]);
+            return;
+        }
+
+        // Validate internal status
+        $validStatuses = ['pending', 'processing', 'on_hold', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
+        if ($internalStatus && !in_array($internalStatus, $validStatuses)) {
+            $this->jsonResponse(['success' => false, 'message' => $translator->get('invalid_internal_status')]);
+            return;
+        }
+
+        try {
+            $this->db()->update('external_order_statuses', [
+                'internal_status' => $internalStatus ?: null,
+                'is_active' => $isActive,
+                'updated_at' => date('Y-m-d H:i:s')
+            ], ['id' => $statusId, 'integration_type' => 'woocommerce']);
+
+            $this->audit('integration.woocommerce.status_updated', 'external_order_statuses', $statusId, null, [
+                'internal_status' => $internalStatus,
+                'is_active' => $isActive
+            ]);
+
+            $this->jsonResponse(['success' => true, 'message' => $translator->get('status_mapping_updated')]);
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Sync WooCommerce statuses manually
+     */
+    public function syncWooCommerceStatuses(): void
+    {
+        $this->requirePermission('admin.access');
+
+        $translator = $this->app->getTranslator();
+
+        if (!$this->validateCsrf()) {
+            $this->jsonResponse(['success' => false, 'message' => $translator->get('invalid_security_token')]);
+            return;
+        }
+
+        try {
+            $service = new \App\Services\Sales\WooCommerceService($this->app);
+            $result = $service->syncOrderStatuses();
+
+            if (isset($result['error'])) {
+                $this->jsonResponse([
+                    'success' => false,
+                    'message' => $result['error']
+                ]);
+            } else {
+                $this->jsonResponse([
+                    'success' => true,
+                    'message' => $translator->get('statuses_synced_success', [
+                        'synced' => $result['synced'],
+                        'added' => $result['added']
+                    ]),
+                    'synced' => $result['synced'],
+                    'added' => $result['added']
+                ]);
+            }
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 
     /**
