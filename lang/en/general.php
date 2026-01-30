@@ -1304,4 +1304,29 @@ return [
     'invalid_internal_status' => 'Invalid internal status',
     'sync_failed' => 'Sync failed',
     'save_failed' => 'Save failed',
+
+    // Integration tabs
+    'coming_soon' => 'Coming Soon',
+    'woocommerce_settings' => 'WooCommerce Settings',
+    'captcha' => 'Captcha',
+    'captcha_settings' => 'Captcha Settings',
+    'captcha_protection' => 'Captcha Protection',
+    'captcha_description' => 'Protect forms from spam and bots using various captcha providers',
+
+    // Google integration
+    'google_integration' => 'Google Integration',
+    'google_integration_description' => 'Connect Google services for authentication, backup and data export',
+    'google_oauth_login' => 'Google OAuth Login',
+    'google_drive_backup' => 'Google Drive Backup',
+    'google_sheets_export' => 'Google Sheets Export',
+    'google_calendar_sync' => 'Google Calendar Sync',
+
+    // BambuLab integration
+    'bambulab_printers' => 'BambuLab Printers',
+    'bambulab_integration' => 'BambuLab Integration',
+    'bambulab_description' => 'Manage BambuLab 3D printers directly from the system',
+    'bambulab_printer_status' => 'Printer status monitoring',
+    'bambulab_send_jobs' => 'Send print jobs',
+    'bambulab_monitor_progress' => 'Track print progress',
+    'bambulab_filament_tracking' => 'Filament usage tracking',
 ];

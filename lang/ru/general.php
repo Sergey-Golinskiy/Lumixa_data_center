@@ -1302,4 +1302,29 @@ return [
     'invalid_internal_status' => 'Неверный внутренний статус',
     'sync_failed' => 'Синхронизация не удалась',
     'save_failed' => 'Сохранение не удалось',
+
+    // Integration tabs
+    'coming_soon' => 'Скоро',
+    'woocommerce_settings' => 'Настройки WooCommerce',
+    'captcha' => 'Captcha',
+    'captcha_settings' => 'Настройки Captcha',
+    'captcha_protection' => 'Защита Captcha',
+    'captcha_description' => 'Защитите формы от спама и ботов с помощью различных провайдеров captcha',
+
+    // Google integration
+    'google_integration' => 'Интеграция Google',
+    'google_integration_description' => 'Подключите сервисы Google для авторизации, резервного копирования и экспорта данных',
+    'google_oauth_login' => 'Вход через Google OAuth',
+    'google_drive_backup' => 'Резервное копирование на Google Drive',
+    'google_sheets_export' => 'Экспорт в Google Sheets',
+    'google_calendar_sync' => 'Синхронизация с Google Calendar',
+
+    // BambuLab integration
+    'bambulab_printers' => 'Принтеры BambuLab',
+    'bambulab_integration' => 'Интеграция BambuLab',
+    'bambulab_description' => 'Управляйте 3D-принтерами BambuLab непосредственно из системы',
+    'bambulab_printer_status' => 'Мониторинг статуса принтеров',
+    'bambulab_send_jobs' => 'Отправка заданий на печать',
+    'bambulab_monitor_progress' => 'Отслеживание прогресса печати',
+    'bambulab_filament_tracking' => 'Учет расхода филамента',
 ];

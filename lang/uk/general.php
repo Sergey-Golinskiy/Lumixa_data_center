@@ -1306,4 +1306,29 @@ return [
     'invalid_internal_status' => 'Невірний внутрішній статус',
     'sync_failed' => 'Синхронізація не вдалася',
     'save_failed' => 'Збереження не вдалося',
+
+    // Integration tabs
+    'coming_soon' => 'Незабаром',
+    'woocommerce_settings' => 'Налаштування WooCommerce',
+    'captcha' => 'Captcha',
+    'captcha_settings' => 'Налаштування Captcha',
+    'captcha_protection' => 'Захист Captcha',
+    'captcha_description' => 'Захистіть форми від спаму та ботів за допомогою різних провайдерів captcha',
+
+    // Google integration
+    'google_integration' => 'Інтеграція Google',
+    'google_integration_description' => 'Підключіть сервіси Google для авторизації, резервного копіювання та експорту даних',
+    'google_oauth_login' => 'Вхід через Google OAuth',
+    'google_drive_backup' => 'Резервне копіювання на Google Drive',
+    'google_sheets_export' => 'Експорт у Google Sheets',
+    'google_calendar_sync' => 'Синхронізація з Google Calendar',
+
+    // BambuLab integration
+    'bambulab_printers' => 'Принтери BambuLab',
+    'bambulab_integration' => 'Інтеграція BambuLab',
+    'bambulab_description' => 'Керуйте 3D-принтерами BambuLab безпосередньо з системи',
+    'bambulab_printer_status' => 'Моніторинг статусу принтерів',
+    'bambulab_send_jobs' => 'Відправка завдань на друк',
+    'bambulab_monitor_progress' => 'Відстеження прогресу друку',
+    'bambulab_filament_tracking' => 'Облік витрат філаменту',
 ];
