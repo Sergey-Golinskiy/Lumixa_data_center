@@ -122,6 +122,12 @@ return function (Router $router) {
         $router->post('/printers/{id}', 'Admin\\PrintersController@update');
         $router->post('/printers/{id}/delete', 'Admin\\PrintersController@delete');
 
+        // Integrations (WooCommerce, etc.)
+        $router->get('/integrations', 'Admin\\IntegrationsController@index', 'admin.integrations');
+        $router->post('/integrations/woocommerce', 'Admin\\IntegrationsController@updateWooCommerce');
+        $router->post('/integrations/woocommerce/test', 'Admin\\IntegrationsController@testWooCommerce');
+        $router->post('/integrations/woocommerce/sync', 'Admin\\IntegrationsController@syncWooCommerce');
+
     }, ['AdminMiddleware', 'CSRFMiddleware']);
 
     // ========================================
@@ -272,6 +278,23 @@ return function (Router $router) {
         $router->post('/print-queue/{id}/start', 'Production\\PrintQueueController@start');
         $router->post('/print-queue/{id}/complete', 'Production\\PrintQueueController@complete');
         $router->post('/print-queue/{id}/cancel', 'Production\\PrintQueueController@cancel');
+
+    }, ['AuthMiddleware', 'CSRFMiddleware']);
+
+    // ========================================
+    // Sales Routes
+    // ========================================
+
+    $router->group('/sales', function (Router $router) {
+        // Sales Orders (customer orders from all sources)
+        $router->get('/orders', 'Sales\\OrdersController@index', 'sales.orders');
+        $router->get('/orders/create', 'Sales\\OrdersController@create', 'sales.orders.create');
+        $router->post('/orders', 'Sales\\OrdersController@store');
+        $router->get('/orders/{id}', 'Sales\\OrdersController@show', 'sales.orders.show');
+        $router->get('/orders/{id}/edit', 'Sales\\OrdersController@edit', 'sales.orders.edit');
+        $router->post('/orders/{id}', 'Sales\\OrdersController@update');
+        $router->post('/orders/{id}/status', 'Sales\\OrdersController@updateStatus');
+        $router->post('/orders/{id}/delete', 'Sales\\OrdersController@delete');
 
     }, ['AuthMiddleware', 'CSRFMiddleware']);
 
