@@ -224,7 +224,7 @@
                 <?php if ($order['paid_at']): ?>
                     <div class="info-row" style="margin-top: 10px;">
                         <small class="text-muted"><?= $this->__('paid_at') ?>:</small><br>
-                        <?= $this->formatDateTime($order['paid_at']) ?>
+                        <?= $this->datetime($order['paid_at']) ?>
                     </div>
                 <?php endif; ?>
             </div>
@@ -236,24 +236,24 @@
             <div class="card-body">
                 <div class="timeline">
                     <div class="timeline-item">
-                        <span class="timeline-date"><?= $this->formatDateTime($order['ordered_at'] ?: $order['created_at']) ?></span>
+                        <span class="timeline-date"><?= $this->datetime($order['ordered_at'] ?: $order['created_at']) ?></span>
                         <span class="timeline-label"><?= $this->__('order_placed') ?></span>
                     </div>
                     <?php if ($order['shipped_at']): ?>
                     <div class="timeline-item">
-                        <span class="timeline-date"><?= $this->formatDateTime($order['shipped_at']) ?></span>
+                        <span class="timeline-date"><?= $this->datetime($order['shipped_at']) ?></span>
                         <span class="timeline-label"><?= $this->__('order_shipped') ?></span>
                     </div>
                     <?php endif; ?>
                     <?php if ($order['delivered_at']): ?>
                     <div class="timeline-item">
-                        <span class="timeline-date"><?= $this->formatDateTime($order['delivered_at']) ?></span>
+                        <span class="timeline-date"><?= $this->datetime($order['delivered_at']) ?></span>
                         <span class="timeline-label"><?= $this->__('order_delivered') ?></span>
                     </div>
                     <?php endif; ?>
                     <?php if ($order['synced_at']): ?>
                     <div class="timeline-item sync">
-                        <span class="timeline-date"><?= $this->formatDateTime($order['synced_at']) ?></span>
+                        <span class="timeline-date"><?= $this->datetime($order['synced_at']) ?></span>
                         <span class="timeline-label"><?= $this->__('last_synced') ?></span>
                     </div>
                     <?php endif; ?>

@@ -140,7 +140,7 @@
                             </span>
                         </td>
                         <td>
-                            <?= $order['ordered_at'] ? $this->formatDate($order['ordered_at']) : $this->formatDate($order['created_at']) ?>
+                            <?= $this->date($order['ordered_at'] ?: $order['created_at']) ?>
                         </td>
                         <td class="actions">
                             <a href="/sales/orders/<?= $order['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view') ?></a>

@@ -138,7 +138,7 @@
                 <tbody>
                     <?php foreach ($syncLogs as $log): ?>
                     <tr>
-                        <td><?= $this->formatDateTime($log['started_at']) ?></td>
+                        <td><?= $this->datetime($log['started_at']) ?></td>
                         <td><?= $this->e($log['sync_type']) ?></td>
                         <td>
                             <span class="badge badge-<?= $log['status'] === 'completed' ? 'success' : ($log['status'] === 'failed' ? 'danger' : 'warning') ?>">
@@ -157,9 +157,10 @@
                         </td>
                         <td><?= $log['triggered_by_name'] ?? $this->__('automatic') ?></td>
                         <td>
-                            <?php if ($log['completed_at']): ?>
-                                <?= $this->formatDuration(strtotime($log['completed_at']) - strtotime($log['started_at'])) ?>
-                            <?php else: ?>
+                            <?php if ($log['completed_at']):
+                                $duration = strtotime($log['completed_at']) - strtotime($log['started_at']);
+                                echo $duration < 60 ? $duration . 's' : floor($duration / 60) . 'm ' . ($duration % 60) . 's';
+                            else: ?>
                                 -
                             <?php endif; ?>
                         </td>
