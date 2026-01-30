@@ -119,6 +119,30 @@
                     </li>
                     <?php endif; ?>
 
+                    <?php if ($this->can('sales.orders.view')): ?>
+                    <!-- Sales -->
+                    <li class="nav-item nav-group">
+                        <button class="nav-group-toggle" type="button" data-section="sales">
+                            <span class="nav-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="9" cy="21" r="1"></circle>
+                                    <circle cx="20" cy="21" r="1"></circle>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                </svg>
+                            </span>
+                            <span class="nav-group-title"><?= $this->__('nav_sales') ?></span>
+                            <span class="nav-group-arrow">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </span>
+                        </button>
+                        <ul class="nav-submenu" data-submenu="sales">
+                            <li><a href="/sales/orders" class="nav-link"><?= $this->__('nav_sales_orders') ?></a></li>
+                        </ul>
+                    </li>
+                    <?php endif; ?>
+
                     <?php if ($this->can('costing.view')): ?>
                     <!-- Costing -->
                     <li class="nav-item nav-group">
@@ -191,6 +215,9 @@
                             <?php endif; ?>
 
                             <li class="nav-submenu-header"><?= $this->__('system') ?></li>
+                            <?php if ($this->can('sales.integrations.manage')): ?>
+                            <li><a href="/admin/integrations" class="nav-link"><?= $this->__('nav_integrations') ?></a></li>
+                            <?php endif; ?>
                             <li><a href="/admin/audit" class="nav-link"><?= $this->__('nav_audit') ?></a></li>
                             <li><a href="/admin/backups" class="nav-link"><?= $this->__('nav_backups') ?></a></li>
                             <li><a href="/admin/diagnostics" class="nav-link"><?= $this->__('nav_diagnostics') ?></a></li>
