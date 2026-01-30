@@ -149,6 +149,6 @@ CREATE TABLE IF NOT EXISTS integration_sync_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Order Sequence for sales orders
-INSERT INTO document_sequences (type, prefix, next_number)
-VALUES ('sales_order', 'SO', 1)
+INSERT INTO document_sequences (type, prefix, current_number, year)
+VALUES ('sales_order', 'SO', 0, YEAR(CURDATE()))
 ON DUPLICATE KEY UPDATE type = type;

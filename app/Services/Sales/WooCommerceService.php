@@ -437,12 +437,18 @@ class WooCommerceService
         $seq = $this->db->fetch("SELECT * FROM document_sequences WHERE type = 'sales_order' FOR UPDATE");
 
         if (!$seq) {
-            $this->db->insert('document_sequences', ['type' => 'sales_order', 'prefix' => 'SO', 'next_number' => 1]);
+            $this->db->insert('document_sequences', [
+                'type' => 'sales_order',
+                'prefix' => 'SO',
+                'current_number' => 1,
+                'year' => date('Y')
+            ]);
             return 'SO-' . date('Ymd') . '-0001';
         }
 
-        $number = ($seq['prefix'] ?? 'SO') . '-' . date('Ymd') . '-' . str_pad($seq['next_number'] ?? 1, 4, '0', STR_PAD_LEFT);
-        $this->db->execute("UPDATE document_sequences SET next_number = next_number + 1 WHERE type = 'sales_order'");
+        $nextNum = ($seq['current_number'] ?? 0) + 1;
+        $number = ($seq['prefix'] ?? 'SO') . '-' . date('Ymd') . '-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+        $this->db->execute("UPDATE document_sequences SET current_number = current_number + 1 WHERE type = 'sales_order'");
 
         return $number;
     }
