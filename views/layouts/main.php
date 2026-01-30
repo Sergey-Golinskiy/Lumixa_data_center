@@ -215,9 +215,7 @@
                             <?php endif; ?>
 
                             <li class="nav-submenu-header"><?= $this->__('system') ?></li>
-                            <?php if ($this->can('sales.integrations.manage')): ?>
                             <li><a href="/admin/integrations" class="nav-link"><?= $this->__('nav_integrations') ?></a></li>
-                            <?php endif; ?>
                             <li><a href="/admin/audit" class="nav-link"><?= $this->__('nav_audit') ?></a></li>
                             <li><a href="/admin/backups" class="nav-link"><?= $this->__('nav_backups') ?></a></li>
                             <li><a href="/admin/diagnostics" class="nav-link"><?= $this->__('nav_diagnostics') ?></a></li>

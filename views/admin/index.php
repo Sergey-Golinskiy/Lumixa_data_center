@@ -178,6 +178,7 @@
                 </div>
                 <p class="admin-menu-desc"><?= $this->__('system_settings_desc') ?></p>
                 <ul class="admin-menu-links">
+                    <li><a href="/admin/integrations"><span class="link-icon">&#128279;</span> <?= $this->__('nav_integrations') ?></a></li>
                     <li><a href="/admin/audit"><span class="link-icon">&#128203;</span> <?= $this->__('nav_audit') ?></a></li>
                     <li><a href="/admin/backups"><span class="link-icon">&#128190;</span> <?= $this->__('nav_backups') ?></a></li>
                     <li><a href="/admin/diagnostics"><span class="link-icon">&#128295;</span> <?= $this->__('nav_diagnostics') ?></a></li>

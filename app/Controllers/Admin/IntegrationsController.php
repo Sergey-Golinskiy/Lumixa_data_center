@@ -14,7 +14,7 @@ class IntegrationsController extends Controller
      */
     public function index(): void
     {
-        $this->requirePermission('sales.integrations.manage');
+        $this->requirePermission('admin.access');
 
         $woocommerceSettings = $this->getIntegrationSettings('woocommerce');
         $syncLogs = $this->getRecentSyncLogs('woocommerce', 10);
@@ -31,7 +31,7 @@ class IntegrationsController extends Controller
      */
     public function updateWooCommerce(): void
     {
-        $this->requirePermission('sales.integrations.manage');
+        $this->requirePermission('admin.access');
 
         $translator = $this->app->getTranslator();
 
@@ -87,7 +87,7 @@ class IntegrationsController extends Controller
      */
     public function testWooCommerce(): void
     {
-        $this->requirePermission('sales.integrations.manage');
+        $this->requirePermission('admin.access');
 
         $translator = $this->app->getTranslator();
 
@@ -132,7 +132,7 @@ class IntegrationsController extends Controller
      */
     public function syncWooCommerce(): void
     {
-        $this->requirePermission('sales.integrations.manage');
+        $this->requirePermission('admin.access');
 
         $translator = $this->app->getTranslator();
 
