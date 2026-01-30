@@ -548,7 +548,7 @@ class OrdersController extends Controller
         }
 
         return $this->db()->fetchAll(
-            "SELECT id, sku, name FROM products WHERE is_active = 1 ORDER BY name"
+            "SELECT id, code AS sku, name FROM products WHERE is_active = 1 ORDER BY name"
         );
     }
 

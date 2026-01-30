@@ -116,7 +116,7 @@ class DashboardController extends Controller
             if ($db->tableExists('details')) {
                 $stats['details_total'] = (int)$db->fetchColumn("SELECT COUNT(*) FROM details");
                 $stats['details_printed'] = (int)$db->fetchColumn(
-                    "SELECT COUNT(*) FROM details WHERE type = 'printed'"
+                    "SELECT COUNT(*) FROM details WHERE detail_type = 'printed'"
                 );
             }
 
