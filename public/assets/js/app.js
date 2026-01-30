@@ -264,3 +264,175 @@ function showFlash(type, message) {
         }, 5000);
     }
 }
+
+/**
+ * Live Filters Component
+ * Automatically submits filter forms with debounce
+ */
+(function() {
+    'use strict';
+
+    var DEBOUNCE_DELAY = 400;
+    var DATE_DEBOUNCE_DELAY = 600;
+
+    function initLiveFilters() {
+        var filterForms = document.querySelectorAll('.live-filters');
+
+        filterForms.forEach(function(filterContainer) {
+            var form = filterContainer.querySelector('form') || filterContainer.closest('form');
+            if (!form) return;
+
+            var debounceTimer = null;
+            var isSubmitting = false;
+
+            // Get all filter inputs
+            var inputs = filterContainer.querySelectorAll('.live-filter-input, .live-filter-select, .live-filter-checkbox input');
+
+            // Initialize has-value classes
+            updateHasValueClasses(filterContainer);
+
+            // Handle input changes
+            inputs.forEach(function(input) {
+                var eventType = input.type === 'checkbox' ? 'change' : 'input';
+                var delay = input.type === 'date' ? DATE_DEBOUNCE_DELAY : DEBOUNCE_DELAY;
+
+                // For select and checkbox, use change event
+                if (input.tagName === 'SELECT' || input.type === 'checkbox') {
+                    eventType = 'change';
+                    delay = 0; // Immediate for select/checkbox
+                }
+
+                input.addEventListener(eventType, function() {
+                    clearTimeout(debounceTimer);
+                    updateHasValueClasses(filterContainer);
+
+                    if (delay === 0) {
+                        submitFilters(form, filterContainer);
+                    } else {
+                        debounceTimer = setTimeout(function() {
+                            submitFilters(form, filterContainer);
+                        }, delay);
+                    }
+                });
+
+                // Handle Enter key for text inputs
+                if (input.type === 'text' || input.type === 'search') {
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            clearTimeout(debounceTimer);
+                            submitFilters(form, filterContainer);
+                        }
+                    });
+                }
+            });
+
+            // Handle clear search buttons
+            filterContainer.querySelectorAll('.live-filter-clear-search').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var wrapper = this.closest('.live-filter-search-wrapper');
+                    var input = wrapper.querySelector('.live-filter-input');
+                    if (input) {
+                        input.value = '';
+                        input.focus();
+                        updateHasValueClasses(filterContainer);
+                        submitFilters(form, filterContainer);
+                    }
+                });
+            });
+
+            // Handle clear all button
+            var clearAllBtn = filterContainer.querySelector('.live-filter-clear-all');
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // Clear all inputs
+                    inputs.forEach(function(input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = false;
+                        } else {
+                            input.value = '';
+                        }
+                    });
+                    updateHasValueClasses(filterContainer);
+                    // Navigate to base URL
+                    window.location.href = form.action || window.location.pathname;
+                });
+            }
+        });
+    }
+
+    function updateHasValueClasses(container) {
+        // Update search wrappers
+        container.querySelectorAll('.live-filter-search-wrapper').forEach(function(wrapper) {
+            var input = wrapper.querySelector('.live-filter-input');
+            if (input && input.value.trim()) {
+                wrapper.classList.add('has-value');
+            } else {
+                wrapper.classList.remove('has-value');
+            }
+        });
+
+        // Update filter groups
+        container.querySelectorAll('.live-filter-group').forEach(function(group) {
+            var input = group.querySelector('.live-filter-input, .live-filter-select');
+            if (input && input.value && input.value.trim()) {
+                group.classList.add('has-value');
+            } else {
+                group.classList.remove('has-value');
+            }
+        });
+
+        // Update clear all button state
+        var clearAllBtn = container.querySelector('.live-filter-clear-all');
+        if (clearAllBtn) {
+            var hasAnyValue = false;
+            container.querySelectorAll('.live-filter-input, .live-filter-select').forEach(function(input) {
+                if (input.value && input.value.trim()) {
+                    hasAnyValue = true;
+                }
+            });
+            container.querySelectorAll('.live-filter-checkbox input').forEach(function(input) {
+                if (input.checked) {
+                    hasAnyValue = true;
+                }
+            });
+            clearAllBtn.disabled = !hasAnyValue;
+        }
+    }
+
+    function submitFilters(form, container) {
+        // Add loading state
+        container.classList.add('loading');
+
+        // Build URL with filter parameters
+        var formData = new FormData(form);
+        var params = new URLSearchParams();
+
+        formData.forEach(function(value, key) {
+            if (value && value.trim()) {
+                params.append(key, value.trim());
+            }
+        });
+
+        // Remove page parameter to reset pagination
+        params.delete('page');
+
+        // Navigate to filtered URL
+        var url = form.action || window.location.pathname;
+        var queryString = params.toString();
+        if (queryString) {
+            url += '?' + queryString;
+        }
+
+        window.location.href = url;
+    }
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLiveFilters);
+    } else {
+        initLiveFilters();
+    }
+})();

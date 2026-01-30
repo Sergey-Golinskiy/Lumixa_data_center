@@ -31,17 +31,24 @@
     </div>
 </div>
 
-<!-- Filters -->
-<div class="card filters-card">
-    <form method="GET" action="/sales/orders" class="filters-form">
-        <div class="filter-row">
-            <div class="filter-group">
-                <input type="text" name="search" placeholder="<?= $this->__('search_orders') ?>"
-                       value="<?= $this->e($search) ?>">
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/sales/orders">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-search">
+                <label class="live-filter-label"><?= $this->__('search') ?></label>
+                <div class="live-filter-search-wrapper <?= $search ? 'has-value' : '' ?>">
+                    <span class="live-filter-search-icon">&#128269;</span>
+                    <input type="text" name="search" class="live-filter-input"
+                           placeholder="<?= $this->__('search_orders_placeholder') ?>"
+                           value="<?= $this->e($search) ?>">
+                    <button type="button" class="live-filter-clear-search" title="<?= $this->__('clear') ?>">&times;</button>
+                </div>
             </div>
 
-            <div class="filter-group">
-                <select name="source">
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('source') ?></label>
+                <select name="source" class="live-filter-select">
                     <option value=""><?= $this->__('all_sources') ?></option>
                     <?php foreach ($sources as $src): ?>
                         <option value="<?= $src ?>" <?= $source === $src ? 'selected' : '' ?>>
@@ -51,8 +58,9 @@
                 </select>
             </div>
 
-            <div class="filter-group">
-                <select name="status">
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('status') ?></label>
+                <select name="status" class="live-filter-select">
                     <option value=""><?= $this->__('all_statuses') ?></option>
                     <?php foreach ($statuses as $st): ?>
                         <option value="<?= $st ?>" <?= $status === $st ? 'selected' : '' ?>>
@@ -62,21 +70,22 @@
                 </select>
             </div>
 
-            <div class="filter-group">
-                <input type="date" name="date_from" placeholder="<?= $this->__('from') ?>"
+            <div class="live-filter-group filter-date">
+                <label class="live-filter-label"><?= $this->__('date_from') ?></label>
+                <input type="date" name="date_from" class="live-filter-input"
                        value="<?= $this->e($dateFrom) ?>">
             </div>
 
-            <div class="filter-group">
-                <input type="date" name="date_to" placeholder="<?= $this->__('to') ?>"
+            <div class="live-filter-group filter-date">
+                <label class="live-filter-label"><?= $this->__('date_to') ?></label>
+                <input type="date" name="date_to" class="live-filter-input"
                        value="<?= $this->e($dateTo) ?>">
             </div>
 
-            <div class="filter-group">
-                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-                <?php if ($search || $source || $status || $dateFrom || $dateTo): ?>
-                    <a href="/sales/orders" class="btn btn-link"><?= $this->__('clear') ?></a>
-                <?php endif; ?>
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$search && !$source && !$status && !$dateFrom && !$dateTo) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
             </div>
         </div>
     </form>
@@ -186,8 +195,8 @@
 }
 
 .stat-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 15px;
     text-align: center;
@@ -199,19 +208,6 @@
 
 .stat-value { font-size: 1.8em; font-weight: bold; }
 .stat-label { color: var(--text-muted); font-size: 0.85em; }
-
-.filters-card { margin-bottom: 20px; }
-.filters-card .card-body { padding: 15px; }
-
-.filters-form .filter-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-}
-
-.filter-group { flex: 1; min-width: 150px; }
-.filter-group:last-child { flex: none; }
 
 .order-link { font-weight: 500; }
 

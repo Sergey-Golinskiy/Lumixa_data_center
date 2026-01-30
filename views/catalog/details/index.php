@@ -9,26 +9,37 @@
     </div>
 </div>
 
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-body">
-        <form method="GET" class="filter-form">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <input type="text" name="search" placeholder="<?= $this->__('search_sku_name') ?>"
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/catalog/details">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-search">
+                <label class="live-filter-label"><?= $this->__('search') ?></label>
+                <div class="live-filter-search-wrapper <?= $search ? 'has-value' : '' ?>">
+                    <span class="live-filter-search-icon">&#128269;</span>
+                    <input type="text" name="search" class="live-filter-input"
+                           placeholder="<?= $this->__('search_sku_name') ?>"
                            value="<?= $this->e($search) ?>">
+                    <button type="button" class="live-filter-clear-search" title="<?= $this->__('clear') ?>">&times;</button>
                 </div>
-                <div class="filter-group">
-                    <select name="detail_type">
-                        <option value=""><?= $this->__('all_detail_types') ?></option>
-                        <option value="purchased" <?= $detailType === 'purchased' ? 'selected' : '' ?>><?= $this->__('detail_type_purchased') ?></option>
-                        <option value="printed" <?= $detailType === 'printed' ? 'selected' : '' ?>><?= $this->__('detail_type_printed') ?></option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-                <a href="/catalog/details" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
-        </form>
-    </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('detail_type') ?></label>
+                <select name="detail_type" class="live-filter-select">
+                    <option value=""><?= $this->__('all_detail_types') ?></option>
+                    <option value="purchased" <?= $detailType === 'purchased' ? 'selected' : '' ?>><?= $this->__('detail_type_purchased') ?></option>
+                    <option value="printed" <?= $detailType === 'printed' ? 'selected' : '' ?>><?= $this->__('detail_type_printed') ?></option>
+                </select>
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$search && !$detailType) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <?php if (empty($details)): ?>

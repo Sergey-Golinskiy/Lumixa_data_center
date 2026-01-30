@@ -23,39 +23,51 @@
 </div>
 <?php endif; ?>
 
-<!-- Filters -->
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-body">
-        <form method="GET" class="filter-form">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <input type="text" name="search" placeholder="<?= $this->__('search_code_name') ?>"
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/catalog/products">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-search">
+                <label class="live-filter-label"><?= $this->__('search') ?></label>
+                <div class="live-filter-search-wrapper <?= $search ? 'has-value' : '' ?>">
+                    <span class="live-filter-search-icon">&#128269;</span>
+                    <input type="text" name="search" class="live-filter-input"
+                           placeholder="<?= $this->__('search_code_name') ?>"
                            value="<?= $this->e($search) ?>">
+                    <button type="button" class="live-filter-clear-search" title="<?= $this->__('clear') ?>">&times;</button>
                 </div>
-                <div class="filter-group">
-                    <?php if (($categoryMode ?? 'table') !== 'none'): ?>
-                    <select name="category">
-                        <option value=""><?= $this->__('all_categories') ?></option>
-                        <?php foreach ($categories as $cat): ?>
-                        <option value="<?= $this->e($cat['id']) ?>" <?= (string)$category === (string)$cat['id'] ? 'selected' : '' ?>>
-                            <?= $this->e($cat['name']) ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <?php endif; ?>
-                </div>
-                <div class="filter-group">
-                    <select name="status">
-                        <option value=""><?= $this->__('all_statuses') ?></option>
-                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>><?= $this->__('active') ?></option>
-                        <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>><?= $this->__('inactive') ?></option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-                <a href="/catalog/products" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
-        </form>
-    </div>
+
+            <?php if (($categoryMode ?? 'table') !== 'none'): ?>
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('category') ?></label>
+                <select name="category" class="live-filter-select">
+                    <option value=""><?= $this->__('all_categories') ?></option>
+                    <?php foreach ($categories as $cat): ?>
+                    <option value="<?= $this->e($cat['id']) ?>" <?= (string)$category === (string)$cat['id'] ? 'selected' : '' ?>>
+                        <?= $this->e($cat['name']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php endif; ?>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('status') ?></label>
+                <select name="status" class="live-filter-select">
+                    <option value=""><?= $this->__('all_statuses') ?></option>
+                    <option value="active" <?= $status === 'active' ? 'selected' : '' ?>><?= $this->__('active') ?></option>
+                    <option value="inactive" <?= $status === 'inactive' ? 'selected' : '' ?>><?= $this->__('inactive') ?></option>
+                </select>
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$search && !$category && !$status) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Products Grid -->
@@ -236,23 +248,6 @@
 }
 .page-header h1 {
     margin: 0;
-}
-.filter-form {
-    margin: 0;
-}
-.filter-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.filter-group {
-    flex: 1;
-    min-width: 150px;
-}
-.filter-group input,
-.filter-group select {
-    width: 100%;
 }
 
 /* Products Grid */

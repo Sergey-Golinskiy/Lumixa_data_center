@@ -9,30 +9,40 @@
     </div>
 </div>
 
-<!-- Filters -->
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-body">
-        <form method="GET" class="filter-form">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <input type="text" name="search" placeholder="<?= $this->__('search_order_sku') ?>"
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/production/orders">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-search">
+                <label class="live-filter-label"><?= $this->__('search') ?></label>
+                <div class="live-filter-search-wrapper <?= $search ? 'has-value' : '' ?>">
+                    <span class="live-filter-search-icon">&#128269;</span>
+                    <input type="text" name="search" class="live-filter-input"
+                           placeholder="<?= $this->__('search_order_sku') ?>"
                            value="<?= $this->e($search) ?>">
+                    <button type="button" class="live-filter-clear-search" title="<?= $this->__('clear') ?>">&times;</button>
                 </div>
-                <div class="filter-group">
-                    <select name="status">
-                        <option value=""><?= $this->__('all_statuses') ?></option>
-                        <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
-                        <option value="planned" <?= $status === 'planned' ? 'selected' : '' ?>><?= $this->__('planned') ?></option>
-                        <option value="in_progress" <?= $status === 'in_progress' ? 'selected' : '' ?>><?= $this->__('in_progress') ?></option>
-                        <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>><?= $this->__('completed') ?></option>
-                        <option value="cancelled" <?= $status === 'cancelled' ? 'selected' : '' ?>><?= $this->__('cancelled') ?></option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-                <a href="/production/orders" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
-        </form>
-    </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('status') ?></label>
+                <select name="status" class="live-filter-select">
+                    <option value=""><?= $this->__('all_statuses') ?></option>
+                    <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
+                    <option value="planned" <?= $status === 'planned' ? 'selected' : '' ?>><?= $this->__('planned') ?></option>
+                    <option value="in_progress" <?= $status === 'in_progress' ? 'selected' : '' ?>><?= $this->__('in_progress') ?></option>
+                    <option value="completed" <?= $status === 'completed' ? 'selected' : '' ?>><?= $this->__('completed') ?></option>
+                    <option value="cancelled" <?= $status === 'cancelled' ? 'selected' : '' ?>><?= $this->__('cancelled') ?></option>
+                </select>
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$search && !$status) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Orders Table -->
@@ -132,10 +142,6 @@
 <style>
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .page-header h1 { margin: 0; }
-.filter-form { margin: 0; }
-.filter-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.filter-group { flex: 1; min-width: 150px; }
-.filter-group input, .filter-group select { width: 100%; }
 .text-right { text-align: right; }
 .text-center { text-align: center; }
 .progress-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }

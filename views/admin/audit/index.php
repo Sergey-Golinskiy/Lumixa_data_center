@@ -4,37 +4,67 @@
     <h2><?= h($title) ?></h2>
 </div>
 
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/admin/audit">
+        <div class="live-filters-row">
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('user') ?></label>
+                <select name="user_id" class="live-filter-select">
+                    <option value=""><?= $this->__('all_users') ?></option>
+                    <?php foreach ($users as $user): ?>
+                    <option value="<?= $user['id'] ?>" <?= $filters['user_id'] == $user['id'] ? 'selected' : '' ?>>
+                        <?= h($user['name']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('action') ?></label>
+                <select name="action" class="live-filter-select">
+                    <option value=""><?= $this->__('all_actions') ?></option>
+                    <?php foreach ($actions as $action): ?>
+                    <option value="<?= h($action) ?>" <?= $filters['action'] == $action ? 'selected' : '' ?>>
+                        <?= h($action) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('table') ?></label>
+                <select name="table" class="live-filter-select">
+                    <option value=""><?= $this->__('all_tables') ?></option>
+                    <?php foreach ($tables as $table): ?>
+                    <option value="<?= h($table) ?>" <?= $filters['table'] == $table ? 'selected' : '' ?>>
+                        <?= h($table) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="live-filter-group filter-date">
+                <label class="live-filter-label"><?= $this->__('date_from') ?></label>
+                <input type="date" name="from" class="live-filter-input" value="<?= h($filters['from']) ?>">
+            </div>
+
+            <div class="live-filter-group filter-date">
+                <label class="live-filter-label"><?= $this->__('date_to') ?></label>
+                <input type="date" name="to" class="live-filter-input" value="<?= h($filters['to']) ?>">
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$filters['user_id'] && !$filters['action'] && !$filters['table'] && !$filters['from'] && !$filters['to']) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="card">
     <div class="card-body">
-        <form method="get" class="filter-form" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-            <select name="user_id" class="form-control" style="max-width: 150px;">
-                <option value=""><?= $this->__('all_users') ?></option>
-                <?php foreach ($users as $user): ?>
-                <option value="<?= $user['id'] ?>" <?= $filters['user_id'] == $user['id'] ? 'selected' : '' ?>>
-                    <?= h($user['name']) ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
-            <select name="action" class="form-control" style="max-width: 150px;">
-                <option value=""><?= $this->__('all_actions') ?></option>
-                <?php foreach ($actions as $action): ?>
-                <option value="<?= h($action) ?>" <?= $filters['action'] == $action ? 'selected' : '' ?>>
-                    <?= h($action) ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
-            <select name="table" class="form-control" style="max-width: 150px;">
-                <option value=""><?= $this->__('all_tables') ?></option>
-                <?php foreach ($tables as $table): ?>
-                <option value="<?= h($table) ?>" <?= $filters['table'] == $table ? 'selected' : '' ?>>
-                    <?= h($table) ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
-            <input type="date" name="from" value="<?= h($filters['from']) ?>" class="form-control" style="max-width: 150px;">
-            <input type="date" name="to" value="<?= h($filters['to']) ?>" class="form-control" style="max-width: 150px;">
-            <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-        </form>
 
         <?php if (empty($entries)): ?>
         <p class="text-muted"><?= $this->__('no_audit_entries') ?></p>

@@ -27,40 +27,50 @@
 </div>
 <?php endif; ?>
 
-<!-- Filters -->
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-body">
-        <form method="GET" class="filter-form">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <input type="text" name="search" placeholder="<?= $this->__('search_sku_name') ?>"
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/warehouse/stock">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-search">
+                <label class="live-filter-label"><?= $this->__('search') ?></label>
+                <div class="live-filter-search-wrapper <?= $search ? 'has-value' : '' ?>">
+                    <span class="live-filter-search-icon">&#128269;</span>
+                    <input type="text" name="search" class="live-filter-input"
+                           placeholder="<?= $this->__('search_sku_name') ?>"
                            value="<?= $this->e($search) ?>">
+                    <button type="button" class="live-filter-clear-search" title="<?= $this->__('clear') ?>">&times;</button>
                 </div>
-                <div class="filter-group">
-                    <select name="category">
-                        <option value=""><?= $this->__('all_categories') ?></option>
+            </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('category') ?></label>
+                <select name="category" class="live-filter-select">
+                    <option value=""><?= $this->__('all_categories') ?></option>
                     <?php foreach ($categories as $cat): ?>
                         <?php $categoryValue = $cat['category'] ?? ''; ?>
-                        <?php if ($categoryValue === ''): ?>
-                            <?php continue; ?>
-                        <?php endif; ?>
-                    <option value="<?= $this->e($categoryValue) ?>" <?= $category === $categoryValue ? 'selected' : '' ?>>
-                        <?= $this->e($categoryValue) ?>
-                    </option>
+                        <?php if ($categoryValue === ''): continue; endif; ?>
+                        <option value="<?= $this->e($categoryValue) ?>" <?= $category === $categoryValue ? 'selected' : '' ?>>
+                            <?= $this->e($categoryValue) ?>
+                        </option>
                     <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="show_empty" <?= $showEmpty ? 'checked' : '' ?>>
-                        <?= $this->__('show_zero_stock') ?>
-                    </label>
-                </div>
-                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-                <a href="/warehouse/stock" class="btn btn-outline"><?= $this->__('clear') ?></a>
+                </select>
             </div>
-        </form>
-    </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label">&nbsp;</label>
+                <label class="live-filter-checkbox">
+                    <input type="checkbox" name="show_empty" <?= $showEmpty ? 'checked' : '' ?>>
+                    <?= $this->__('show_zero_stock') ?>
+                </label>
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$search && !$category && !$showEmpty) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Stock Table -->
@@ -172,21 +182,6 @@
     color: var(--text-muted);
     font-size: 13px;
     margin-top: 5px;
-}
-.filter-form { margin: 0; }
-.filter-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.filter-group { flex: 1; min-width: 150px; }
-.filter-group input, .filter-group select { width: 100%; }
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
 }
 .text-right { text-align: right; }
 .pagination {

@@ -1329,4 +1329,11 @@ return [
     'bambulab_send_jobs' => 'Send print jobs',
     'bambulab_monitor_progress' => 'Track print progress',
     'bambulab_filament_tracking' => 'Filament usage tracking',
+
+    // Live Filters
+    'clear_filters' => 'Clear',
+    'date_from' => 'Date from',
+    'date_to' => 'Date to',
+    'assignment' => 'Assignment',
+    'search_orders_placeholder' => 'Search by number, customer, email...',
 ];

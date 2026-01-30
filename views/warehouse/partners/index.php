@@ -9,28 +9,38 @@
     </div>
 </div>
 
-<!-- Filters -->
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-body">
-        <form method="GET" class="filter-form">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <input type="text" name="search" placeholder="<?= $this->__('search_partner') ?>"
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/warehouse/partners">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-search">
+                <label class="live-filter-label"><?= $this->__('search') ?></label>
+                <div class="live-filter-search-wrapper <?= $search ? 'has-value' : '' ?>">
+                    <span class="live-filter-search-icon">&#128269;</span>
+                    <input type="text" name="search" class="live-filter-input"
+                           placeholder="<?= $this->__('search_partner') ?>"
                            value="<?= $this->e($search) ?>">
+                    <button type="button" class="live-filter-clear-search" title="<?= $this->__('clear') ?>">&times;</button>
                 </div>
-                <div class="filter-group">
-                    <select name="type">
-                        <option value=""><?= $this->__('all_types') ?></option>
-                        <option value="supplier" <?= $type === 'supplier' ? 'selected' : '' ?>><?= $this->__('suppliers') ?></option>
-                        <option value="customer" <?= $type === 'customer' ? 'selected' : '' ?>><?= $this->__('customers') ?></option>
-                        <option value="both" <?= $type === 'both' ? 'selected' : '' ?>><?= $this->__('both') ?></option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-                <a href="/warehouse/partners" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
-        </form>
-    </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('type') ?></label>
+                <select name="type" class="live-filter-select">
+                    <option value=""><?= $this->__('all_types') ?></option>
+                    <option value="supplier" <?= $type === 'supplier' ? 'selected' : '' ?>><?= $this->__('suppliers') ?></option>
+                    <option value="customer" <?= $type === 'customer' ? 'selected' : '' ?>><?= $this->__('customers') ?></option>
+                    <option value="both" <?= $type === 'both' ? 'selected' : '' ?>><?= $this->__('both') ?></option>
+                </select>
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$search && !$type) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Partners Table -->
@@ -117,15 +127,6 @@
     margin-bottom: 20px;
 }
 .page-header h1 { margin: 0; }
-.filter-form { margin: 0; }
-.filter-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-.filter-group { flex: 1; min-width: 150px; }
-.filter-group input, .filter-group select { width: 100%; }
 .pagination {
     display: flex;
     justify-content: center;

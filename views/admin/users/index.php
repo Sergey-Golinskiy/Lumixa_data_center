@@ -7,12 +7,32 @@
     <?php endif; ?>
 </div>
 
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/admin/users">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-search">
+                <label class="live-filter-label"><?= $this->__('search') ?></label>
+                <div class="live-filter-search-wrapper <?= $search ? 'has-value' : '' ?>">
+                    <span class="live-filter-search-icon">&#128269;</span>
+                    <input type="text" name="search" class="live-filter-input"
+                           placeholder="<?= $this->__('search_users') ?>"
+                           value="<?= h($search) ?>">
+                    <button type="button" class="live-filter-clear-search" title="<?= $this->__('clear') ?>">&times;</button>
+                </div>
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= !$search ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="card">
     <div class="card-body">
-        <form method="get" class="filter-form" style="margin-bottom: 20px;">
-            <input type="text" name="search" value="<?= h($search) ?>" placeholder="<?= $this->__('search_users') ?>" class="form-control" style="max-width: 300px; display: inline-block;">
-            <button type="submit" class="btn btn-secondary"><?= $this->__('search') ?></button>
-        </form>
 
         <?php if (empty($users)): ?>
         <p class="text-muted"><?= $this->__('no_users_found') ?></p>

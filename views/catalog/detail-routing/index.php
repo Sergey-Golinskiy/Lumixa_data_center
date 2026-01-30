@@ -9,27 +9,38 @@
     </div>
 </div>
 
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-body">
-        <form method="GET" class="filter-form">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <input type="text" name="search" placeholder="<?= $this->__('search_routing') ?>"
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/catalog/detail-routing">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-search">
+                <label class="live-filter-label"><?= $this->__('search') ?></label>
+                <div class="live-filter-search-wrapper <?= $search ? 'has-value' : '' ?>">
+                    <span class="live-filter-search-icon">&#128269;</span>
+                    <input type="text" name="search" class="live-filter-input"
+                           placeholder="<?= $this->__('search_routing') ?>"
                            value="<?= $this->e($search) ?>">
+                    <button type="button" class="live-filter-clear-search" title="<?= $this->__('clear') ?>">&times;</button>
                 </div>
-                <div class="filter-group">
-                    <select name="status">
-                        <option value=""><?= $this->__('all_status') ?></option>
-                        <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
-                        <option value="active" <?= $status === 'active' ? 'selected' : '' ?>><?= $this->__('active') ?></option>
-                        <option value="archived" <?= $status === 'archived' ? 'selected' : '' ?>><?= $this->__('archived') ?></option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-                <a href="/catalog/detail-routing" class="btn btn-outline"><?= $this->__('clear') ?></a>
             </div>
-        </form>
-    </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('status') ?></label>
+                <select name="status" class="live-filter-select">
+                    <option value=""><?= $this->__('all_statuses') ?></option>
+                    <option value="draft" <?= $status === 'draft' ? 'selected' : '' ?>><?= $this->__('draft') ?></option>
+                    <option value="active" <?= $status === 'active' ? 'selected' : '' ?>><?= $this->__('active') ?></option>
+                    <option value="archived" <?= $status === 'archived' ? 'selected' : '' ?>><?= $this->__('archived') ?></option>
+                </select>
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$search && !$status) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <div class="card">

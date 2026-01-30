@@ -1331,4 +1331,11 @@ return [
     'bambulab_send_jobs' => 'Відправка завдань на друк',
     'bambulab_monitor_progress' => 'Відстеження прогресу друку',
     'bambulab_filament_tracking' => 'Облік витрат філаменту',
+
+    // Live Filters
+    'clear_filters' => 'Очистити',
+    'date_from' => 'Дата з',
+    'date_to' => 'Дата по',
+    'assignment' => 'Призначення',
+    'search_orders_placeholder' => 'Пошук за номером, клієнтом, email...',
 ];

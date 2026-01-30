@@ -25,43 +25,48 @@
     </div>
 </div>
 
-<!-- Filters -->
-<div class="card" style="margin-bottom: 20px;">
-    <div class="card-body">
-        <form method="GET" class="filter-form">
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label><?= $this->__('from') ?></label>
-                    <input type="date" name="date_from" value="<?= $this->e($dateFrom) ?>">
-                </div>
-                <div class="filter-group">
-                    <label><?= $this->__('to') ?></label>
-                    <input type="date" name="date_to" value="<?= $this->e($dateTo) ?>">
-                </div>
-                <div class="filter-group">
-                    <label><?= $this->__('item') ?></label>
-                    <select name="item_id">
-                        <option value=""><?= $this->__('all_items') ?></option>
-                        <?php foreach ($items as $item): ?>
-                        <option value="<?= $item['id'] ?>" <?= $itemId == $item['id'] ? 'selected' : '' ?>>
-                            <?= $this->e($item['sku']) ?> - <?= $this->e($item['name']) ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label><?= $this->__('direction') ?></label>
-                    <select name="direction">
-                        <option value=""><?= $this->__('all') ?></option>
-                        <option value="in" <?= $direction === 'in' ? 'selected' : '' ?>><?= $this->__('in') ?></option>
-                        <option value="out" <?= $direction === 'out' ? 'selected' : '' ?>><?= $this->__('out') ?></option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-secondary"><?= $this->__('filter') ?></button>
-                <a href="/warehouse/stock/movements" class="btn btn-outline"><?= $this->__('clear') ?></a>
+<!-- Live Filters -->
+<div class="live-filters">
+    <form method="GET" action="/warehouse/stock/movements">
+        <div class="live-filters-row">
+            <div class="live-filter-group filter-date">
+                <label class="live-filter-label"><?= $this->__('date_from') ?></label>
+                <input type="date" name="date_from" class="live-filter-input" value="<?= $this->e($dateFrom) ?>">
             </div>
-        </form>
-    </div>
+
+            <div class="live-filter-group filter-date">
+                <label class="live-filter-label"><?= $this->__('date_to') ?></label>
+                <input type="date" name="date_to" class="live-filter-input" value="<?= $this->e($dateTo) ?>">
+            </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('item') ?></label>
+                <select name="item_id" class="live-filter-select">
+                    <option value=""><?= $this->__('all_items') ?></option>
+                    <?php foreach ($items as $item): ?>
+                    <option value="<?= $item['id'] ?>" <?= $itemId == $item['id'] ? 'selected' : '' ?>>
+                        <?= $this->e($item['sku']) ?> - <?= $this->e($item['name']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="live-filter-group">
+                <label class="live-filter-label"><?= $this->__('direction') ?></label>
+                <select name="direction" class="live-filter-select">
+                    <option value=""><?= $this->__('all') ?></option>
+                    <option value="in" <?= $direction === 'in' ? 'selected' : '' ?>><?= $this->__('in') ?></option>
+                    <option value="out" <?= $direction === 'out' ? 'selected' : '' ?>><?= $this->__('out') ?></option>
+                </select>
+            </div>
+
+            <div class="live-filter-group filter-actions">
+                <button type="button" class="live-filter-clear-all" <?= (!$dateFrom && !$dateTo && !$itemId && !$direction) ? 'disabled' : '' ?>>
+                    <?= $this->__('clear_filters') ?>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <!-- Movements Table -->
@@ -167,16 +172,6 @@
 .summary-out .summary-value { color: var(--danger); }
 .summary-label { color: var(--text-muted); font-size: 13px; margin-top: 5px; }
 .summary-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
-.filter-form { margin: 0; }
-.filter-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-}
-.filter-group { flex: 1; min-width: 120px; }
-.filter-group label { display: block; font-size: 12px; margin-bottom: 3px; color: var(--text-muted); }
-.filter-group input, .filter-group select { width: 100%; }
 .text-right { text-align: right; }
 .pagination {
     display: flex;
