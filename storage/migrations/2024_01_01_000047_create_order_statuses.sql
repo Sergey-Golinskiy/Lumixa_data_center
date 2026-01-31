@@ -32,17 +32,17 @@ INSERT INTO order_statuses (code, name, color, description, sort_order, is_defau
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 -- Add permissions for order statuses management
-INSERT INTO permissions (code, name, description, category) VALUES
-('admin.order_statuses.view', 'View Order Statuses', 'Can view order statuses list', 'admin'),
-('admin.order_statuses.create', 'Create Order Status', 'Can create new order statuses', 'admin'),
-('admin.order_statuses.edit', 'Edit Order Status', 'Can edit existing order statuses', 'admin'),
-('admin.order_statuses.delete', 'Delete Order Status', 'Can delete order statuses', 'admin')
+INSERT INTO permissions (code, name, module) VALUES
+('admin.order_statuses.view', 'View Order Statuses', 'admin'),
+('admin.order_statuses.create', 'Create Order Status', 'admin'),
+('admin.order_statuses.edit', 'Edit Order Status', 'admin'),
+('admin.order_statuses.delete', 'Delete Order Status', 'admin')
 ON DUPLICATE KEY UPDATE name = VALUES(name);
 
 -- Grant permissions to admin role
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT
-    (SELECT id FROM roles WHERE code = 'admin' LIMIT 1),
+    (SELECT id FROM roles WHERE slug = 'admin' LIMIT 1),
     id
 FROM permissions
 WHERE code IN ('admin.order_statuses.view', 'admin.order_statuses.create', 'admin.order_statuses.edit', 'admin.order_statuses.delete')
