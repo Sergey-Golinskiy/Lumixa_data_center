@@ -1009,6 +1009,7 @@ return [
     // Item types
     'item_type_material' => 'Material',
     'item_type_component' => 'Component',
+    'item_type_part' => 'Part',
     'item_type_consumable' => 'Consumable',
     'item_type_packaging' => 'Packaging',
     'item_type_fasteners' => 'Fasteners',
@@ -1016,6 +1017,7 @@ return [
     // Item type descriptions
     'item_type_material_desc' => 'Raw materials used for manufacturing products (plastics, metals, filaments, etc.)',
     'item_type_component_desc' => 'Pre-manufactured components used in assembly (electronics, purchased parts)',
+    'item_type_part_desc' => 'Parts manufactured in-house (3D printed, milled, machined parts)',
     'item_type_consumable_desc' => 'Consumable supplies that are used up during production (glue, lubricants, cleaning materials)',
     'item_type_packaging_desc' => 'Packaging materials for finished products (boxes, bags, labels, wrapping)',
     'item_type_fasteners_desc' => 'Fasteners and hardware (bolts, nuts, screws, washers, rivets, anchors)',

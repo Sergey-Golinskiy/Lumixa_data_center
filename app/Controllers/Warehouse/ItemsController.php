@@ -31,18 +31,23 @@ class ItemsController extends Controller
         $perPage = $this->app->config('items_per_page', 25);
         $search = $this->get('search', '');
         $type = $this->get('type', '');
+        $status = $this->get('status', '');
 
         $result = $this->itemService->paginate($page, $perPage, [
             'search' => $search,
-            'type' => $type
+            'type' => $type,
+            'status' => $status
         ]);
 
+        $translator = $this->app->getTranslator();
+
         $this->view('warehouse/items/index', [
-            'title' => 'Items (SKU)',
+            'title' => $translator->get('items_sku'),
             'items' => $result['items'],
             'pagination' => $result['pagination'],
             'search' => $search,
             'type' => $type,
+            'status' => $status,
             'types' => $this->itemService->getTypes()
         ]);
     }

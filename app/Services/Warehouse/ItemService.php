@@ -18,6 +18,7 @@ class ItemService
     private array $types = [
         'material' => 'material',
         'component' => 'component',
+        'part' => 'part',
         'consumable' => 'consumable',
         'packaging' => 'packaging',
         'fasteners' => 'fasteners'
@@ -101,6 +102,14 @@ class ItemService
         if (!empty($filters['type'])) {
             $where[] = "type = ?";
             $params[] = $filters['type'];
+        }
+
+        if (!empty($filters['status'])) {
+            if ($filters['status'] === 'active') {
+                $where[] = "is_active = 1";
+            } elseif ($filters['status'] === 'inactive') {
+                $where[] = "is_active = 0";
+            }
         }
 
         $whereStr = implode(' AND ', $where);
