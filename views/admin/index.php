@@ -1,238 +1,440 @@
 <?php $this->section('content'); ?>
 
-<div class="admin-dashboard">
+<div class="row">
     <!-- Statistics Overview -->
-    <div class="admin-stats-overview">
-        <div class="admin-stats-row">
+    <div class="col-12">
+        <div class="row">
             <!-- User Management Stats -->
-            <div class="admin-stat-group">
-                <div class="stat-group-header">
-                    <span class="stat-group-icon">&#128101;</span>
-                    <span class="stat-group-title"><?= $this->__('user_management') ?></span>
-                </div>
-                <div class="stat-group-stats">
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['users'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('users') ?></span>
+            <div class="col-xl-3 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-medium text-muted mb-0"><?= $this->__('user_management') ?></p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end justify-content-between mt-3">
+                            <div class="d-flex gap-4">
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['users'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('users') ?></span>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1 text-success"><?= $this->e($stats['active_users'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('active') ?></span>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['roles'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('roles') ?></span>
+                                </div>
+                            </div>
+                            <div class="avatar-sm flex-shrink-0">
+                                <span class="avatar-title bg-primary-subtle rounded fs-3">
+                                    <i class="ri-user-line text-primary"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-top">
+                            <a href="/admin/users" class="btn btn-soft-primary btn-sm me-1"><?= $this->__('nav_users') ?></a>
+                            <a href="/admin/roles" class="btn btn-soft-secondary btn-sm"><?= $this->__('nav_roles') ?></a>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['active_users'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('active') ?></span>
-                    </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['roles'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('roles') ?></span>
-                    </div>
-                </div>
-                <div class="stat-group-actions">
-                    <a href="/admin/users" class="btn btn-sm btn-outline"><?= $this->__('nav_users') ?></a>
-                    <a href="/admin/roles" class="btn btn-sm btn-outline"><?= $this->__('nav_roles') ?></a>
                 </div>
             </div>
 
             <!-- Catalog Stats -->
-            <div class="admin-stat-group">
-                <div class="stat-group-header">
-                    <span class="stat-group-icon">&#128230;</span>
-                    <span class="stat-group-title"><?= $this->__('catalog_settings') ?></span>
-                </div>
-                <div class="stat-group-stats">
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['products'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('products') ?></span>
+            <div class="col-xl-3 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-medium text-muted mb-0"><?= $this->__('catalog_settings') ?></p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end justify-content-between mt-3">
+                            <div class="d-flex gap-4">
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['products'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('products') ?></span>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['categories'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('categories') ?></span>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['collections'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('collections') ?></span>
+                                </div>
+                            </div>
+                            <div class="avatar-sm flex-shrink-0">
+                                <span class="avatar-title bg-success-subtle rounded fs-3">
+                                    <i class="ri-shopping-bag-line text-success"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-top">
+                            <a href="/admin/product-categories" class="btn btn-soft-success btn-sm me-1"><?= $this->__('categories') ?></a>
+                            <a href="/admin/product-collections" class="btn btn-soft-secondary btn-sm"><?= $this->__('collections') ?></a>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['categories'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('categories') ?></span>
-                    </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['collections'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('collections') ?></span>
-                    </div>
-                </div>
-                <div class="stat-group-actions">
-                    <a href="/admin/product-categories" class="btn btn-sm btn-outline"><?= $this->__('categories') ?></a>
-                    <a href="/admin/product-collections" class="btn btn-sm btn-outline"><?= $this->__('collections') ?></a>
                 </div>
             </div>
-        </div>
 
-        <div class="admin-stats-row">
             <!-- System Stats -->
-            <div class="admin-stat-group">
-                <div class="stat-group-header">
-                    <span class="stat-group-icon">&#9881;</span>
-                    <span class="stat-group-title"><?= $this->__('system') ?></span>
-                </div>
-                <div class="stat-group-stats">
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['backups'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('backups') ?></span>
+            <div class="col-xl-3 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-medium text-muted mb-0"><?= $this->__('system') ?></p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end justify-content-between mt-3">
+                            <div class="d-flex gap-4">
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['backups'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('backups') ?></span>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['audit_today'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('today') ?></span>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['audit_entries'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('week') ?></span>
+                                </div>
+                            </div>
+                            <div class="avatar-sm flex-shrink-0">
+                                <span class="avatar-title bg-secondary-subtle rounded fs-3">
+                                    <i class="ri-settings-3-line text-secondary"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-top">
+                            <a href="/admin/backups" class="btn btn-soft-secondary btn-sm me-1"><?= $this->__('backups') ?></a>
+                            <a href="/admin/audit" class="btn btn-soft-secondary btn-sm me-1"><?= $this->__('audit') ?></a>
+                            <a href="/admin/diagnostics" class="btn btn-soft-secondary btn-sm"><?= $this->__('diagnostics') ?></a>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['audit_today'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('today') ?></span>
-                    </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['audit_entries'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('week') ?></span>
-                    </div>
-                </div>
-                <div class="stat-group-actions">
-                    <a href="/admin/backups" class="btn btn-sm btn-outline"><?= $this->__('backups') ?></a>
-                    <a href="/admin/audit" class="btn btn-sm btn-outline"><?= $this->__('audit') ?></a>
-                    <a href="/admin/diagnostics" class="btn btn-sm btn-outline"><?= $this->__('diagnostics') ?></a>
                 </div>
             </div>
 
             <!-- Equipment Stats -->
-            <div class="admin-stat-group">
-                <div class="stat-group-header">
-                    <span class="stat-group-icon">&#128424;</span>
-                    <span class="stat-group-title"><?= $this->__('equipment_settings') ?></span>
-                </div>
-                <div class="stat-group-stats">
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['printers'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('printers') ?></span>
+            <div class="col-xl-3 col-md-6">
+                <div class="card card-animate">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <p class="text-uppercase fw-medium text-muted mb-0"><?= $this->__('equipment_settings') ?></p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-end justify-content-between mt-3">
+                            <div class="d-flex gap-4">
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['printers'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('printers') ?></span>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['items'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('items') ?></span>
+                                </div>
+                                <div class="text-center">
+                                    <h4 class="fs-22 fw-semibold mb-1"><?= $this->e($stats['partners'] ?? 0) ?></h4>
+                                    <span class="text-muted fs-12"><?= $this->__('partners') ?></span>
+                                </div>
+                            </div>
+                            <div class="avatar-sm flex-shrink-0">
+                                <span class="avatar-title bg-info-subtle rounded fs-3">
+                                    <i class="ri-printer-line text-info"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-2 border-top">
+                            <a href="/admin/printers" class="btn btn-soft-info btn-sm me-1"><?= $this->__('printers') ?></a>
+                            <a href="/admin/item-options/materials" class="btn btn-soft-secondary btn-sm"><?= $this->__('materials') ?></a>
+                        </div>
                     </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['items'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('items') ?></span>
-                    </div>
-                    <div class="mini-stat">
-                        <span class="mini-stat-value"><?= $this->e($stats['partners'] ?? 0) ?></span>
-                        <span class="mini-stat-label"><?= $this->__('partners') ?></span>
-                    </div>
-                </div>
-                <div class="stat-group-actions">
-                    <a href="/admin/printers" class="btn btn-sm btn-outline"><?= $this->__('printers') ?></a>
-                    <a href="/admin/item-options/materials" class="btn btn-sm btn-outline"><?= $this->__('materials') ?></a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Admin Sections -->
-    <div class="admin-main-sections">
-        <!-- Admin Menu Cards -->
-        <div class="admin-menu-grid">
+    <!-- Admin Menu Cards -->
+    <div class="col-12">
+        <div class="row">
             <!-- User Management -->
-            <div class="admin-menu-card">
-                <div class="admin-menu-card-header">
-                    <span class="admin-menu-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">&#128101;</span>
-                    <h3><?= $this->__('user_management') ?></h3>
+            <div class="col-xl-4 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <span class="avatar-title bg-primary-subtle rounded">
+                                    <i class="ri-user-settings-line text-primary fs-20"></i>
+                                </span>
+                            </div>
+                            <h5 class="card-title mb-0 flex-grow-1"><?= $this->__('user_management') ?></h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3"><?= $this->__('manage_users_roles_desc') ?></p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <a href="/admin/users" class="d-flex align-items-center text-body">
+                                    <i class="ri-user-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_users') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/admin/roles" class="d-flex align-items-center text-body">
+                                    <i class="ri-shield-user-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_roles') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <p class="admin-menu-desc"><?= $this->__('manage_users_roles_desc') ?></p>
-                <ul class="admin-menu-links">
-                    <li><a href="/admin/users"><span class="link-icon">&#128100;</span> <?= $this->__('nav_users') ?></a></li>
-                    <li><a href="/admin/roles"><span class="link-icon">&#128101;</span> <?= $this->__('nav_roles') ?></a></li>
-                </ul>
             </div>
 
             <!-- Catalog Settings -->
-            <div class="admin-menu-card">
-                <div class="admin-menu-card-header">
-                    <span class="admin-menu-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a);">&#128230;</span>
-                    <h3><?= $this->__('catalog_settings') ?></h3>
+            <div class="col-xl-4 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <span class="avatar-title bg-success-subtle rounded">
+                                    <i class="ri-shopping-bag-line text-success fs-20"></i>
+                                </span>
+                            </div>
+                            <h5 class="card-title mb-0 flex-grow-1"><?= $this->__('catalog_settings') ?></h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3"><?= $this->__('catalog_settings_desc') ?></p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <a href="/admin/product-categories" class="d-flex align-items-center text-body">
+                                    <i class="ri-folder-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_product_categories') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/admin/product-collections" class="d-flex align-items-center text-body">
+                                    <i class="ri-stack-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_product_collections') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <p class="admin-menu-desc"><?= $this->__('catalog_settings_desc') ?></p>
-                <ul class="admin-menu-links">
-                    <li><a href="/admin/product-categories"><span class="link-icon">&#128193;</span> <?= $this->__('nav_product_categories') ?></a></li>
-                    <li><a href="/admin/product-collections"><span class="link-icon">&#128218;</span> <?= $this->__('nav_product_collections') ?></a></li>
-                </ul>
             </div>
 
             <!-- Orders Settings -->
-            <div class="admin-menu-card">
-                <div class="admin-menu-card-header">
-                    <span class="admin-menu-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">&#128722;</span>
-                    <h3><?= $this->__('orders_settings') ?></h3>
+            <div class="col-xl-4 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <span class="avatar-title bg-warning-subtle rounded">
+                                    <i class="ri-shopping-cart-line text-warning fs-20"></i>
+                                </span>
+                            </div>
+                            <h5 class="card-title mb-0 flex-grow-1"><?= $this->__('orders_settings') ?></h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3"><?= $this->__('orders_settings_desc') ?></p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <a href="/admin/order-statuses" class="d-flex align-items-center text-body">
+                                    <i class="ri-list-check-2 me-2 text-muted"></i>
+                                    <?= $this->__('nav_order_statuses') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <p class="admin-menu-desc"><?= $this->__('orders_settings_desc') ?></p>
-                <ul class="admin-menu-links">
-                    <li><a href="/admin/order-statuses"><span class="link-icon">&#128203;</span> <?= $this->__('nav_order_statuses') ?></a></li>
-                </ul>
             </div>
 
             <!-- Item Settings -->
-            <div class="admin-menu-card">
-                <div class="admin-menu-card-header">
-                    <span class="admin-menu-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">&#9874;</span>
-                    <h3><?= $this->__('item_settings') ?></h3>
+            <div class="col-xl-4 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <span class="avatar-title bg-warning-subtle rounded">
+                                    <i class="ri-tools-line text-warning fs-20"></i>
+                                </span>
+                            </div>
+                            <h5 class="card-title mb-0 flex-grow-1"><?= $this->__('item_settings') ?></h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3"><?= $this->__('item_settings_desc') ?></p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <a href="/admin/item-options/materials" class="d-flex align-items-center text-body">
+                                    <i class="ri-hammer-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_materials') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/admin/item-options/manufacturers" class="d-flex align-items-center text-body">
+                                    <i class="ri-building-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_manufacturers') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/admin/item-options/plastic-types" class="d-flex align-items-center text-body">
+                                    <i class="ri-attachment-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_plastic_types') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/admin/item-options/filament-aliases" class="d-flex align-items-center text-body">
+                                    <i class="ri-palette-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_filament_aliases') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <p class="admin-menu-desc"><?= $this->__('item_settings_desc') ?></p>
-                <ul class="admin-menu-links">
-                    <li><a href="/admin/item-options/materials"><span class="link-icon">&#128295;</span> <?= $this->__('nav_materials') ?></a></li>
-                    <li><a href="/admin/item-options/manufacturers"><span class="link-icon">&#127981;</span> <?= $this->__('nav_manufacturers') ?></a></li>
-                    <li><a href="/admin/item-options/plastic-types"><span class="link-icon">&#128204;</span> <?= $this->__('nav_plastic_types') ?></a></li>
-                    <li><a href="/admin/item-options/filament-aliases"><span class="link-icon">&#127912;</span> <?= $this->__('nav_filament_aliases') ?></a></li>
-                </ul>
             </div>
 
             <!-- Equipment -->
-            <div class="admin-menu-card">
-                <div class="admin-menu-card-header">
-                    <span class="admin-menu-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">&#128424;</span>
-                    <h3><?= $this->__('equipment_settings') ?></h3>
+            <div class="col-xl-4 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <span class="avatar-title bg-info-subtle rounded">
+                                    <i class="ri-printer-line text-info fs-20"></i>
+                                </span>
+                            </div>
+                            <h5 class="card-title mb-0 flex-grow-1"><?= $this->__('equipment_settings') ?></h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3"><?= $this->__('equipment_settings_desc') ?></p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <a href="/admin/printers" class="d-flex align-items-center text-body">
+                                    <i class="ri-printer-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_printers') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <p class="admin-menu-desc"><?= $this->__('equipment_settings_desc') ?></p>
-                <ul class="admin-menu-links">
-                    <li><a href="/admin/printers"><span class="link-icon">&#128424;</span> <?= $this->__('nav_printers') ?></a></li>
-                </ul>
             </div>
 
             <!-- System -->
-            <div class="admin-menu-card">
-                <div class="admin-menu-card-header">
-                    <span class="admin-menu-icon" style="background: linear-gradient(135deg, #64748b, #475569);">&#9881;</span>
-                    <h3><?= $this->__('system') ?></h3>
+            <div class="col-xl-4 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm flex-shrink-0 me-3">
+                                <span class="avatar-title bg-secondary-subtle rounded">
+                                    <i class="ri-settings-3-line text-secondary fs-20"></i>
+                                </span>
+                            </div>
+                            <h5 class="card-title mb-0 flex-grow-1"><?= $this->__('system') ?></h5>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3"><?= $this->__('system_settings_desc') ?></p>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <a href="/admin/integrations" class="d-flex align-items-center text-body">
+                                    <i class="ri-link me-2 text-muted"></i>
+                                    <?= $this->__('nav_integrations') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/admin/audit" class="d-flex align-items-center text-body">
+                                    <i class="ri-file-list-3-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_audit') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/admin/backups" class="d-flex align-items-center text-body">
+                                    <i class="ri-hard-drive-2-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_backups') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                            <li class="list-group-item px-0">
+                                <a href="/admin/diagnostics" class="d-flex align-items-center text-body">
+                                    <i class="ri-stethoscope-line me-2 text-muted"></i>
+                                    <?= $this->__('nav_diagnostics') ?>
+                                    <i class="ri-arrow-right-s-line ms-auto text-muted"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <p class="admin-menu-desc"><?= $this->__('system_settings_desc') ?></p>
-                <ul class="admin-menu-links">
-                    <li><a href="/admin/integrations"><span class="link-icon">&#128279;</span> <?= $this->__('nav_integrations') ?></a></li>
-                    <li><a href="/admin/audit"><span class="link-icon">&#128203;</span> <?= $this->__('nav_audit') ?></a></li>
-                    <li><a href="/admin/backups"><span class="link-icon">&#128190;</span> <?= $this->__('nav_backups') ?></a></li>
-                    <li><a href="/admin/diagnostics"><span class="link-icon">&#128295;</span> <?= $this->__('nav_diagnostics') ?></a></li>
-                </ul>
             </div>
+        </div>
+    </div>
 
-            <!-- Quick Actions -->
-            <div class="admin-menu-card admin-quick-actions-card">
-                <div class="admin-menu-card-header">
-                    <span class="admin-menu-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">&#9889;</span>
-                    <h3><?= $this->__('quick_actions') ?></h3>
+    <!-- Quick Actions -->
+    <div class="col-xl-4 col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0 me-3">
+                        <span class="avatar-title bg-danger-subtle rounded">
+                            <i class="ri-flashlight-line text-danger fs-20"></i>
+                        </span>
+                    </div>
+                    <h5 class="card-title mb-0 flex-grow-1"><?= $this->__('quick_actions') ?></h5>
                 </div>
-                <div class="admin-quick-actions">
-                    <a href="/admin/users/create" class="admin-quick-action">
-                        <span class="qa-icon">+</span>
-                        <span><?= $this->__('create_user') ?></span>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-column gap-2">
+                    <a href="/admin/users/create" class="btn btn-soft-primary">
+                        <i class="ri-user-add-line me-1"></i>
+                        <?= $this->__('create_user') ?>
                     </a>
-                    <a href="/admin/backups" class="admin-quick-action">
-                        <span class="qa-icon">&#128190;</span>
-                        <span><?= $this->__('create_backup') ?></span>
+                    <a href="/admin/backups" class="btn btn-soft-success">
+                        <i class="ri-hard-drive-2-line me-1"></i>
+                        <?= $this->__('create_backup') ?>
                     </a>
-                    <a href="/admin/diagnostics" class="admin-quick-action">
-                        <span class="qa-icon">&#128295;</span>
-                        <span><?= $this->__('diagnostics') ?></span>
+                    <a href="/admin/diagnostics" class="btn btn-soft-info">
+                        <i class="ri-stethoscope-line me-1"></i>
+                        <?= $this->__('diagnostics') ?>
                     </a>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Recent Activity -->
-        <?php if (!empty($recentAudit)): ?>
-        <div class="admin-recent-activity">
-            <div class="card">
-                <div class="card-header">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>&#128203; <?= $this->__('recent_activity') ?></span>
-                        <a href="/admin/audit" class="btn btn-sm btn-outline"><?= $this->__('view_all') ?></a>
-                    </div>
-                </div>
-                <div class="card-body" style="padding: 0;">
-                    <table>
-                        <thead>
+    <!-- Recent Activity -->
+    <?php if (!empty($recentAudit)): ?>
+    <div class="col-xl-8 col-md-6">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title mb-0 flex-grow-1">
+                    <i class="ri-history-line me-1"></i>
+                    <?= $this->__('recent_activity') ?>
+                </h5>
+                <a href="/admin/audit" class="btn btn-soft-primary btn-sm"><?= $this->__('view_all') ?></a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle mb-0">
+                        <thead class="table-light">
                             <tr>
                                 <th><?= $this->__('action') ?></th>
                                 <th><?= $this->__('user') ?></th>
@@ -244,8 +446,17 @@
                             <?php foreach ($recentAudit as $entry): ?>
                             <tr>
                                 <td>
-                                    <span class="badge badge-<?= $this->getAuditActionBadge($entry['action'] ?? '') ?>">
-                                        <?= $this->e($entry['action'] ?? '-') ?>
+                                    <?php
+                                    $action = $entry['action'] ?? '';
+                                    $badgeClass = match($action) {
+                                        'create' => 'bg-success-subtle text-success',
+                                        'update' => 'bg-warning-subtle text-warning',
+                                        'delete' => 'bg-danger-subtle text-danger',
+                                        default => 'bg-secondary-subtle text-secondary'
+                                    };
+                                    ?>
+                                    <span class="badge <?= $badgeClass ?>">
+                                        <?= $this->e($action) ?>
                                     </span>
                                 </td>
                                 <td><?= $this->e($entry['user_name'] ?? '-') ?></td>
@@ -260,251 +471,8 @@
                 </div>
             </div>
         </div>
-        <?php endif; ?>
     </div>
+    <?php endif; ?>
 </div>
-
-<style>
-/* Admin Dashboard Styles */
-.admin-dashboard {
-    max-width: 1400px;
-}
-
-/* Stats Overview */
-.admin-stats-overview {
-    margin-bottom: 30px;
-}
-
-.admin-stats-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.admin-stat-group {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 20px;
-}
-
-.stat-group-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-}
-
-.stat-group-icon {
-    font-size: 24px;
-}
-
-.stat-group-title {
-    font-weight: 600;
-    font-size: 16px;
-    color: var(--text);
-}
-
-.stat-group-stats {
-    display: flex;
-    gap: 30px;
-    margin-bottom: 15px;
-}
-
-.mini-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.mini-stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--primary);
-    line-height: 1.2;
-}
-
-.mini-stat-label {
-    font-size: 12px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-}
-
-.stat-group-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-/* Admin Menu Grid */
-.admin-menu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.admin-menu-card {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 20px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.admin-menu-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.admin-menu-card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
-
-.admin-menu-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: white;
-}
-
-.admin-menu-card-header h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 0;
-}
-
-.admin-menu-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 15px;
-    line-height: 1.5;
-}
-
-.admin-menu-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.admin-menu-links li {
-    margin-bottom: 8px;
-}
-
-.admin-menu-links li:last-child {
-    margin-bottom: 0;
-}
-
-.admin-menu-links a {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    background: var(--bg);
-    border-radius: var(--radius);
-    color: var(--text);
-    font-size: 14px;
-    transition: all 0.2s;
-}
-
-.admin-menu-links a:hover {
-    background: var(--primary);
-    color: white;
-    text-decoration: none;
-}
-
-.admin-menu-links .link-icon {
-    font-size: 14px;
-    width: 20px;
-    text-align: center;
-}
-
-/* Quick Actions Card */
-.admin-quick-actions-card {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-}
-
-.admin-quick-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.admin-quick-action {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: white;
-    border-radius: var(--radius);
-    color: var(--text);
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s;
-    box-shadow: var(--shadow-sm);
-}
-
-.admin-quick-action:hover {
-    background: var(--primary);
-    color: white;
-    text-decoration: none;
-    transform: translateX(4px);
-}
-
-.admin-quick-action .qa-icon {
-    font-size: 20px;
-    width: 24px;
-    text-align: center;
-}
-
-/* Recent Activity */
-.admin-recent-activity {
-    margin-top: 20px;
-}
-
-/* Button Outline */
-.btn-outline {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text);
-}
-
-.btn-outline:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: white;
-}
-
-/* Badge Secondary */
-.badge-secondary {
-    background: #e2e8f0;
-    color: #475569;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .admin-stats-row {
-        grid-template-columns: 1fr;
-    }
-
-    .stat-group-stats {
-        justify-content: space-around;
-    }
-
-    .admin-menu-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
 
 <?php $this->endSection(); ?>

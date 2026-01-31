@@ -1,40 +1,46 @@
 <?php $this->section('content'); ?>
 
-<div class="page-header">
-    <h1><?= $this->__('low_stock_report') ?></h1>
-    <div class="page-actions">
-        <a href="/warehouse/stock" class="btn btn-secondary">&laquo; <?= $this->__('back_to_stock') ?></a>
-    </div>
+<!-- Action buttons -->
+<div class="mb-3 d-flex gap-2">
+    <a href="/warehouse/stock" class="btn btn-soft-secondary">
+        <i class="ri-arrow-left-line me-1"></i> <?= $this->__('back_to_stock') ?>
+    </a>
 </div>
 
 <?php if (!empty($items)): ?>
-<div class="alert alert-warning" style="margin-bottom: 20px;">
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <i class="ri-alert-line me-2"></i>
     <strong><?= $this->__('attention') ?>!</strong> <?= $this->__('items_below_min_stock', ['count' => count($items)]) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 <?php endif; ?>
 
 <div class="card">
-    <div class="card-body">
-        <div class="table-container">
-            <table>
-                <thead>
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="ri-alert-line me-2"></i><?= $this->__('low_stock_report') ?></h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
                     <tr>
                         <th><?= $this->__('sku') ?></th>
                         <th><?= $this->__('name') ?></th>
                         <th><?= $this->__('category') ?></th>
-                        <th class="text-right"><?= $this->__('min_stock') ?></th>
-                        <th class="text-right"><?= $this->__('current') ?></th>
-                        <th class="text-right"><?= $this->__('reserved') ?></th>
-                        <th class="text-right"><?= $this->__('available') ?></th>
+                        <th class="text-end"><?= $this->__('min_stock') ?></th>
+                        <th class="text-end"><?= $this->__('current') ?></th>
+                        <th class="text-end"><?= $this->__('reserved') ?></th>
+                        <th class="text-end"><?= $this->__('available') ?></th>
                         <th><?= $this->__('status') ?></th>
-                        <th><?= $this->__('actions') ?></th>
+                        <th style="width: 180px;"><?= $this->__('actions') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($items)): ?>
                     <tr>
-                        <td colspan="9" class="text-center text-muted">
-                            <?= $this->__('all_items_above_min_stock') ?>
+                        <td colspan="9" class="text-center py-5">
+                            <i class="ri-checkbox-circle-line fs-1 d-block mb-2 text-success"></i>
+                            <span class="text-muted"><?= $this->__('all_items_above_min_stock') ?></span>
                         </td>
                     </tr>
                     <?php else: ?>
@@ -58,43 +64,49 @@
                     ?>
                     <tr>
                         <td>
-                            <a href="/warehouse/items/<?= $item['id'] ?>">
-                                <strong><?= $this->e($item['sku']) ?></strong>
+                            <a href="/warehouse/items/<?= $item['id'] ?>" class="fw-medium text-primary">
+                                <?= $this->e($item['sku']) ?>
                             </a>
                         </td>
                         <td><?= $this->e($item['name']) ?></td>
                         <td><?= $this->e($item['category'] ?? '-') ?></td>
-                        <td class="text-right"><?= number_format($item['min_stock'], 0) ?> <?= $this->__('unit_' . $item['unit']) ?></td>
-                        <td class="text-right">
+                        <td class="text-end"><?= number_format($item['min_stock'], 0) ?> <?= $this->__('unit_' . $item['unit']) ?></td>
+                        <td class="text-end">
                             <?php if ($item['current_stock'] <= 0): ?>
-                            <span class="text-danger"><strong>0</strong></span>
+                            <span class="text-danger fw-semibold">0</span>
                             <?php else: ?>
                             <?= number_format($item['current_stock'], 3) ?>
                             <?php endif; ?>
                         </td>
-                        <td class="text-right">
+                        <td class="text-end">
                             <?php if ($item['reserved'] > 0): ?>
                             <span class="text-warning"><?= number_format($item['reserved'], 3) ?></span>
                             <?php else: ?>
-                            -
+                            <span class="text-muted">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-right">
+                        <td class="text-end">
                             <?php if ($available <= 0): ?>
-                            <span class="text-danger"><strong><?= number_format($available, 3) ?></strong></span>
+                            <span class="badge bg-danger"><?= number_format($available, 3) ?></span>
                             <?php else: ?>
                             <?= number_format($available, 3) ?>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <span class="badge badge-<?= $statusClass ?>"><?= $statusText ?></span>
-                            <div class="progress-bar">
-                                <div class="progress-fill progress-<?= $statusClass ?>" style="width: <?= min(100, $percentage) ?>%"></div>
+                            <span class="badge bg-<?= $statusClass ?>-subtle text-<?= $statusClass ?>"><?= $statusText ?></span>
+                            <div class="progress mt-1" style="height: 4px;">
+                                <div class="progress-bar bg-<?= $statusClass ?>" role="progressbar" style="width: <?= min(100, $percentage) ?>%"></div>
                             </div>
                         </td>
                         <td>
-                            <a href="/warehouse/stock/<?= $item['id'] ?>" class="btn btn-sm btn-secondary"><?= $this->__('view_stock') ?></a>
-                            <a href="/warehouse/documents/create?type=receipt&item=<?= $item['id'] ?>" class="btn btn-sm btn-primary">+ <?= $this->__('receipt') ?></a>
+                            <div class="d-flex gap-1">
+                                <a href="/warehouse/stock/<?= $item['id'] ?>" class="btn btn-sm btn-soft-primary" title="<?= $this->__('view_stock') ?>">
+                                    <i class="ri-eye-line"></i>
+                                </a>
+                                <a href="/warehouse/documents/create?type=receipt&item=<?= $item['id'] ?>" class="btn btn-sm btn-success" title="<?= $this->__('receipt') ?>">
+                                    <i class="ri-add-line"></i> <?= $this->__('receipt') ?>
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -104,38 +116,5 @@
         </div>
     </div>
 </div>
-
-<style>
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-.page-header h1 { margin: 0; }
-.alert {
-    padding: 15px 20px;
-    border-radius: 6px;
-}
-.alert-warning {
-    background-color: rgba(255, 193, 7, 0.1);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-    color: #856404;
-}
-.text-right { text-align: right; }
-.progress-bar {
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    margin-top: 5px;
-    overflow: hidden;
-}
-.progress-fill {
-    height: 100%;
-    border-radius: 2px;
-}
-.progress-danger { background: var(--danger); }
-.progress-warning { background: var(--warning); }
-</style>
 
 <?php $this->endSection(); ?>

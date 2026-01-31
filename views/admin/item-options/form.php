@@ -1,210 +1,155 @@
 <?php $this->section('content'); ?>
 
-<div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/admin/item-options/<?= $this->e($group) ?>" class="btn btn-secondary">&laquo; <?= $this->__('back_to_list') ?></a>
-</div>
-
 <?php
     $action = $option
         ? "/admin/item-options/{$group}/{$option['id']}"
         : "/admin/item-options/{$group}";
 ?>
 
-<div class="card" style="max-width: 700px;">
-    <div class="card-header"><?= $option ? $this->__('edit_item_option') : $this->__('create_item_option') ?></div>
-    <div class="card-body">
-        <form method="POST" action="<?= $this->e($action) ?>">
-            <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-
-            <div class="form-group">
-                <label for="name"><?= $this->__('name') ?> *</label>
-                <input type="text" id="name" name="name" required maxlength="150"
-                       value="<?= $this->e($option['name'] ?? $this->old('name')) ?>">
-                <?php if ($this->hasError('name')): ?>
-                <span class="error"><?= $this->error('name') ?></span>
-                <?php endif; ?>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><?= $option ? $this->__('edit_item_option') : $this->__('create_item_option') ?></h5>
             </div>
+            <div class="card-body">
+                <form method="POST" action="<?= $this->e($action) ?>">
+                    <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
 
-            <?php if ($showFilament): ?>
-            <div class="form-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" name="is_filament" value="1"
-                           <?= ($option['is_filament'] ?? $this->old('is_filament')) ? 'checked' : '' ?>>
-                    <?= $this->__('filament') ?>
-                </label>
-            </div>
-            <?php endif; ?>
-
-            <?php if (!empty($showColor)): ?>
-            <div class="form-group">
-                <label><?= $this->__('alias_color') ?></label>
-                <input type="hidden" name="color" id="colorValue"
-                       value="<?= $this->e($option['color'] ?? $this->old('color', '')) ?>">
-
-                <div class="color-picker-wrapper">
-                    <div class="color-mode-tabs">
-                        <button type="button" class="color-tab active" data-mode="rgb">RGB</button>
-                        <button type="button" class="color-tab" data-mode="cmyk">CMYK</button>
+                    <div class="mb-3">
+                        <label for="name" class="form-label"><?= $this->__('name') ?> <span class="text-danger">*</span></label>
+                        <input type="text" id="name" name="name" class="form-control" required maxlength="150"
+                               value="<?= $this->e($option['name'] ?? $this->old('name')) ?>">
+                        <?php if ($this->hasError('name')): ?>
+                        <div class="invalid-feedback d-block"><?= $this->error('name') ?></div>
+                        <?php endif; ?>
                     </div>
 
-                    <div class="color-mode-content" id="colorModeRgb">
-                        <div class="color-rgb-row">
-                            <input type="color" id="colorPicker"
-                                   value="<?= $this->e($option['color'] ?? '#3498db') ?>"
-                                   class="color-input-native">
-                            <input type="text" id="colorHex" placeholder="#RRGGBB" maxlength="7"
-                                   value="<?= $this->e($option['color'] ?? '') ?>"
-                                   class="color-input-hex">
-                            <div class="color-rgb-inputs">
-                                <label>R <input type="number" id="colorR" min="0" max="255" class="color-num-input"></label>
-                                <label>G <input type="number" id="colorG" min="0" max="255" class="color-num-input"></label>
-                                <label>B <input type="number" id="colorB" min="0" max="255" class="color-num-input"></label>
+                    <?php if ($showFilament): ?>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" name="is_filament" value="1" id="is_filament" class="form-check-input"
+                                   <?= ($option['is_filament'] ?? $this->old('is_filament')) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="is_filament"><?= $this->__('filament') ?></label>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($showColor)): ?>
+                    <div class="mb-3">
+                        <label class="form-label"><?= $this->__('alias_color') ?></label>
+                        <input type="hidden" name="color" id="colorValue"
+                               value="<?= $this->e($option['color'] ?? $this->old('color', '')) ?>">
+
+                        <div class="card border">
+                            <div class="card-body">
+                                <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" data-bs-toggle="tab" href="#colorModeRgb" role="tab">RGB</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#colorModeCmyk" role="tab">CMYK</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content pt-3">
+                                    <div class="tab-pane active" id="colorModeRgb" role="tabpanel">
+                                        <div class="d-flex gap-3 align-items-center flex-wrap">
+                                            <input type="color" id="colorPicker"
+                                                   value="<?= $this->e($option['color'] ?? '#3498db') ?>"
+                                                   class="form-control form-control-color">
+                                            <input type="text" id="colorHex" placeholder="#RRGGBB" maxlength="7"
+                                                   value="<?= $this->e($option['color'] ?? '') ?>"
+                                                   class="form-control" style="width: 100px; font-family: monospace;">
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <label class="form-label mb-0 small">R</label>
+                                                    <input type="number" id="colorR" min="0" max="255" class="form-control form-control-sm" style="width: 60px;">
+                                                </div>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <label class="form-label mb-0 small">G</label>
+                                                    <input type="number" id="colorG" min="0" max="255" class="form-control form-control-sm" style="width: 60px;">
+                                                </div>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <label class="form-label mb-0 small">B</label>
+                                                    <input type="number" id="colorB" min="0" max="255" class="form-control form-control-sm" style="width: 60px;">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane" id="colorModeCmyk" role="tabpanel">
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <div class="d-flex align-items-center gap-1">
+                                                <label class="form-label mb-0 small">C</label>
+                                                <input type="number" id="colorC" min="0" max="100" value="0" class="form-control form-control-sm" style="width: 60px;">
+                                                <span class="small text-muted">%</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <label class="form-label mb-0 small">M</label>
+                                                <input type="number" id="colorM" min="0" max="100" value="0" class="form-control form-control-sm" style="width: 60px;">
+                                                <span class="small text-muted">%</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <label class="form-label mb-0 small">Y</label>
+                                                <input type="number" id="colorY" min="0" max="100" value="0" class="form-control form-control-sm" style="width: 60px;">
+                                                <span class="small text-muted">%</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <label class="form-label mb-0 small">K</label>
+                                                <input type="number" id="colorK" min="0" max="100" value="0" class="form-control form-control-sm" style="width: 60px;">
+                                                <span class="small text-muted">%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mt-3 pt-3 border-top">
+                                    <span class="text-muted"><?= $this->__('preview') ?>:</span>
+                                    <span class="badge rounded-pill px-3 py-2" id="colorPreviewBadge" style="font-size: 14px;">
+                                        <?= $this->e($option['name'] ?? 'Alias') ?>
+                                    </span>
+                                    <button type="button" class="btn btn-soft-secondary btn-sm" id="colorClearBtn">
+                                        <i class="ri-close-line me-1"></i>
+                                        <?= $this->__('clear') ?>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <?php endif; ?>
 
-                    <div class="color-mode-content" id="colorModeCmyk" style="display:none;">
-                        <div class="color-cmyk-inputs">
-                            <label>C <input type="number" id="colorC" min="0" max="100" value="0" class="color-num-input"> %</label>
-                            <label>M <input type="number" id="colorM" min="0" max="100" value="0" class="color-num-input"> %</label>
-                            <label>Y <input type="number" id="colorY" min="0" max="100" value="0" class="color-num-input"> %</label>
-                            <label>K <input type="number" id="colorK" min="0" max="100" value="0" class="color-num-input"> %</label>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input type="checkbox" name="is_active" value="1" id="is_active" class="form-check-input"
+                                   <?= ($option['is_active'] ?? $this->old('is_active', 1)) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="is_active"><?= $this->__('active') ?></label>
                         </div>
                     </div>
 
-                    <div class="color-preview-row">
-                        <span><?= $this->__('preview') ?>:</span>
-                        <span class="color-preview-badge" id="colorPreviewBadge">
-                            <?= $this->e($option['name'] ?? 'Alias') ?>
-                        </span>
-                        <button type="button" class="btn btn-sm btn-outline" id="colorClearBtn"><?= $this->__('clear') ?></button>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="ri-save-line me-1"></i>
+                            <?= $option ? $this->__('save_changes') : $this->__('create_item_option') ?>
+                        </button>
+                        <a href="/admin/item-options/<?= $this->e($group) ?>" class="btn btn-soft-secondary">
+                            <i class="ri-arrow-left-line me-1"></i>
+                            <?= $this->__('cancel') ?>
+                        </a>
                     </div>
-                </div>
+                </form>
             </div>
-            <?php endif; ?>
+        </div>
+    </div>
 
-            <div class="form-group">
-                <label class="checkbox-label">
-                    <input type="checkbox" name="is_active" value="1"
-                           <?= ($option['is_active'] ?? $this->old('is_active', 1)) ? 'checked' : '' ?>>
-                    <?= $this->__('active') ?>
-                </label>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <a href="/admin/item-options/<?= $this->e($group) ?>" class="btn btn-soft-primary w-100">
+                    <i class="ri-arrow-left-line me-1"></i>
+                    <?= $this->__('back_to_list') ?>
+                </a>
             </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <?= $option ? $this->__('save_changes') : $this->__('create_item_option') ?>
-                </button>
-                <a href="/admin/item-options/<?= $this->e($group) ?>" class="btn btn-secondary"><?= $this->__('cancel') ?></a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-
-<style>
-.checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-
-.color-picker-wrapper {
-    border: 1px solid var(--border, #e2e8f0);
-    border-radius: 8px;
-    padding: 15px;
-    background: var(--bg-secondary, #f8f9fa);
-}
-
-.color-mode-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 15px;
-    border-bottom: 2px solid var(--border, #e2e8f0);
-}
-
-.color-tab {
-    padding: 8px 20px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--text-muted, #6b7280);
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: color 0.2s, border-color 0.2s;
-}
-
-.color-tab:hover {
-    color: var(--text, #1f2937);
-}
-
-.color-tab.active {
-    color: var(--primary, #007bff);
-    border-bottom-color: var(--primary, #007bff);
-}
-
-.color-rgb-row {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.color-input-native {
-    width: 50px;
-    height: 40px;
-    border: 1px solid var(--border, #e2e8f0);
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 2px;
-}
-
-.color-input-hex {
-    width: 100px;
-    font-family: monospace;
-    font-size: 0.95rem;
-    text-transform: uppercase;
-}
-
-.color-rgb-inputs, .color-cmyk-inputs {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.color-rgb-inputs label, .color-cmyk-inputs label {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-muted, #6b7280);
-}
-
-.color-num-input {
-    width: 60px;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
-.color-preview-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 15px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border, #e2e8f0);
-    font-size: 0.9rem;
-    color: var(--text-muted, #6b7280);
-}
-
-.color-preview-badge {
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #fff;
-    background: #3498db;
-}
-</style>
 
 <?php if (!empty($showColor)): ?>
 <script>
@@ -222,9 +167,6 @@
     const preview = document.getElementById('colorPreviewBadge');
     const nameInput = document.getElementById('name');
     const clearBtn = document.getElementById('colorClearBtn');
-    const tabs = document.querySelectorAll('.color-tab');
-    const rgbPanel = document.getElementById('colorModeRgb');
-    const cmykPanel = document.getElementById('colorModeCmyk');
 
     function hexToRgb(hex) {
         hex = hex.replace('#', '');
@@ -287,16 +229,6 @@
     if (saved && saved.match(/^#[0-9a-fA-F]{6}$/)) {
         updateAll(saved, 'init');
     }
-
-    // Tab switching
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            tabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            rgbPanel.style.display = this.dataset.mode === 'rgb' ? '' : 'none';
-            cmykPanel.style.display = this.dataset.mode === 'cmyk' ? '' : 'none';
-        });
-    });
 
     picker.addEventListener('input', () => updateAll(picker.value, 'picker'));
 

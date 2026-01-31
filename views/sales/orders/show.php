@@ -1,114 +1,180 @@
 <?php $this->section('content'); ?>
 
-<div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/sales/orders" class="btn btn-secondary">&laquo; <?= $this->__('back_to_list') ?></a>
-    <a href="/sales/orders/<?= $order['id'] ?>/edit" class="btn btn-primary"><?= $this->__('edit') ?></a>
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0"><?= $this->__('order_details') ?></h4>
+            <div class="page-title-right">
+                <div class="d-flex gap-2">
+                    <a href="/sales/orders" class="btn btn-soft-secondary">
+                        <i class="ri-arrow-left-line align-bottom me-1"></i> <?= $this->__('back_to_list') ?>
+                    </a>
+                    <a href="/sales/orders/<?= $order['id'] ?>/edit" class="btn btn-soft-primary">
+                        <i class="ri-pencil-line align-bottom me-1"></i> <?= $this->__('edit') ?>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="order-show-grid">
+<div class="row">
     <!-- Main Content -->
-    <div class="order-main">
+    <div class="col-xl-8">
         <!-- Order Header -->
-        <div class="card order-header-card">
-            <div class="order-header">
-                <div class="order-number">
-                    <h1><?= $this->e($order['order_number']) ?></h1>
-                    <?php if ($order['external_id']): ?>
-                        <span class="external-id"><?= $this->__('external_id') ?>: <?= $this->e($order['external_id']) ?></span>
-                    <?php endif; ?>
-                </div>
-                <div class="order-badges">
-                    <span class="badge badge-source-<?= $order['source'] ?>">
-                        <?= $this->__('source_' . $order['source']) ?>
-                    </span>
-                    <span class="badge badge-status-<?= $order['status'] ?>">
-                        <?= $this->__('order_status_' . $order['status']) ?>
-                    </span>
-                    <span class="badge badge-payment-<?= $order['payment_status'] ?>">
-                        <?= $this->__('payment_status_' . $order['payment_status']) ?>
-                    </span>
+        <div class="card">
+            <div class="card-header bg-primary-subtle">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div>
+                        <h5 class="card-title mb-1"><?= $this->e($order['order_number']) ?></h5>
+                        <?php if ($order['external_id']): ?>
+                            <p class="text-muted mb-0">
+                                <i class="ri-external-link-line me-1"></i>
+                                <?= $this->__('external_id') ?>: <?= $this->e($order['external_id']) ?>
+                            </p>
+                        <?php endif; ?>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <?php
+                        $sourceClasses = [
+                            'woocommerce' => 'bg-purple-subtle text-purple',
+                            'instagram' => 'bg-danger-subtle text-danger',
+                            'offline' => 'bg-secondary-subtle text-secondary',
+                            'manual' => 'bg-info-subtle text-info'
+                        ];
+                        $sourceClass = $sourceClasses[$order['source']] ?? 'bg-secondary-subtle text-secondary';
+                        ?>
+                        <span class="badge <?= $sourceClass ?> fs-12">
+                            <i class="ri-store-2-line me-1"></i><?= $this->__('source_' . $order['source']) ?>
+                        </span>
+                        <?php
+                        $statusClasses = [
+                            'pending' => 'bg-warning-subtle text-warning',
+                            'processing' => 'bg-info-subtle text-info',
+                            'on_hold' => 'bg-secondary-subtle text-secondary',
+                            'shipped' => 'bg-primary-subtle text-primary',
+                            'delivered' => 'bg-success-subtle text-success',
+                            'completed' => 'bg-success-subtle text-success',
+                            'cancelled' => 'bg-danger-subtle text-danger',
+                            'refunded' => 'bg-dark-subtle text-dark'
+                        ];
+                        $statusClass = $statusClasses[$order['status']] ?? 'bg-secondary-subtle text-secondary';
+                        ?>
+                        <span class="badge <?= $statusClass ?> fs-12">
+                            <i class="ri-checkbox-circle-line me-1"></i><?= $this->__('order_status_' . $order['status']) ?>
+                        </span>
+                        <?php
+                        $paymentClasses = [
+                            'pending' => 'bg-warning-subtle text-warning',
+                            'paid' => 'bg-success-subtle text-success',
+                            'partial' => 'bg-info-subtle text-info',
+                            'refunded' => 'bg-secondary-subtle text-secondary',
+                            'failed' => 'bg-danger-subtle text-danger'
+                        ];
+                        $paymentClass = $paymentClasses[$order['payment_status']] ?? 'bg-secondary-subtle text-secondary';
+                        ?>
+                        <span class="badge <?= $paymentClass ?> fs-12">
+                            <i class="ri-money-dollar-circle-line me-1"></i><?= $this->__('payment_status_' . $order['payment_status']) ?>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Order Items -->
         <div class="card">
-            <div class="card-header"><?= $this->__('order_items') ?></div>
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-shopping-cart-line align-bottom me-1"></i> <?= $this->__('order_items') ?>
+                </h5>
+            </div>
             <div class="card-body">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th><?= $this->__('sku') ?></th>
-                            <th><?= $this->__('product') ?></th>
-                            <th class="text-center"><?= $this->__('qty') ?></th>
-                            <th class="text-right"><?= $this->__('unit_price') ?></th>
-                            <th class="text-right"><?= $this->__('total') ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($items as $item): ?>
-                        <tr>
-                            <td>
-                                <?= $this->e($item['sku'] ?: '-') ?>
-                            </td>
-                            <td>
-                                <strong><?= $this->e($item['name']) ?></strong>
-                                <?php if ($item['variant_info']): ?>
-                                    <br><small class="text-muted"><?= $this->e($item['variant_info']) ?></small>
-                                <?php endif; ?>
-                                <?php if ($item['product_id'] && $item['product_name_local']): ?>
-                                    <br><a href="/catalog/products/<?= $item['product_id'] ?>" class="text-muted small">
-                                        <?= $this->__('local_product') ?>: <?= $this->e($item['product_name_local']) ?>
-                                    </a>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center"><?= (int)$item['quantity'] ?></td>
-                            <td class="text-right"><?= number_format((float)$item['unit_price'], 2) ?></td>
-                            <td class="text-right"><strong><?= number_format((float)$item['total'], 2) ?></strong></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="4" class="text-right"><?= $this->__('subtotal') ?>:</td>
-                            <td class="text-right"><?= number_format((float)$order['subtotal'], 2) ?></td>
-                        </tr>
-                        <?php if ((float)$order['shipping_cost'] > 0): ?>
-                        <tr>
-                            <td colspan="4" class="text-right"><?= $this->__('shipping') ?>:</td>
-                            <td class="text-right"><?= number_format((float)$order['shipping_cost'], 2) ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if ((float)$order['discount'] > 0): ?>
-                        <tr>
-                            <td colspan="4" class="text-right"><?= $this->__('discount') ?>:</td>
-                            <td class="text-right">-<?= number_format((float)$order['discount'], 2) ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        <tr class="total-row">
-                            <td colspan="4" class="text-right"><strong><?= $this->__('total') ?>:</strong></td>
-                            <td class="text-right"><strong><?= number_format((float)$order['total'], 2) ?> <?= $this->e($order['currency']) ?></strong></td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th><?= $this->__('sku') ?></th>
+                                <th><?= $this->__('product') ?></th>
+                                <th class="text-center"><?= $this->__('qty') ?></th>
+                                <th class="text-end"><?= $this->__('unit_price') ?></th>
+                                <th class="text-end"><?= $this->__('total') ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($items as $item): ?>
+                            <tr>
+                                <td>
+                                    <span class="badge bg-light text-body"><?= $this->e($item['sku'] ?: '-') ?></span>
+                                </td>
+                                <td>
+                                    <h6 class="mb-0"><?= $this->e($item['name']) ?></h6>
+                                    <?php if ($item['variant_info']): ?>
+                                        <small class="text-muted"><?= $this->e($item['variant_info']) ?></small>
+                                    <?php endif; ?>
+                                    <?php if ($item['product_id'] && $item['product_name_local']): ?>
+                                        <br><a href="/catalog/products/<?= $item['product_id'] ?>" class="link-secondary small">
+                                            <i class="ri-link me-1"></i><?= $this->__('local_product') ?>: <?= $this->e($item['product_name_local']) ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary-subtle text-primary"><?= (int)$item['quantity'] ?></span>
+                                </td>
+                                <td class="text-end"><?= number_format((float)$item['unit_price'], 2) ?></td>
+                                <td class="text-end fw-semibold"><?= number_format((float)$item['total'], 2) ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="4" class="text-end"><?= $this->__('subtotal') ?>:</td>
+                                <td class="text-end"><?= number_format((float)$order['subtotal'], 2) ?></td>
+                            </tr>
+                            <?php if ((float)$order['shipping_cost'] > 0): ?>
+                            <tr>
+                                <td colspan="4" class="text-end"><?= $this->__('shipping') ?>:</td>
+                                <td class="text-end"><?= number_format((float)$order['shipping_cost'], 2) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if ((float)$order['discount'] > 0): ?>
+                            <tr>
+                                <td colspan="4" class="text-end"><?= $this->__('discount') ?>:</td>
+                                <td class="text-end text-danger">-<?= number_format((float)$order['discount'], 2) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <tr class="fw-bold">
+                                <td colspan="4" class="text-end fs-15"><?= $this->__('total') ?>:</td>
+                                <td class="text-end fs-15"><?= number_format((float)$order['total'], 2) ?> <?= $this->e($order['currency']) ?></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- Notes -->
         <?php if ($order['notes'] || $order['internal_notes']): ?>
-        <div class="card" style="margin-top: 20px;">
-            <div class="card-header"><?= $this->__('notes') ?></div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-file-text-line align-bottom me-1"></i> <?= $this->__('notes') ?>
+                </h5>
+            </div>
             <div class="card-body">
                 <?php if ($order['notes']): ?>
-                    <div class="note-section">
-                        <strong><?= $this->__('customer_notes') ?>:</strong>
-                        <p><?= nl2br($this->e($order['notes'])) ?></p>
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">
+                            <i class="ri-user-line me-1"></i> <?= $this->__('customer_notes') ?>
+                        </h6>
+                        <p class="mb-0"><?= nl2br($this->e($order['notes'])) ?></p>
                     </div>
                 <?php endif; ?>
                 <?php if ($order['internal_notes']): ?>
-                    <div class="note-section internal">
-                        <strong><?= $this->__('internal_notes') ?>:</strong>
-                        <p><?= nl2br($this->e($order['internal_notes'])) ?></p>
+                    <div class="alert alert-warning mb-0">
+                        <h6 class="alert-heading mb-2">
+                            <i class="ri-lock-line me-1"></i> <?= $this->__('internal_notes') ?>
+                        </h6>
+                        <p class="mb-0"><?= nl2br($this->e($order['internal_notes'])) ?></p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -117,15 +183,19 @@
     </div>
 
     <!-- Sidebar -->
-    <div class="order-sidebar">
+    <div class="col-xl-4">
         <!-- Quick Status Update -->
         <div class="card">
-            <div class="card-header"><?= $this->__('update_status') ?></div>
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-refresh-line align-bottom me-1"></i> <?= $this->__('update_status') ?>
+                </h5>
+            </div>
             <div class="card-body">
                 <form method="POST" action="/sales/orders/<?= $order['id'] ?>/status">
                     <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                    <div class="form-group">
-                        <select name="status" class="status-select">
+                    <div class="mb-3">
+                        <select name="status" class="form-select">
                             <?php foreach ($statuses as $st): ?>
                                 <option value="<?= $this->e($st['code']) ?>" <?= $order['status'] === $st['code'] ? 'selected' : '' ?>
                                         data-color="<?= $this->e($st['color']) ?>">
@@ -134,70 +204,112 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block"><?= $this->__('update') ?></button>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ri-check-line me-1"></i> <?= $this->__('update') ?>
+                    </button>
                 </form>
             </div>
         </div>
 
         <!-- Customer Info -->
-        <div class="card" style="margin-top: 15px;">
-            <div class="card-header"><?= $this->__('customer') ?></div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-user-line align-bottom me-1"></i> <?= $this->__('customer') ?>
+                </h5>
+            </div>
             <div class="card-body">
-                <?php if ($order['customer_name']): ?>
-                    <div class="info-row">
-                        <strong><?= $this->e($order['customer_name']) ?></strong>
-                    </div>
-                <?php endif; ?>
-                <?php if ($order['customer_email']): ?>
-                    <div class="info-row">
-                        <a href="mailto:<?= $this->e($order['customer_email']) ?>"><?= $this->e($order['customer_email']) ?></a>
-                    </div>
-                <?php endif; ?>
-                <?php if ($order['customer_phone']): ?>
-                    <div class="info-row">
-                        <a href="tel:<?= $this->e($order['customer_phone']) ?>"><?= $this->e($order['customer_phone']) ?></a>
-                    </div>
-                <?php endif; ?>
-                <?php if (!$order['customer_name'] && !$order['customer_email'] && !$order['customer_phone']): ?>
-                    <p class="text-muted"><?= $this->__('no_customer_info') ?></p>
+                <?php if ($order['customer_name'] || $order['customer_email'] || $order['customer_phone']): ?>
+                    <?php if ($order['customer_name']): ?>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="flex-shrink-0">
+                                <i class="ri-user-3-line text-muted me-2"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0"><?= $this->e($order['customer_name']) ?></h6>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($order['customer_email']): ?>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="flex-shrink-0">
+                                <i class="ri-mail-line text-muted me-2"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <a href="mailto:<?= $this->e($order['customer_email']) ?>" class="link-primary">
+                                    <?= $this->e($order['customer_email']) ?>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ($order['customer_phone']): ?>
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <i class="ri-phone-line text-muted me-2"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <a href="tel:<?= $this->e($order['customer_phone']) ?>" class="link-primary">
+                                    <?= $this->e($order['customer_phone']) ?>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <p class="text-muted mb-0">
+                        <i class="ri-information-line me-1"></i> <?= $this->__('no_customer_info') ?>
+                    </p>
                 <?php endif; ?>
             </div>
         </div>
 
         <!-- Shipping -->
-        <div class="card" style="margin-top: 15px;">
-            <div class="card-header"><?= $this->__('shipping') ?></div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-truck-line align-bottom me-1"></i> <?= $this->__('shipping') ?>
+                </h5>
+            </div>
             <div class="card-body">
                 <?php if ($order['shipping_address'] || $order['shipping_city']): ?>
-                    <div class="info-row">
-                        <?php if ($order['shipping_address']): ?>
-                            <?= nl2br($this->e($order['shipping_address'])) ?><br>
-                        <?php endif; ?>
-                        <?php if ($order['shipping_city']): ?>
-                            <?= $this->e($order['shipping_city']) ?>
-                            <?php if ($order['shipping_postal_code']): ?>
-                                , <?= $this->e($order['shipping_postal_code']) ?>
-                            <?php endif; ?>
-                        <?php endif; ?>
+                    <div class="mb-3">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="ri-map-pin-line text-muted me-2"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <?php if ($order['shipping_address']): ?>
+                                    <?= nl2br($this->e($order['shipping_address'])) ?><br>
+                                <?php endif; ?>
+                                <?php if ($order['shipping_city']): ?>
+                                    <?= $this->e($order['shipping_city']) ?>
+                                    <?php if ($order['shipping_postal_code']): ?>
+                                        , <?= $this->e($order['shipping_postal_code']) ?>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($order['shipping_method']): ?>
-                    <div class="info-row" style="margin-top: 10px;">
-                        <small class="text-muted"><?= $this->__('method') ?>:</small><br>
-                        <?= $this->e($order['shipping_method']) ?>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1"><?= $this->__('method') ?></small>
+                        <span class="badge bg-light text-body">
+                            <i class="ri-truck-line me-1"></i><?= $this->e($order['shipping_method']) ?>
+                        </span>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($order['tracking_number']): ?>
-                    <div class="info-row tracking" style="margin-top: 10px;">
-                        <small class="text-muted"><?= $this->__('tracking') ?>:</small><br>
+                    <div>
+                        <small class="text-muted d-block mb-1"><?= $this->__('tracking') ?></small>
                         <?php if ($order['tracking_url']): ?>
-                            <a href="<?= $this->e($order['tracking_url']) ?>" target="_blank">
-                                <?= $this->e($order['tracking_number']) ?>
+                            <a href="<?= $this->e($order['tracking_url']) ?>" target="_blank" class="btn btn-soft-info btn-sm">
+                                <i class="ri-truck-line me-1"></i><?= $this->e($order['tracking_number']) ?>
+                                <i class="ri-external-link-line ms-1"></i>
                             </a>
                         <?php else: ?>
-                            <?= $this->e($order['tracking_number']) ?>
+                            <span class="badge bg-info-subtle text-info"><?= $this->e($order['tracking_number']) ?></span>
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
@@ -205,54 +317,84 @@
         </div>
 
         <!-- Payment -->
-        <div class="card" style="margin-top: 15px;">
-            <div class="card-header"><?= $this->__('payment') ?></div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-bank-card-line align-bottom me-1"></i> <?= $this->__('payment') ?>
+                </h5>
+            </div>
             <div class="card-body">
-                <div class="info-row">
-                    <span class="badge badge-payment-<?= $order['payment_status'] ?>">
+                <div class="mb-3">
+                    <?php
+                    $paymentClasses = [
+                        'pending' => 'bg-warning-subtle text-warning',
+                        'paid' => 'bg-success-subtle text-success',
+                        'partial' => 'bg-info-subtle text-info',
+                        'refunded' => 'bg-secondary-subtle text-secondary',
+                        'failed' => 'bg-danger-subtle text-danger'
+                    ];
+                    $paymentClass = $paymentClasses[$order['payment_status']] ?? 'bg-secondary-subtle text-secondary';
+                    ?>
+                    <span class="badge <?= $paymentClass ?> fs-12">
                         <?= $this->__('payment_status_' . $order['payment_status']) ?>
                     </span>
                 </div>
                 <?php if ($order['payment_method']): ?>
-                    <div class="info-row" style="margin-top: 10px;">
-                        <small class="text-muted"><?= $this->__('method') ?>:</small><br>
-                        <?= $this->e($order['payment_method']) ?>
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1"><?= $this->__('method') ?></small>
+                        <span><?= $this->e($order['payment_method']) ?></span>
                     </div>
                 <?php endif; ?>
                 <?php if ($order['paid_at']): ?>
-                    <div class="info-row" style="margin-top: 10px;">
-                        <small class="text-muted"><?= $this->__('paid_at') ?>:</small><br>
-                        <?= $this->datetime($order['paid_at']) ?>
+                    <div>
+                        <small class="text-muted d-block mb-1"><?= $this->__('paid_at') ?></small>
+                        <span><i class="ri-calendar-check-line me-1"></i><?= $this->datetime($order['paid_at']) ?></span>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
 
         <!-- Timeline -->
-        <div class="card" style="margin-top: 15px;">
-            <div class="card-header"><?= $this->__('timeline') ?></div>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-time-line align-bottom me-1"></i> <?= $this->__('timeline') ?>
+                </h5>
+            </div>
             <div class="card-body">
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <span class="timeline-date"><?= $this->datetime($order['ordered_at'] ?: $order['created_at']) ?></span>
-                        <span class="timeline-label"><?= $this->__('order_placed') ?></span>
+                <div class="timeline-2">
+                    <div class="timeline-2-item">
+                        <i class="ri-checkbox-circle-fill text-success timeline-2-icon"></i>
+                        <div class="timeline-2-content">
+                            <p class="mb-0 fw-medium"><?= $this->__('order_placed') ?></p>
+                            <small class="text-muted"><?= $this->datetime($order['ordered_at'] ?: $order['created_at']) ?></small>
+                        </div>
                     </div>
                     <?php if ($order['shipped_at']): ?>
-                    <div class="timeline-item">
-                        <span class="timeline-date"><?= $this->datetime($order['shipped_at']) ?></span>
-                        <span class="timeline-label"><?= $this->__('order_shipped') ?></span>
+                    <div class="timeline-2-item">
+                        <i class="ri-truck-fill text-primary timeline-2-icon"></i>
+                        <div class="timeline-2-content">
+                            <p class="mb-0 fw-medium"><?= $this->__('order_shipped') ?></p>
+                            <small class="text-muted"><?= $this->datetime($order['shipped_at']) ?></small>
+                        </div>
                     </div>
                     <?php endif; ?>
                     <?php if ($order['delivered_at']): ?>
-                    <div class="timeline-item">
-                        <span class="timeline-date"><?= $this->datetime($order['delivered_at']) ?></span>
-                        <span class="timeline-label"><?= $this->__('order_delivered') ?></span>
+                    <div class="timeline-2-item">
+                        <i class="ri-home-smile-fill text-success timeline-2-icon"></i>
+                        <div class="timeline-2-content">
+                            <p class="mb-0 fw-medium"><?= $this->__('order_delivered') ?></p>
+                            <small class="text-muted"><?= $this->datetime($order['delivered_at']) ?></small>
+                        </div>
                     </div>
                     <?php endif; ?>
                     <?php if ($order['synced_at']): ?>
-                    <div class="timeline-item sync">
-                        <span class="timeline-date"><?= $this->datetime($order['synced_at']) ?></span>
-                        <span class="timeline-label"><?= $this->__('last_synced') ?></span>
+                    <div class="timeline-2-item">
+                        <i class="ri-refresh-fill text-info timeline-2-icon"></i>
+                        <div class="timeline-2-content">
+                            <p class="mb-0 fw-medium"><?= $this->__('last_synced') ?></p>
+                            <small class="text-muted"><?= $this->datetime($order['synced_at']) ?></small>
+                        </div>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -260,19 +402,25 @@
         </div>
 
         <!-- Actions -->
-        <div class="card danger-zone" style="margin-top: 15px;">
-            <div class="card-header"><?= $this->__('actions') ?></div>
+        <div class="card border-danger">
+            <div class="card-header bg-danger-subtle">
+                <h5 class="card-title mb-0 text-danger">
+                    <i class="ri-error-warning-line align-bottom me-1"></i> <?= $this->__('actions') ?>
+                </h5>
+            </div>
             <div class="card-body">
                 <?php if ($order['source_url']): ?>
-                    <a href="<?= $this->e($order['source_url']) ?>" target="_blank" class="btn btn-secondary btn-block" style="margin-bottom: 10px;">
-                        <?= $this->__('view_in_source') ?>
+                    <a href="<?= $this->e($order['source_url']) ?>" target="_blank" class="btn btn-soft-secondary w-100 mb-2">
+                        <i class="ri-external-link-line me-1"></i> <?= $this->__('view_in_source') ?>
                     </a>
                 <?php endif; ?>
 
                 <form method="POST" action="/sales/orders/<?= $order['id'] ?>/delete"
                       onsubmit="return confirm('<?= $this->__('confirm_delete_order') ?>')">
                     <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                    <button type="submit" class="btn btn-danger btn-block"><?= $this->__('delete_order') ?></button>
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="ri-delete-bin-line me-1"></i> <?= $this->__('delete_order') ?>
+                    </button>
                 </form>
             </div>
         </div>
@@ -280,148 +428,39 @@
 </div>
 
 <style>
-.order-show-grid {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 20px;
-}
-
-@media (max-width: 1000px) {
-    .order-show-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-.order-header-card {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-}
-
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.order-number h1 {
-    margin: 0;
-    font-size: 1.8em;
-}
-
-.order-number .external-id {
-    color: var(--text-muted);
-    font-size: 0.85em;
-}
-
-.order-badges {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.total-row td {
-    background: var(--bg-secondary);
-}
-
-.note-section {
-    margin-bottom: 15px;
-}
-
-.note-section:last-child {
-    margin-bottom: 0;
-}
-
-.note-section.internal {
-    padding: 10px;
-    background: #fff3cd;
-    border-radius: 4px;
-}
-
-.info-row {
-    margin-bottom: 8px;
-}
-
-.info-row:last-child {
-    margin-bottom: 0;
-}
-
-.timeline {
+.timeline-2 {
     position: relative;
-    padding-left: 20px;
+    padding-left: 1.5rem;
 }
-
-.timeline::before {
+.timeline-2::before {
     content: '';
     position: absolute;
-    left: 0;
-    top: 5px;
-    bottom: 5px;
+    left: 0.5rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
     width: 2px;
-    background: var(--border-color);
+    background-color: var(--vz-border-color);
 }
-
-.timeline-item {
+.timeline-2-item {
     position: relative;
-    padding-bottom: 15px;
+    padding-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
 }
-
-.timeline-item::before {
-    content: '';
+.timeline-2-item:last-child {
+    padding-bottom: 0;
+}
+.timeline-2-icon {
     position: absolute;
-    left: -24px;
-    top: 3px;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--primary);
-    border: 2px solid var(--bg-primary);
+    left: -1.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--vz-card-bg);
+    font-size: 1rem;
 }
-
-.timeline-item.sync::before {
-    background: var(--info);
+.timeline-2-content {
+    padding-left: 1rem;
 }
-
-.timeline-date {
-    display: block;
-    font-size: 0.8em;
-    color: var(--text-muted);
-}
-
-.timeline-label {
-    font-weight: 500;
-}
-
-.danger-zone {
-    border-color: var(--danger);
-}
-
-.status-select {
-    width: 100%;
-    padding: 10px;
-    font-size: 1em;
-}
-
-.badge-source-woocommerce { background: #96588a; color: white; }
-.badge-source-instagram { background: #c13584; color: white; }
-.badge-source-offline { background: #6c757d; color: white; }
-.badge-source-manual { background: #17a2b8; color: white; }
-
-.badge-status-pending { background: #ffc107; color: #000; }
-.badge-status-processing { background: #17a2b8; color: white; }
-.badge-status-on_hold { background: #fd7e14; color: white; }
-.badge-status-shipped { background: #6f42c1; color: white; }
-.badge-status-delivered { background: #20c997; color: white; }
-.badge-status-completed { background: #28a745; color: white; }
-.badge-status-cancelled { background: #dc3545; color: white; }
-.badge-status-refunded { background: #6c757d; color: white; }
-
-.badge-payment-pending { background: #ffc107; color: #000; }
-.badge-payment-paid { background: #28a745; color: white; }
-.badge-payment-partial { background: #fd7e14; color: white; }
-.badge-payment-refunded { background: #6c757d; color: white; }
-.badge-payment-failed { background: #dc3545; color: white; }
 </style>
 
 <?php $this->endSection(); ?>

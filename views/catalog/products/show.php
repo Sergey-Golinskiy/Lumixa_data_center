@@ -1,180 +1,188 @@
 <?php $this->section('content'); ?>
 
-<div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/catalog/products" class="btn btn-secondary">&laquo; <?= $this->__('back_to_list') ?></a>
-    <?php if ($this->can('catalog.products.edit')): ?>
-    <a href="/catalog/products/<?= $product['id'] ?>/edit" class="btn btn-outline"><?= $this->__('edit_product') ?></a>
-    <?php endif; ?>
-    <?php if ($this->can('catalog.products.create')): ?>
-    <a href="/catalog/products/<?= $product['id'] ?>/copy" target="_blank" class="btn btn-outline" title="<?= $this->__('copy_product') ?>">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>
-        <?= $this->__('copy') ?>
-    </a>
-    <?php endif; ?>
+<div class="row mb-3">
+    <div class="col-12">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="/catalog/products" class="btn btn-soft-secondary">
+                <i class="ri-arrow-left-line me-1"></i><?= $this->__('back_to_list') ?>
+            </a>
+            <?php if ($this->can('catalog.products.edit')): ?>
+            <a href="/catalog/products/<?= $product['id'] ?>/edit" class="btn btn-soft-primary">
+                <i class="ri-pencil-line me-1"></i><?= $this->__('edit_product') ?>
+            </a>
+            <?php endif; ?>
+            <?php if ($this->can('catalog.products.create')): ?>
+            <a href="/catalog/products/<?= $product['id'] ?>/copy" target="_blank" class="btn btn-soft-info" title="<?= $this->__('copy_product') ?>">
+                <i class="ri-file-copy-line me-1"></i><?= $this->__('copy') ?>
+            </a>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
-<div class="detail-grid">
+<div class="row">
     <!-- Product Information -->
-    <div class="card">
-        <div class="card-header"><?= $this->__('product_information') ?></div>
-        <div class="card-body">
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('photo') ?></span>
-                <span class="detail-value">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-information-line me-2"></i><?= $this->__('product_information') ?>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
                     <?php if (!empty($product['image_path'])): ?>
-                    <img src="/<?= $this->e(ltrim($product['image_path'], '/')) ?>" alt="<?= $this->__('photo') ?>" class="image-thumb" style="width:100px;height:100px;" data-image-preview="/<?= $this->e(ltrim($product['image_path'], '/')) ?>">
+                    <img src="/<?= $this->e(ltrim($product['image_path'], '/')) ?>" alt="<?= $this->e($product['name']) ?>"
+                         class="img-fluid rounded" style="max-width: 200px; cursor: pointer;"
+                         data-image-preview="/<?= $this->e(ltrim($product['image_path'], '/')) ?>">
                     <?php else: ?>
-                    <span class="text-muted">-</span>
+                    <div class="bg-light rounded d-flex align-items-center justify-content-center mx-auto" style="width: 200px; height: 200px;">
+                        <span class="text-muted"><?= $this->__('no_photo') ?></span>
+                    </div>
                     <?php endif; ?>
-                </span>
+                </div>
+                <table class="table table-borderless mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-muted" style="width: 140px;"><?= $this->__('code') ?></td>
+                            <td><strong class="text-primary fs-5"><?= $this->e($product['code'] ?? '') ?></strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted"><?= $this->__('name') ?></td>
+                            <td><?= $this->e($product['name'] ?? '') ?></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted"><?= $this->__('category') ?></td>
+                            <td><?= $this->e($product['category_name'] ?? $product['category'] ?? '-') ?></td>
+                        </tr>
+                        <?php if (!empty($product['collection_name'])): ?>
+                        <tr>
+                            <td class="text-muted"><?= $this->__('collection') ?></td>
+                            <td>
+                                <a href="/catalog/products?collection_id=<?= $this->e($product['collection_id']) ?>" target="_blank" class="badge bg-primary-subtle text-primary text-decoration-none">
+                                    <?= $this->e($product['collection_name']) ?>
+                                    <i class="ri-external-link-line ms-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                        <tr>
+                            <td class="text-muted"><?= $this->__('base_price') ?></td>
+                            <td><strong class="text-success"><?= $this->currency($product['base_price'] ?? 0) ?></strong></td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted"><?= $this->__('status') ?></td>
+                            <td>
+                                <?php if ($product['is_active'] ?? false): ?>
+                                <span class="badge bg-success-subtle text-success"><?= $this->__('active') ?></span>
+                                <?php else: ?>
+                                <span class="badge bg-secondary-subtle text-secondary"><?= $this->__('inactive') ?></span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php if (!empty($product['website_url'])): ?>
+                        <tr>
+                            <td class="text-muted"><?= $this->__('website_url') ?></td>
+                            <td>
+                                <a href="<?= $this->e($product['website_url']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-soft-primary">
+                                    <i class="ri-external-link-line me-1"></i><?= $this->__('open_in_store') ?>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
+                        <?php if ($product['description'] ?? false): ?>
+                        <tr>
+                            <td class="text-muted"><?= $this->__('description') ?></td>
+                            <td><?= nl2br($this->e($product['description'])) ?></td>
+                        </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('code') ?></span>
-                <span class="detail-value"><strong><?= $this->e($product['code'] ?? '') ?></strong></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('name') ?></span>
-                <span class="detail-value"><?= $this->e($product['name'] ?? '') ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('category') ?></span>
-                <span class="detail-value"><?= $this->e($product['category_name'] ?? $product['category'] ?? '-') ?></span>
-            </div>
-            <?php if (!empty($product['collection_name'])): ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('collection') ?></span>
-                <span class="detail-value">
-                    <a href="/catalog/products?collection_id=<?= $this->e($product['collection_id']) ?>" target="_blank" class="collection-link">
-                        <span class="badge badge-collection"><?= $this->e($product['collection_name']) ?></span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-left: 4px;">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                    </a>
-                </span>
-            </div>
-            <?php endif; ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('base_price') ?></span>
-                <span class="detail-value"><?= $this->currency($product['base_price'] ?? 0) ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('status') ?></span>
-                <span class="detail-value">
-                    <?php if ($product['is_active'] ?? false): ?>
-                    <span class="badge badge-success"><?= $this->__('active') ?></span>
-                    <?php else: ?>
-                    <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
-                    <?php endif; ?>
-                </span>
-            </div>
-            <?php if (!empty($product['website_url'])): ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('website_url') ?></span>
-                <span class="detail-value">
-                    <a href="<?= $this->e($product['website_url']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                        <?= $this->__('open_in_store') ?>
-                    </a>
-                </span>
-            </div>
-            <?php endif; ?>
-            <?php if ($product['description'] ?? false): ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('description') ?></span>
-                <span class="detail-value"><?= nl2br($this->e($product['description'])) ?></span>
-            </div>
-            <?php endif; ?>
         </div>
     </div>
 
     <!-- Production Cost Summary -->
-    <div class="card">
-        <div class="card-header"><?= $this->__('production_cost') ?></div>
-        <div class="card-body">
-            <div class="cost-summary">
-                <div class="cost-summary-item">
-                    <span class="cost-label"><?= $this->__('details_cost') ?></span>
-                    <span class="cost-value"><?= $this->currency($costData['details_cost'] ?? 0) ?></span>
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-money-dollar-circle-line me-2"></i><?= $this->__('production_cost') ?>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-dashed">
+                    <span class="text-muted"><?= $this->__('details_cost') ?></span>
+                    <span class="fw-medium"><?= $this->currency($costData['details_cost'] ?? 0) ?></span>
                 </div>
-                <div class="cost-summary-item">
-                    <span class="cost-label"><?= $this->__('components_cost') ?></span>
-                    <span class="cost-value"><?= $this->currency($costData['items_cost'] ?? 0) ?></span>
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-dashed">
+                    <span class="text-muted"><?= $this->__('components_cost') ?></span>
+                    <span class="fw-medium"><?= $this->currency($costData['items_cost'] ?? 0) ?></span>
                 </div>
-                <div class="cost-summary-item">
-                    <span class="cost-label"><?= $this->__('labor_cost') ?></span>
-                    <span class="cost-value"><?= $this->currency($costData['labor_cost'] ?? 0) ?></span>
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-dashed">
+                    <span class="text-muted"><?= $this->__('labor_cost') ?></span>
+                    <span class="fw-medium"><?= $this->currency($costData['labor_cost'] ?? 0) ?></span>
                 </div>
-                <div class="cost-summary-total">
-                    <span class="cost-label"><?= $this->__('total_production_cost') ?></span>
-                    <span class="cost-value"><?= $this->currency($costData['total_cost'] ?? 0) ?></span>
+                <div class="d-flex justify-content-between align-items-center py-3 border-bottom border-2">
+                    <span class="fw-semibold"><?= $this->__('total_production_cost') ?></span>
+                    <span class="fw-bold fs-5"><?= $this->currency($costData['total_cost'] ?? 0) ?></span>
                 </div>
-                <div class="cost-summary-item" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
-                    <span class="cost-label"><?= $this->__('packaging_cost') ?></span>
-                    <span class="cost-value"><?= $this->currency($costData['packaging_cost'] ?? 0) ?></span>
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-dashed mt-2">
+                    <span class="text-muted"><?= $this->__('packaging_cost') ?></span>
+                    <span class="fw-medium"><?= $this->currency($costData['packaging_cost'] ?? 0) ?></span>
                 </div>
-                <div class="cost-summary-total">
-                    <span class="cost-label"><?= $this->__('total_price') ?></span>
-                    <span class="cost-value" style="color: var(--success);"><?= $this->currency($costData['total_price'] ?? 0) ?></span>
+                <div class="d-flex justify-content-between align-items-center py-3">
+                    <span class="fw-semibold"><?= $this->__('total_price') ?></span>
+                    <span class="fw-bold fs-5 text-success"><?= $this->currency($costData['total_price'] ?? 0) ?></span>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
 
 <!-- Product Composition / BOM -->
-<div class="card" style="margin-top: 20px;">
-    <div class="card-header">
-        <?= $this->__('product_composition') ?>
-        <span class="badge badge-secondary"><?= count($components ?? []) ?> <?= $this->__('items') ?></span>
+<div class="card mt-3">
+    <div class="card-header d-flex align-items-center">
+        <h5 class="card-title mb-0 flex-grow-1">
+            <i class="ri-stack-line me-2"></i><?= $this->__('product_composition') ?>
+        </h5>
+        <span class="badge bg-secondary-subtle text-secondary"><?= count($components ?? []) ?> <?= $this->__('items') ?></span>
     </div>
     <div class="card-body">
         <?php if ($this->can('catalog.products.composition')): ?>
         <!-- Add Component Form -->
-        <div class="add-component-section">
+        <div class="bg-light rounded p-3 mb-3">
             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/components" class="add-component-form">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><?= $this->__('component_type') ?></label>
-                        <select name="component_type" id="componentType" required>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label"><?= $this->__('component_type') ?></label>
+                        <select name="component_type" id="componentType" class="form-select" required>
                             <option value=""><?= $this->__('select') ?>...</option>
                             <option value="detail"><?= $this->__('detail_printed') ?></option>
                             <option value="item"><?= $this->__('purchased_component') ?></option>
                         </select>
                     </div>
-
-                    <div class="form-group" id="detailSelectGroup" style="display:none;">
-                        <label><?= $this->__('detail') ?></label>
-                        <select name="detail_id" id="detailSelect">
+                    <div class="col-md-4" id="detailSelectGroup" style="display:none;">
+                        <label class="form-label"><?= $this->__('detail') ?></label>
+                        <select name="detail_id" id="detailSelect" class="form-select">
                             <option value=""><?= $this->__('select') ?>...</option>
                         </select>
                     </div>
-
-                    <div class="form-group" id="itemSelectGroup" style="display:none;">
-                        <label><?= $this->__('component') ?></label>
-                        <select name="item_id" id="itemSelect">
+                    <div class="col-md-4" id="itemSelectGroup" style="display:none;">
+                        <label class="form-label"><?= $this->__('component') ?></label>
+                        <select name="item_id" id="itemSelect" class="form-select">
                             <option value=""><?= $this->__('select') ?>...</option>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label><?= $this->__('quantity') ?></label>
-                        <input type="number" name="quantity" value="1" min="0.0001" step="0.0001" style="width:100px;" required>
+                    <div class="col-md-2">
+                        <label class="form-label"><?= $this->__('quantity') ?></label>
+                        <input type="number" name="quantity" class="form-control" value="1" min="0.0001" step="0.0001" required>
                     </div>
-
-                    <div class="form-group" style="align-self:flex-end;">
-                        <button type="submit" class="btn btn-primary"><?= $this->__('add') ?></button>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="ri-add-line me-1"></i><?= $this->__('add') ?>
+                        </button>
                     </div>
                 </div>
             </form>
@@ -182,27 +190,30 @@
         <?php endif; ?>
 
         <!-- Composition Table -->
-        <div class="table-container" style="margin-top:20px;">
-            <table>
-                <thead>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
                     <tr>
                         <th style="width:60px;"><?= $this->__('photo') ?></th>
                         <th><?= $this->__('sku') ?></th>
                         <th><?= $this->__('name') ?></th>
                         <th><?= $this->__('type') ?></th>
                         <th><?= $this->__('material') ?></th>
-                        <th class="text-right"><?= $this->__('quantity') ?></th>
-                        <th class="text-right"><?= $this->__('unit_cost') ?></th>
-                        <th class="text-right"><?= $this->__('total_cost') ?></th>
+                        <th class="text-end"><?= $this->__('quantity') ?></th>
+                        <th class="text-end"><?= $this->__('unit_cost') ?></th>
+                        <th class="text-end"><?= $this->__('total_cost') ?></th>
                         <?php if ($this->can('catalog.products.composition')): ?>
-                        <th><?= $this->__('actions') ?></th>
+                        <th style="width:60px;"><?= $this->__('actions') ?></th>
                         <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($components)): ?>
                     <tr>
-                        <td colspan="9" class="text-center text-muted"><?= $this->__('no_components') ?></td>
+                        <td colspan="<?= $this->can('catalog.products.composition') ? '9' : '8' ?>" class="text-center text-muted py-4">
+                            <i class="ri-inbox-line fs-3 d-block mb-2"></i>
+                            <?= $this->__('no_components') ?>
+                        </td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($components as $component): ?>
@@ -214,19 +225,19 @@
                                 : ($component['item_image'] ?? '');
                             ?>
                             <?php if (!empty($imagePath)): ?>
-                            <img src="/<?= $this->e(ltrim($imagePath, '/')) ?>" alt="" class="image-thumb-sm">
+                            <img src="/<?= $this->e(ltrim($imagePath, '/')) ?>" alt="" class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
                             <?php else: ?>
                             <span class="text-muted">-</span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if ($component['component_type'] === 'detail'): ?>
-                            <a href="/catalog/details/<?= $component['detail_id'] ?>">
-                                <strong><?= $this->e($component['detail_sku'] ?? '') ?></strong>
+                            <a href="/catalog/details/<?= $component['detail_id'] ?>" class="fw-semibold text-primary">
+                                <?= $this->e($component['detail_sku'] ?? '') ?>
                             </a>
                             <?php else: ?>
-                            <a href="/warehouse/items/<?= $component['item_id'] ?>">
-                                <strong><?= $this->e($component['item_sku'] ?? '') ?></strong>
+                            <a href="/warehouse/items/<?= $component['item_id'] ?>" class="fw-semibold text-primary">
+                                <?= $this->e($component['item_sku'] ?? '') ?>
                             </a>
                             <?php endif; ?>
                         </td>
@@ -237,48 +248,50 @@
                         </td>
                         <td>
                             <?php if ($component['component_type'] === 'detail'): ?>
-                            <span class="badge badge-info"><?= $this->__('detail') ?></span>
+                            <span class="badge bg-info-subtle text-info"><?= $this->__('detail') ?></span>
                             <?php if (($component['detail_type'] ?? '') === 'printed'): ?>
                             <small class="text-muted">(<?= $this->__('detail_type_printed') ?>)</small>
                             <?php endif; ?>
                             <?php else: ?>
-                            <span class="badge badge-component"><?= $this->__('component') ?></span>
+                            <span class="badge bg-warning-subtle text-warning"><?= $this->__('component') ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if ($component['component_type'] === 'detail' && !empty($component['detail_materials']) && count($component['detail_materials']) > 1): ?>
-                            <div class="composition-materials-list">
+                            <div class="d-flex flex-wrap gap-1">
                                 <?php foreach ($component['detail_materials'] as $dm): ?>
-                                <span class="badge badge-material"<?php if (!empty($dm['alias_color'])): ?> style="background: <?= $this->e($dm['alias_color']) ?>; color: <?= $this->contrastColor($dm['alias_color']) ?>"<?php endif; ?>><?= $this->e($dm['filament_alias'] ?: $dm['material_sku']) ?></span>
+                                <span class="badge bg-primary-subtle text-primary"<?php if (!empty($dm['alias_color'])): ?> style="background: <?= $this->e($dm['alias_color']) ?> !important; color: <?= $this->contrastColor($dm['alias_color']) ?> !important"<?php endif; ?>><?= $this->e($dm['filament_alias'] ?: $dm['material_sku']) ?></span>
                                 <?php endforeach; ?>
                             </div>
                             <?php elseif ($component['component_type'] === 'detail' && !empty($component['material_name'])): ?>
-                            <span class="badge badge-material"<?php if (!empty($component['material_alias_color'])): ?> style="background: <?= $this->e($component['material_alias_color']) ?>; color: <?= $this->contrastColor($component['material_alias_color']) ?>"<?php endif; ?>><?= $this->e($component['material_alias'] ?? $component['material_sku'] ?? '') ?></span>
-                            <small class="text-muted"><?= $this->e($component['material_name']) ?></small>
+                            <span class="badge bg-primary-subtle text-primary"<?php if (!empty($component['material_alias_color'])): ?> style="background: <?= $this->e($component['material_alias_color']) ?> !important; color: <?= $this->contrastColor($component['material_alias_color']) ?> !important"<?php endif; ?>><?= $this->e($component['material_alias'] ?? $component['material_sku'] ?? '') ?></span>
+                            <small class="text-muted d-block"><?= $this->e($component['material_name']) ?></small>
                             <?php else: ?>
                             <span class="text-muted">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-right">
+                        <td class="text-end">
                             <?php if ($this->can('catalog.products.composition')): ?>
                             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/components/<?= $component['id'] ?>" style="display:inline;">
                                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
                                 <input type="number" name="quantity" value="<?= $this->e($component['quantity']) ?>"
-                                       min="0.0001" step="0.0001" style="width:80px;text-align:right;"
+                                       min="0.0001" step="0.0001" class="form-control form-control-sm text-end" style="width:80px;"
                                        onchange="this.form.submit()">
                             </form>
                             <?php else: ?>
                             <?= $this->number($component['quantity'], 4) ?>
                             <?php endif; ?>
                         </td>
-                        <td class="text-right"><?= $this->currency($component['calculated_cost'] ?? 0) ?></td>
-                        <td class="text-right"><strong><?= $this->currency($component['total_cost'] ?? 0) ?></strong></td>
+                        <td class="text-end"><?= $this->currency($component['calculated_cost'] ?? 0) ?></td>
+                        <td class="text-end"><strong><?= $this->currency($component['total_cost'] ?? 0) ?></strong></td>
                         <?php if ($this->can('catalog.products.composition')): ?>
                         <td>
                             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/components/<?= $component['id'] ?>/remove"
                                   style="display:inline;" onsubmit="return confirm('<?= $this->__('confirm_remove_component') ?>');">
                                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-                                <button type="submit" class="btn btn-sm btn-danger">&times;</button>
+                                <button type="submit" class="btn btn-sm btn-soft-danger">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
                             </form>
                         </td>
                         <?php endif; ?>
@@ -287,10 +300,10 @@
                     <?php endif; ?>
                 </tbody>
                 <?php if (!empty($components)): ?>
-                <tfoot>
-                    <tr class="total-row">
-                        <td colspan="7" class="text-right"><strong><?= $this->__('total_components_cost') ?>:</strong></td>
-                        <td class="text-right"><strong><?= $this->currency(($costData['details_cost'] ?? 0) + ($costData['items_cost'] ?? 0)) ?></strong></td>
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="7" class="text-end"><strong><?= $this->__('total_components_cost') ?>:</strong></td>
+                        <td class="text-end"><strong><?= $this->currency(($costData['details_cost'] ?? 0) + ($costData['items_cost'] ?? 0)) ?></strong></td>
                         <?php if ($this->can('catalog.products.composition')): ?>
                         <td></td>
                         <?php endif; ?>
@@ -303,33 +316,34 @@
 </div>
 
 <!-- Product Packaging -->
-<div class="card" style="margin-top: 20px;">
-    <div class="card-header">
-        <?= $this->__('packaging') ?>
-        <span class="badge badge-secondary"><?= count($packaging ?? []) ?> <?= $this->__('items') ?></span>
+<div class="card mt-3">
+    <div class="card-header d-flex align-items-center">
+        <h5 class="card-title mb-0 flex-grow-1">
+            <i class="ri-gift-line me-2"></i><?= $this->__('packaging') ?>
+        </h5>
+        <span class="badge bg-secondary-subtle text-secondary"><?= count($packaging ?? []) ?> <?= $this->__('items') ?></span>
     </div>
     <div class="card-body">
         <?php if ($this->can('catalog.products.packaging')): ?>
         <!-- Add Packaging Form -->
-        <div class="add-component-section">
+        <div class="bg-light rounded p-3 mb-3">
             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/packaging" class="add-component-form">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><?= $this->__('packaging_item') ?></label>
-                        <select name="item_id" id="packagingSelect" required>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label class="form-label"><?= $this->__('packaging_item') ?></label>
+                        <select name="item_id" id="packagingSelect" class="form-select" required>
                             <option value=""><?= $this->__('select') ?>...</option>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label><?= $this->__('quantity') ?></label>
-                        <input type="number" name="quantity" value="1" min="0.0001" step="0.0001" style="width:100px;" required>
+                    <div class="col-md-3">
+                        <label class="form-label"><?= $this->__('quantity') ?></label>
+                        <input type="number" name="quantity" class="form-control" value="1" min="0.0001" step="0.0001" required>
                     </div>
-
-                    <div class="form-group" style="align-self:flex-end;">
-                        <button type="submit" class="btn btn-primary"><?= $this->__('add') ?></button>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="ri-add-line me-1"></i><?= $this->__('add') ?>
+                        </button>
                     </div>
                 </div>
             </form>
@@ -337,64 +351,69 @@
         <?php endif; ?>
 
         <!-- Packaging Table -->
-        <div class="table-container" style="margin-top:20px;">
-            <table>
-                <thead>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
                     <tr>
                         <th style="width:60px;"><?= $this->__('photo') ?></th>
                         <th><?= $this->__('sku') ?></th>
                         <th><?= $this->__('name') ?></th>
                         <th><?= $this->__('unit') ?></th>
-                        <th class="text-right"><?= $this->__('quantity') ?></th>
-                        <th class="text-right"><?= $this->__('unit_cost') ?></th>
-                        <th class="text-right"><?= $this->__('total_cost') ?></th>
+                        <th class="text-end"><?= $this->__('quantity') ?></th>
+                        <th class="text-end"><?= $this->__('unit_cost') ?></th>
+                        <th class="text-end"><?= $this->__('total_cost') ?></th>
                         <?php if ($this->can('catalog.products.packaging')): ?>
-                        <th><?= $this->__('actions') ?></th>
+                        <th style="width:60px;"><?= $this->__('actions') ?></th>
                         <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($packaging)): ?>
                     <tr>
-                        <td colspan="8" class="text-center text-muted"><?= $this->__('no_packaging') ?></td>
+                        <td colspan="<?= $this->can('catalog.products.packaging') ? '8' : '7' ?>" class="text-center text-muted py-4">
+                            <i class="ri-inbox-line fs-3 d-block mb-2"></i>
+                            <?= $this->__('no_packaging') ?>
+                        </td>
                     </tr>
                     <?php else: ?>
                     <?php foreach ($packaging as $item): ?>
                     <tr>
                         <td>
                             <?php if (!empty($item['item_image'])): ?>
-                            <img src="/<?= $this->e(ltrim($item['item_image'], '/')) ?>" alt="" class="image-thumb-sm">
+                            <img src="/<?= $this->e(ltrim($item['item_image'], '/')) ?>" alt="" class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
                             <?php else: ?>
                             <span class="text-muted">-</span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="/warehouse/items/<?= $item['item_id'] ?>">
-                                <strong><?= $this->e($item['item_sku'] ?? '') ?></strong>
+                            <a href="/warehouse/items/<?= $item['item_id'] ?>" class="fw-semibold text-primary">
+                                <?= $this->e($item['item_sku'] ?? '') ?>
                             </a>
                         </td>
                         <td><?= $this->e($item['item_name'] ?? '') ?></td>
                         <td><?= $this->__('unit_' . ($item['unit'] ?? 'pcs')) ?></td>
-                        <td class="text-right">
+                        <td class="text-end">
                             <?php if ($this->can('catalog.products.packaging')): ?>
                             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/packaging/<?= $item['id'] ?>" style="display:inline;">
                                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
                                 <input type="number" name="quantity" value="<?= $this->e($item['quantity']) ?>"
-                                       min="0.0001" step="0.0001" style="width:80px;text-align:right;"
+                                       min="0.0001" step="0.0001" class="form-control form-control-sm text-end" style="width:80px;"
                                        onchange="this.form.submit()">
                             </form>
                             <?php else: ?>
                             <?= $this->number($item['quantity'], 4) ?>
                             <?php endif; ?>
                         </td>
-                        <td class="text-right"><?= $this->currency($item['calculated_cost'] ?? 0) ?></td>
-                        <td class="text-right"><strong><?= $this->currency($item['total_cost'] ?? 0) ?></strong></td>
+                        <td class="text-end"><?= $this->currency($item['calculated_cost'] ?? 0) ?></td>
+                        <td class="text-end"><strong><?= $this->currency($item['total_cost'] ?? 0) ?></strong></td>
                         <?php if ($this->can('catalog.products.packaging')): ?>
                         <td>
                             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/packaging/<?= $item['id'] ?>/remove"
                                   style="display:inline;" onsubmit="return confirm('<?= $this->__('confirm_remove_packaging') ?>');">
                                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-                                <button type="submit" class="btn btn-sm btn-danger">&times;</button>
+                                <button type="submit" class="btn btn-sm btn-soft-danger">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
                             </form>
                         </td>
                         <?php endif; ?>
@@ -403,10 +422,10 @@
                     <?php endif; ?>
                 </tbody>
                 <?php if (!empty($packaging)): ?>
-                <tfoot>
-                    <tr class="total-row">
-                        <td colspan="6" class="text-right"><strong><?= $this->__('total_packaging_cost') ?>:</strong></td>
-                        <td class="text-right"><strong><?= $this->currency($costData['packaging_cost'] ?? 0) ?></strong></td>
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="6" class="text-end"><strong><?= $this->__('total_packaging_cost') ?>:</strong></td>
+                        <td class="text-end"><strong><?= $this->currency($costData['packaging_cost'] ?? 0) ?></strong></td>
                         <?php if ($this->can('catalog.products.packaging')): ?>
                         <td></td>
                         <?php endif; ?>
@@ -419,121 +438,84 @@
 </div>
 
 <!-- Product Operations (Routing) -->
-<div class="card" style="margin-top: 20px;">
-    <div class="card-header">
-        <?= $this->__('product_routing') ?>
-        <span class="badge badge-secondary"><?= count($operations ?? []) ?> <?= $this->__('operations') ?></span>
+<div class="card mt-3">
+    <div class="card-header d-flex align-items-center gap-2">
+        <h5 class="card-title mb-0 flex-grow-1">
+            <i class="ri-route-line me-2"></i><?= $this->__('product_routing') ?>
+        </h5>
+        <span class="badge bg-secondary-subtle text-secondary"><?= count($operations ?? []) ?> <?= $this->__('operations') ?></span>
         <?php if (($costData['total_time_minutes'] ?? 0) > 0): ?>
-        <span class="badge badge-info"><?= $costData['total_time_minutes'] ?> <?= $this->__('minutes_short') ?></span>
+        <span class="badge bg-info-subtle text-info"><?= $costData['total_time_minutes'] ?> <?= $this->__('minutes_short') ?></span>
         <?php endif; ?>
     </div>
     <div class="card-body">
         <?php if ($this->can('catalog.products.operations')): ?>
-        <!-- Add Operation Form - Two Column Layout -->
-        <div class="add-component-section">
+        <!-- Add Operation Form -->
+        <div class="bg-light rounded p-3 mb-3">
             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations" class="add-operation-form">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-
-                <div class="operation-form-columns">
-                    <!-- Left Column: Name, Time, Rate -->
-                    <div class="operation-form-left">
-                        <div class="form-group">
-                            <label><?= $this->__('operation_name') ?> *</label>
-                            <input type="text" name="name" required placeholder="<?= $this->__('operation_name_placeholder') ?>">
-                        </div>
-
-                        <div class="form-row-inline">
-                            <div class="form-group">
-                                <label><?= $this->__('time_minutes') ?></label>
-                                <input type="number" name="time_minutes" value="0" min="0" step="1">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label"><?= $this->__('operation_name') ?> *</label>
+                        <input type="text" name="name" class="form-control" required placeholder="<?= $this->__('operation_name_placeholder') ?>">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label"><?= $this->__('time_minutes') ?></label>
+                        <input type="number" name="time_minutes" class="form-control" value="0" min="0" step="1">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label"><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
+                        <input type="number" name="labor_rate" class="form-control" value="0" min="0" step="0.01">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><?= $this->__('description') ?></label>
+                        <input type="text" name="description" class="form-control" placeholder="<?= $this->__('instructions_placeholder') ?>">
+                    </div>
+                </div>
+                <div class="row g-3 mt-2">
+                    <div class="col-md-6">
+                        <label class="form-label"><?= $this->__('product_composition') ?></label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <div class="form-check">
+                                <input type="checkbox" name="component_ids[]" value="product" class="form-check-input" id="comp_product">
+                                <label class="form-check-label" for="comp_product">
+                                    <span class="badge bg-success-subtle text-success"><?= $this->__('product') ?></span>
+                                    <?= $this->e($product['code'] ?? '') ?>
+                                </label>
                             </div>
-
-                            <div class="form-group">
-                                <label><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
-                                <input type="number" name="labor_rate" value="0" min="0" step="0.01">
+                            <?php foreach ($components ?? [] as $idx => $comp): ?>
+                            <div class="form-check">
+                                <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>" class="form-check-input" id="comp_<?= $comp['id'] ?>">
+                                <label class="form-check-label" for="comp_<?= $comp['id'] ?>">
+                                    <span class="badge bg-<?= $comp['component_type'] === 'detail' ? 'info' : 'warning' ?>-subtle text-<?= $comp['component_type'] === 'detail' ? 'info' : 'warning' ?>"><?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?></span>
+                                    <?= $this->e($comp['component_type'] === 'detail' ? ($comp['detail_sku'] ?? '') : ($comp['item_sku'] ?? '')) ?>
+                                </label>
                             </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
-
-                    <!-- Right Column: Description -->
-                    <div class="operation-form-right">
-                        <div class="form-group" style="flex: 1;">
-                            <label><?= $this->__('description') ?></label>
-                            <textarea name="description" rows="3" placeholder="<?= $this->__('instructions_placeholder') ?>"></textarea>
+                    <div class="col-md-6">
+                        <label class="form-label"><?= $this->__('packaging') ?></label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <?php if (empty($packaging)): ?>
+                            <span class="text-muted"><?= $this->__('no_packaging') ?></span>
+                            <?php else: ?>
+                            <?php foreach ($packaging ?? [] as $pack): ?>
+                            <div class="form-check">
+                                <input type="checkbox" name="component_ids[]" value="packaging_<?= $pack['id'] ?>" class="form-check-input" id="pack_<?= $pack['id'] ?>">
+                                <label class="form-check-label" for="pack_<?= $pack['id'] ?>">
+                                    <span class="badge bg-warning-subtle text-warning"><?= $this->__('packaging') ?></span>
+                                    <?= $this->e($pack['item_sku'] ?? '') ?>
+                                </label>
+                            </div>
+                            <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
-
-                <!-- Components Selection with Checkboxes - Two Columns -->
-                <div class="components-selection-container" style="margin-top: 15px;">
-                    <div class="components-two-columns">
-                        <!-- Left Column: Components (Details & Items) -->
-                        <div class="components-column">
-                            <label class="column-label"><?= $this->__('product_composition') ?></label>
-                            <div class="components-list">
-                                <!-- Product itself (assembled) -->
-                                <label class="component-checkbox product-item">
-                                    <input type="checkbox" name="component_ids[]" value="product">
-                                    <span class="component-info">
-                                        <span class="badge badge-success"><?= $this->__('product') ?></span>
-                                        <strong><?= $this->e($product['code'] ?? '') ?></strong>
-                                        <span class="component-name"><?= $this->e($product['name'] ?? '') ?></span>
-                                    </span>
-                                </label>
-                                <?php foreach ($components ?? [] as $comp): ?>
-                                <label class="component-checkbox">
-                                    <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>">
-                                    <span class="component-info">
-                                        <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'component' ?>">
-                                            <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
-                                        </span>
-                                        <strong><?= $this->e($comp['component_type'] === 'detail'
-                                            ? ($comp['detail_sku'] ?? '')
-                                            : ($comp['item_sku'] ?? '')) ?></strong>
-                                        <span class="component-name"><?= $this->e($comp['component_type'] === 'detail'
-                                            ? ($comp['detail_name'] ?? '')
-                                            : ($comp['item_name'] ?? '')) ?></span>
-                                        <?php if ($comp['component_type'] === 'detail' && !empty($comp['material_name'])): ?>
-                                        <span class="component-material">
-                                            <small class="badge badge-outline"><?= $this->e($comp['material_alias'] ?? $comp['material_name'] ?? '') ?></small>
-                                        </span>
-                                        <?php endif; ?>
-                                    </span>
-                                </label>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-
-                        <!-- Right Column: Packaging -->
-                        <div class="components-column">
-                            <label class="column-label"><?= $this->__('packaging') ?></label>
-                            <div class="components-list">
-                                <?php if (empty($packaging)): ?>
-                                <div class="no-items-hint"><?= $this->__('no_packaging') ?></div>
-                                <?php else: ?>
-                                <?php foreach ($packaging ?? [] as $pack): ?>
-                                <label class="component-checkbox packaging-item">
-                                    <input type="checkbox" name="component_ids[]" value="packaging_<?= $pack['id'] ?>">
-                                    <span class="component-info">
-                                        <span class="badge badge-warning"><?= $this->__('packaging') ?></span>
-                                        <strong><?= $this->e($pack['item_sku'] ?? '') ?></strong>
-                                        <span class="component-name"><?= $this->e($pack['item_name'] ?? '') ?></span>
-                                    </span>
-                                </label>
-                                <?php endforeach; ?>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Add Button at Bottom -->
-                <div class="form-actions-center" style="margin-top: 20px;">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px;">
-                            <path d="M12 5v14M5 12h14"/>
-                        </svg>
-                        <?= $this->__('add_operation') ?>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-add-line me-1"></i><?= $this->__('add_operation') ?>
                     </button>
                 </div>
             </form>
@@ -541,9 +523,9 @@
         <?php endif; ?>
 
         <!-- Operations Table -->
-        <div class="table-container" style="margin-top:20px;">
-            <table id="operationsTable">
-                <thead>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0" id="operationsTable">
+                <thead class="table-light">
                     <tr>
                         <?php if ($this->can('catalog.products.operations')): ?>
                         <th style="width:60px;"><?= $this->__('order') ?></th>
@@ -552,59 +534,52 @@
                         <th><?= $this->__('operation_name') ?></th>
                         <th><?= $this->__('description') ?></th>
                         <th><?= $this->__('components') ?></th>
-                        <th class="text-right"><?= $this->__('time_minutes') ?></th>
-                        <th class="text-right"><?= $this->__('labor_rate') ?></th>
-                        <th class="text-right"><?= $this->__('operation_cost') ?></th>
+                        <th class="text-end"><?= $this->__('time_minutes') ?></th>
+                        <th class="text-end"><?= $this->__('labor_rate') ?></th>
+                        <th class="text-end"><?= $this->__('operation_cost') ?></th>
                         <?php if ($this->can('catalog.products.operations')): ?>
-                        <th><?= $this->__('actions') ?></th>
+                        <th style="width:100px;"><?= $this->__('actions') ?></th>
                         <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody id="operationsBody">
                     <?php if (empty($operations)): ?>
                     <tr>
-                        <td colspan="<?= $this->can('catalog.products.operations') ? '10' : '8' ?>" class="text-center text-muted"><?= $this->__('no_operations') ?></td>
+                        <td colspan="<?= $this->can('catalog.products.operations') ? '9' : '7' ?>" class="text-center text-muted py-4">
+                            <i class="ri-inbox-line fs-3 d-block mb-2"></i>
+                            <?= $this->__('no_operations') ?>
+                        </td>
                     </tr>
                     <?php else: ?>
                     <?php $opNum = 1; $opCount = count($operations); foreach ($operations as $index => $operation): ?>
                     <tr data-operation-id="<?= $operation['id'] ?>" data-sort="<?= $operation['sort_order'] ?? $index ?>">
                         <?php if ($this->can('catalog.products.operations')): ?>
-                        <td class="reorder-cell">
-                            <div class="reorder-buttons">
-                                <button type="button" class="btn btn-sm btn-outline reorder-btn move-up-btn"
-                                        data-id="<?= $operation['id'] ?>" title="<?= $this->__('move_up') ?>"
-                                        <?= $index === 0 ? 'disabled style="opacity: 0.3;"' : '' ?>>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M18 15l-6-6-6 6"/>
-                                    </svg>
+                        <td>
+                            <div class="btn-group-vertical btn-group-sm">
+                                <button type="button" class="btn btn-soft-secondary move-up-btn" data-id="<?= $operation['id'] ?>" title="<?= $this->__('move_up') ?>" <?= $index === 0 ? 'disabled' : '' ?>>
+                                    <i class="ri-arrow-up-s-line"></i>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline reorder-btn move-down-btn"
-                                        data-id="<?= $operation['id'] ?>" title="<?= $this->__('move_down') ?>"
-                                        <?= $index === $opCount - 1 ? 'disabled style="opacity: 0.3;"' : '' ?>>
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M6 9l6 6 6-6"/>
-                                    </svg>
+                                <button type="button" class="btn btn-soft-secondary move-down-btn" data-id="<?= $operation['id'] ?>" title="<?= $this->__('move_down') ?>" <?= $index === $opCount - 1 ? 'disabled' : '' ?>>
+                                    <i class="ri-arrow-down-s-line"></i>
                                 </button>
                             </div>
                         </td>
                         <?php endif; ?>
-                        <td class="op-number"><strong><?= $opNum++ ?></strong></td>
+                        <td class="op-number"><strong class="text-primary"><?= $opNum++ ?></strong></td>
                         <td><strong><?= $this->e($operation['name'] ?? '') ?></strong></td>
                         <td>
                             <?php if (!empty($operation['description'])): ?>
-                            <small><?= nl2br($this->e($operation['description'])) ?></small>
+                            <small class="text-muted"><?= nl2br($this->e($operation['description'])) ?></small>
                             <?php else: ?>
                             <span class="text-muted">-</span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if (!empty($operation['components'])): ?>
-                            <div class="operation-components">
+                            <div class="d-flex flex-wrap gap-1">
                                 <?php foreach ($operation['components'] as $comp): ?>
-                                <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'component' ?>" style="margin: 2px;">
-                                    <?= $this->e($comp['component_type'] === 'detail'
-                                        ? ($comp['detail_sku'] ?? '')
-                                        : ($comp['item_sku'] ?? '')) ?>
+                                <span class="badge bg-<?= $comp['component_type'] === 'detail' ? 'info' : 'warning' ?>-subtle text-<?= $comp['component_type'] === 'detail' ? 'info' : 'warning' ?>">
+                                    <?= $this->e($comp['component_type'] === 'detail' ? ($comp['detail_sku'] ?? '') : ($comp['item_sku'] ?? '')) ?>
                                 </span>
                                 <?php endforeach; ?>
                             </div>
@@ -612,25 +587,29 @@
                             <span class="text-muted">-</span>
                             <?php endif; ?>
                         </td>
-                        <td class="text-right"><?= (int)($operation['time_minutes'] ?? 0) ?> <?= $this->__('minutes_short') ?></td>
-                        <td class="text-right"><?= $this->currency($operation['labor_rate'] ?? 0) ?>/<?= $this->__('hour_short') ?></td>
-                        <td class="text-right"><strong><?= $this->currency($operation['operation_cost'] ?? 0) ?></strong></td>
+                        <td class="text-end"><?= (int)($operation['time_minutes'] ?? 0) ?> <?= $this->__('minutes_short') ?></td>
+                        <td class="text-end"><?= $this->currency($operation['labor_rate'] ?? 0) ?>/<?= $this->__('hour_short') ?></td>
+                        <td class="text-end"><strong><?= $this->currency($operation['operation_cost'] ?? 0) ?></strong></td>
                         <?php if ($this->can('catalog.products.operations')): ?>
                         <td>
-                            <button type="button" class="btn btn-sm btn-outline edit-operation-btn"
-                                    data-id="<?= $operation['id'] ?>"
-                                    data-name="<?= $this->e($operation['name'] ?? '') ?>"
-                                    data-description="<?= $this->e($operation['description'] ?? '') ?>"
-                                    data-time="<?= $operation['time_minutes'] ?? 0 ?>"
-                                    data-rate="<?= $operation['labor_rate'] ?? 0 ?>"
-                                    data-components="<?= $this->e(implode(',', array_column($operation['components'] ?? [], 'component_id'))) ?>">
-                                <?= $this->__('edit') ?>
-                            </button>
-                            <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations/<?= $operation['id'] ?>/remove"
-                                  style="display:inline;" onsubmit="return confirm('<?= $this->__('confirm_remove_operation') ?>');">
-                                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-                                <button type="submit" class="btn btn-sm btn-danger">&times;</button>
-                            </form>
+                            <div class="d-flex gap-1">
+                                <button type="button" class="btn btn-sm btn-soft-primary edit-operation-btn"
+                                        data-id="<?= $operation['id'] ?>"
+                                        data-name="<?= $this->e($operation['name'] ?? '') ?>"
+                                        data-description="<?= $this->e($operation['description'] ?? '') ?>"
+                                        data-time="<?= $operation['time_minutes'] ?? 0 ?>"
+                                        data-rate="<?= $operation['labor_rate'] ?? 0 ?>"
+                                        data-components="<?= $this->e(implode(',', array_column($operation['components'] ?? [], 'component_id'))) ?>">
+                                    <i class="ri-pencil-line"></i>
+                                </button>
+                                <form method="POST" action="/catalog/products/<?= $product['id'] ?>/operations/<?= $operation['id'] ?>/remove"
+                                      style="display:inline;" onsubmit="return confirm('<?= $this->__('confirm_remove_operation') ?>');">
+                                    <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                                    <button type="submit" class="btn btn-sm btn-soft-danger">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                         <?php endif; ?>
                     </tr>
@@ -638,12 +617,12 @@
                     <?php endif; ?>
                 </tbody>
                 <?php if (!empty($operations)): ?>
-                <tfoot>
-                    <tr class="total-row">
-                        <td colspan="<?= $this->can('catalog.products.operations') ? '5' : '4' ?>" class="text-right"><strong><?= $this->__('total_labor_cost') ?>:</strong></td>
-                        <td class="text-right"><strong><?= $costData['total_time_minutes'] ?? 0 ?> <?= $this->__('minutes_short') ?></strong></td>
+                <tfoot class="table-light">
+                    <tr>
+                        <td colspan="<?= $this->can('catalog.products.operations') ? '5' : '4' ?>" class="text-end"><strong><?= $this->__('total_labor_cost') ?>:</strong></td>
+                        <td class="text-end"><strong><?= $costData['total_time_minutes'] ?? 0 ?> <?= $this->__('minutes_short') ?></strong></td>
                         <td></td>
-                        <td class="text-right"><strong><?= $this->currency($costData['labor_cost'] ?? 0) ?></strong></td>
+                        <td class="text-end"><strong><?= $this->currency($costData['labor_cost'] ?? 0) ?></strong></td>
                         <?php if ($this->can('catalog.products.operations')): ?>
                         <td></td>
                         <?php endif; ?>
@@ -657,511 +636,85 @@
 
 <!-- Edit Operation Modal -->
 <?php if ($this->can('catalog.products.operations')): ?>
-<div id="editOperationModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><?= $this->__('edit_operation') ?></h3>
-            <button type="button" class="modal-close">&times;</button>
-        </div>
-        <form id="editOperationForm" method="POST">
-            <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
-            <div class="modal-body">
-                <div class="form-group">
-                    <label><?= $this->__('operation_name') ?> *</label>
-                    <input type="text" name="name" id="editOpName" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><?= $this->__('time_minutes') ?></label>
-                        <input type="number" name="time_minutes" id="editOpTime" min="0" step="1">
+<div class="modal fade" id="editOperationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><?= $this->__('edit_operation') ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editOperationForm" method="POST">
+                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken ?? '') ?>">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label"><?= $this->__('operation_name') ?> *</label>
+                        <input type="text" name="name" id="editOpName" class="form-control" required>
                     </div>
-                    <div class="form-group">
-                        <label><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
-                        <input type="number" name="labor_rate" id="editOpRate" min="0" step="0.01">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><?= $this->__('time_minutes') ?></label>
+                            <input type="number" name="time_minutes" id="editOpTime" class="form-control" min="0" step="1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><?= $this->__('labor_rate') ?> (<?= $this->__('hour_short') ?>)</label>
+                            <input type="number" name="labor_rate" id="editOpRate" class="form-control" min="0" step="0.01">
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label><?= $this->__('description') ?></label>
-                    <textarea name="description" id="editOpDescription" rows="3"></textarea>
-                </div>
-                <!-- Components Selection with Checkboxes - Two Columns -->
-                <div class="components-selection-container">
-                    <div class="components-two-columns">
-                        <!-- Left Column: Components -->
-                        <div class="components-column">
-                            <label class="column-label"><?= $this->__('product_composition') ?></label>
-                            <div class="components-list">
-                                <label class="component-checkbox product-item">
-                                    <input type="checkbox" name="component_ids[]" value="product" class="edit-comp-checkbox">
-                                    <span class="component-info">
-                                        <span class="badge badge-success"><?= $this->__('product') ?></span>
-                                        <strong><?= $this->e($product['code'] ?? '') ?></strong>
-                                        <span class="component-name"><?= $this->e($product['name'] ?? '') ?></span>
-                                    </span>
-                                </label>
+                    <div class="mb-3">
+                        <label class="form-label"><?= $this->__('description') ?></label>
+                        <textarea name="description" id="editOpDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><?= $this->__('product_composition') ?></label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check">
+                                    <input type="checkbox" name="component_ids[]" value="product" class="form-check-input edit-comp-checkbox" id="edit_comp_product">
+                                    <label class="form-check-label" for="edit_comp_product">
+                                        <span class="badge bg-success-subtle text-success"><?= $this->__('product') ?></span>
+                                        <?= $this->e($product['code'] ?? '') ?>
+                                    </label>
+                                </div>
                                 <?php foreach ($components ?? [] as $comp): ?>
-                                <label class="component-checkbox">
-                                    <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>" class="edit-comp-checkbox">
-                                    <span class="component-info">
-                                        <span class="badge badge-<?= $comp['component_type'] === 'detail' ? 'info' : 'secondary' ?>">
-                                            <?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?>
-                                        </span>
-                                        <strong><?= $this->e($comp['component_type'] === 'detail'
-                                            ? ($comp['detail_sku'] ?? '')
-                                            : ($comp['item_sku'] ?? '')) ?></strong>
-                                        <span class="component-name"><?= $this->e($comp['component_type'] === 'detail'
-                                            ? ($comp['detail_name'] ?? '')
-                                            : ($comp['item_name'] ?? '')) ?></span>
-                                        <?php if ($comp['component_type'] === 'detail' && !empty($comp['material_name'])): ?>
-                                        <span class="component-material">
-                                            <small class="badge badge-outline"><?= $this->e($comp['material_alias'] ?? $comp['material_name'] ?? '') ?></small>
-                                        </span>
-                                        <?php endif; ?>
-                                    </span>
-                                </label>
+                                <div class="form-check">
+                                    <input type="checkbox" name="component_ids[]" value="<?= $comp['id'] ?>" class="form-check-input edit-comp-checkbox" id="edit_comp_<?= $comp['id'] ?>">
+                                    <label class="form-check-label" for="edit_comp_<?= $comp['id'] ?>">
+                                        <span class="badge bg-<?= $comp['component_type'] === 'detail' ? 'info' : 'warning' ?>-subtle text-<?= $comp['component_type'] === 'detail' ? 'info' : 'warning' ?>"><?= $comp['component_type'] === 'detail' ? $this->__('detail') : $this->__('component') ?></span>
+                                        <?= $this->e($comp['component_type'] === 'detail' ? ($comp['detail_sku'] ?? '') : ($comp['item_sku'] ?? '')) ?>
+                                    </label>
+                                </div>
                                 <?php endforeach; ?>
                             </div>
                         </div>
-                        <!-- Right Column: Packaging -->
-                        <div class="components-column">
-                            <label class="column-label"><?= $this->__('packaging') ?></label>
-                            <div class="components-list">
+                        <div class="col-md-6">
+                            <label class="form-label"><?= $this->__('packaging') ?></label>
+                            <div class="d-flex flex-wrap gap-2">
                                 <?php if (empty($packaging)): ?>
-                                <div class="no-items-hint"><?= $this->__('no_packaging') ?></div>
+                                <span class="text-muted"><?= $this->__('no_packaging') ?></span>
                                 <?php else: ?>
                                 <?php foreach ($packaging ?? [] as $pack): ?>
-                                <label class="component-checkbox packaging-item">
-                                    <input type="checkbox" name="component_ids[]" value="packaging_<?= $pack['id'] ?>" class="edit-comp-checkbox">
-                                    <span class="component-info">
-                                        <span class="badge badge-warning"><?= $this->__('packaging') ?></span>
-                                        <strong><?= $this->e($pack['item_sku'] ?? '') ?></strong>
-                                        <span class="component-name"><?= $this->e($pack['item_name'] ?? '') ?></span>
-                                    </span>
-                                </label>
+                                <div class="form-check">
+                                    <input type="checkbox" name="component_ids[]" value="packaging_<?= $pack['id'] ?>" class="form-check-input edit-comp-checkbox" id="edit_pack_<?= $pack['id'] ?>">
+                                    <label class="form-check-label" for="edit_pack_<?= $pack['id'] ?>">
+                                        <span class="badge bg-warning-subtle text-warning"><?= $this->__('packaging') ?></span>
+                                        <?= $this->e($pack['item_sku'] ?? '') ?>
+                                    </label>
+                                </div>
                                 <?php endforeach; ?>
                                 <?php endif; ?>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary modal-close"><?= $this->__('cancel') ?></button>
-                <button type="submit" class="btn btn-primary"><?= $this->__('save') ?></button>
-            </div>
-        </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal"><?= $this->__('cancel') ?></button>
+                    <button type="submit" class="btn btn-primary"><?= $this->__('save') ?></button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 <?php endif; ?>
-
-<style>
-.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
-.detail-row { display: flex; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.detail-row:last-child { border-bottom: none; }
-.detail-label { flex: 0 0 120px; color: var(--text-muted); font-size: 13px; }
-.detail-value { flex: 1; }
-
-/* Multi-material in composition */
-.composition-materials-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-}
-
-/* Collection Link */
-.collection-link {
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-    transition: all 0.2s;
-}
-.collection-link:hover {
-    text-decoration: none;
-}
-.collection-link:hover .badge-collection {
-    transform: scale(1.05);
-}
-.badge-collection {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);
-}
-.collection-link svg {
-    opacity: 0.6;
-    transition: opacity 0.2s;
-}
-.collection-link:hover svg {
-    opacity: 1;
-}
-
-/* Cost Summary */
-.cost-summary { margin-bottom: 20px; }
-.cost-summary-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px dashed var(--border);
-}
-.cost-summary-total {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    margin-top: 8px;
-    border-top: 2px solid var(--border);
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-.cost-label { color: var(--text-muted); }
-.cost-value { font-family: monospace; }
-
-/* Add Component Section */
-.add-component-section {
-    background: var(--bg-secondary);
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-.add-component-form .form-row {
-    display: flex;
-    gap: 15px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-}
-.add-component-form .form-group {
-    flex: 1;
-    min-width: 150px;
-}
-.add-component-form .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-}
-.add-component-form .form-group select,
-.add-component-form .form-group input {
-    width: 100%;
-}
-
-/* Table */
-.image-thumb-sm {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 4px;
-}
-.total-row {
-    background: var(--bg-secondary);
-    font-size: 1.05rem;
-}
-.text-right { text-align: right; }
-.text-center { text-align: center; }
-
-/* Modal */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.modal-content {
-    background: var(--bg-primary, #ffffff);
-    border-radius: 12px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border);
-}
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border);
-}
-.modal-header h3 { margin: 0; }
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: var(--text-muted);
-}
-.modal-body { padding: 20px; }
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 15px 20px;
-    border-top: 1px solid var(--border);
-}
-
-/* Operations */
-.add-operation-form .form-row {
-    display: flex;
-    gap: 15px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-}
-.add-operation-form .form-group {
-    flex: 1;
-    min-width: 150px;
-}
-.add-operation-form .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    color: var(--text-muted);
-}
-.add-operation-form .form-group input,
-.add-operation-form .form-group textarea,
-.add-operation-form .form-group select {
-    width: 100%;
-}
-.operation-components {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-}
-
-/* Components Selection Grid */
-.components-selection {
-    background: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 10px;
-}
-.components-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 8px;
-}
-.component-checkbox {
-    display: flex;
-    align-items: center;
-    padding: 10px 12px;
-    background: var(--bg-primary);
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.component-checkbox:hover {
-    border-color: var(--primary);
-    background: var(--bg-hover);
-}
-.component-checkbox input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
-    cursor: pointer;
-    accent-color: var(--primary);
-}
-.component-checkbox input[type="checkbox"]:checked + .component-info {
-    opacity: 1;
-}
-.component-checkbox.product-item {
-    border-color: var(--success);
-    background: rgba(var(--success-rgb), 0.05);
-}
-.component-checkbox.product-item:hover {
-    background: rgba(var(--success-rgb), 0.1);
-}
-.component-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-    min-width: 0;
-}
-.component-info .badge {
-    flex-shrink: 0;
-}
-.component-info strong {
-    flex-shrink: 0;
-    font-size: 0.9rem;
-}
-.component-name {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Two-Column Components Selection */
-.components-selection-container {
-    background: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 15px;
-}
-.components-two-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-@media (max-width: 768px) {
-    .components-two-columns {
-        grid-template-columns: 1fr;
-    }
-}
-.components-column {
-    min-width: 0;
-}
-.column-label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-    color: var(--text-primary);
-    padding-bottom: 8px;
-    border-bottom: 2px solid var(--border);
-}
-.components-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    max-height: 300px;
-    overflow-y: auto;
-    padding-right: 5px;
-}
-.no-items-hint {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    padding: 15px;
-    text-align: center;
-    background: var(--bg-primary);
-    border-radius: 6px;
-    border: 1px dashed var(--border);
-}
-
-/* Packaging item style */
-.component-checkbox.packaging-item {
-    border-color: var(--warning, #f0ad4e);
-    background: rgba(240, 173, 78, 0.05);
-}
-.component-checkbox.packaging-item:hover {
-    background: rgba(240, 173, 78, 0.1);
-}
-
-/* Material info for details */
-.component-material {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: auto;
-    flex-shrink: 0;
-}
-.component-material small {
-    font-size: 0.75rem;
-}
-.badge-outline {
-    background: transparent;
-    border: 1px solid var(--primary);
-    color: var(--primary);
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-}
-.badge-warning {
-    background: var(--warning, #f0ad4e);
-    color: #fff;
-}
-
-/* Component badge - distinct style for purchased components */
-.badge-component {
-    background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
-    color: #fff;
-    border: 1px solid #8B4513;
-    box-shadow: 0 1px 2px rgba(139, 69, 19, 0.3);
-}
-
-/* Centered form actions */
-.form-actions-center {
-    display: flex;
-    justify-content: center;
-    padding-top: 10px;
-    border-top: 1px dashed var(--border);
-}
-.form-actions-center .btn {
-    display: inline-flex;
-    align-items: center;
-}
-
-/* Two-Column Operation Form Layout */
-.operation-form-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-}
-@media (max-width: 768px) {
-    .operation-form-columns {
-        grid-template-columns: 1fr;
-    }
-}
-.operation-form-left,
-.operation-form-right {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.operation-form-right {
-    display: flex;
-    flex-direction: column;
-}
-.operation-form-right .form-group:first-child {
-    flex: 1;
-}
-.operation-form-right textarea {
-    height: 100%;
-    min-height: 80px;
-}
-.form-row-inline {
-    display: flex;
-    gap: 15px;
-}
-.form-row-inline .form-group {
-    flex: 1;
-}
-.btn-lg {
-    padding: 12px 24px;
-    font-size: 1rem;
-}
-
-/* Reorder Buttons */
-.reorder-cell {
-    white-space: nowrap;
-}
-.reorder-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-.reorder-btn {
-    padding: 4px 8px;
-    line-height: 1;
-}
-.reorder-btn svg {
-    display: block;
-}
-.reorder-btn.disabled {
-    cursor: not-allowed;
-    pointer-events: none;
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -1171,12 +724,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const canEditPackaging = <?= $this->can('catalog.products.packaging') ? 'true' : 'false' ?>;
     const canEditOperations = <?= $this->can('catalog.products.operations') ? 'true' : 'false' ?>;
 
-    // Currency formatter
-    function formatCurrency(value) {
-        return parseFloat(value || 0).toFixed(2) + ' ₴';
-    }
-
-    // AJAX helper
     function ajaxPost(url, formData) {
         return fetch(url, {
             method: 'POST',
@@ -1185,33 +732,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }).then(r => r.json());
     }
 
-    // Update cost summary
-    function updateCostSummary(costData) {
-        const summary = document.querySelector('.cost-summary');
-        if (!summary || !costData) return;
-
-        const items = summary.querySelectorAll('.cost-summary-item .cost-value');
-        const totals = summary.querySelectorAll('.cost-summary-total .cost-value');
-
-        // Update details, components, labor costs
-        if (items[0]) items[0].textContent = formatCurrency(costData.details_cost);
-        if (items[1]) items[1].textContent = formatCurrency(costData.items_cost);
-        if (items[2]) items[2].textContent = formatCurrency(costData.labor_cost);
-        if (items[3]) items[3].textContent = formatCurrency(costData.packaging_cost);
-
-        // Update totals
-        if (totals[0]) totals[0].textContent = formatCurrency(costData.total_cost);
-        if (totals[1]) totals[1].textContent = formatCurrency(costData.total_price);
-
-        // Update badge counts
-        document.querySelectorAll('.card-header .badge-secondary').forEach((badge, idx) => {
-            if (idx === 0) badge.textContent = (costData.component_count || 0) + ' <?= $this->__('items') ?>';
-            if (idx === 1) badge.textContent = (costData.packaging_count || 0) + ' <?= $this->__('items') ?>';
-            if (idx === 2) badge.textContent = (costData.operations_count || 0) + ' <?= $this->__('operations') ?>';
-        });
-    }
-
-    // ==================== COMPOSITION ====================
+    // Component type selection
     const componentType = document.getElementById('componentType');
     const detailGroup = document.getElementById('detailSelectGroup');
     const itemGroup = document.getElementById('itemSelectGroup');
@@ -1259,61 +780,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add component form AJAX
-    const addComponentForm = document.querySelector('.add-component-form');
-    if (addComponentForm) {
-        addComponentForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            ajaxPost(this.action, formData).then(data => {
-                if (data.success) {
-                    updateCostSummary(data.costData);
-                    location.reload(); // Reload to show new component
-                } else {
-                    alert(data.error || 'Error adding component');
-                }
-            }).catch(err => { console.error(err); alert('Error'); });
-        });
-    }
-
-    // Component quantity update & remove - use event delegation
-    document.querySelectorAll('form[action*="/components/"][action$="/remove"]').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!confirm('<?= $this->__('confirm_remove_component') ?>')) return;
-            const formData = new FormData(this);
-            ajaxPost(this.action, formData).then(data => {
-                if (data.success) {
-                    updateCostSummary(data.costData);
-                    this.closest('tr').remove();
-                }
-            });
-        });
-    });
-
-    document.querySelectorAll('form[action*="/components/"]:not([action*="/remove"])').forEach(form => {
-        if (form.classList.contains('add-component-form')) return;
-        const input = form.querySelector('input[name="quantity"]');
-        if (input) {
-            input.addEventListener('change', function() {
-                const formData = new FormData(form);
-                ajaxPost(form.action, formData).then(data => {
-                    if (data.success) {
-                        updateCostSummary(data.costData);
-                        // Update row costs
-                        const row = form.closest('tr');
-                        const comp = data.components.find(c => form.action.includes('/components/' + c.id));
-                        if (comp && row) {
-                            row.querySelector('td:nth-last-child(3)').textContent = formatCurrency(comp.calculated_cost);
-                            row.querySelector('td:nth-last-child(2) strong').textContent = formatCurrency(comp.total_cost);
-                        }
-                    }
-                });
-            });
-        }
-    });
-
-    // ==================== PACKAGING ====================
+    // Load packaging items
     const packagingSelect = document.getElementById('packagingSelect');
     if (packagingSelect) {
         fetch('/catalog/api/products/packaging-items').then(r => r.json()).then(data => {
@@ -1329,144 +796,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add packaging form AJAX
-    const addPackagingForm = document.querySelector('form[action*="/packaging"]:not([action*="/packaging/"])');
-    if (addPackagingForm) {
-        addPackagingForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            ajaxPost(this.action, formData).then(data => {
-                if (data.success) {
-                    updateCostSummary(data.costData);
-                    location.reload();
-                } else {
-                    alert(data.error || 'Error adding packaging');
-                }
-            }).catch(err => { console.error(err); alert('Error'); });
-        });
-    }
-
-    // Packaging remove & update
-    document.querySelectorAll('form[action*="/packaging/"][action$="/remove"]').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!confirm('<?= $this->__('confirm_remove_packaging') ?>')) return;
-            const formData = new FormData(this);
-            ajaxPost(this.action, formData).then(data => {
-                if (data.success) {
-                    updateCostSummary(data.costData);
-                    this.closest('tr').remove();
-                }
-            });
-        });
-    });
-
-    document.querySelectorAll('form[action*="/packaging/"]:not([action*="/remove"])').forEach(form => {
-        const input = form.querySelector('input[name="quantity"]');
-        if (input) {
-            input.addEventListener('change', function() {
-                const formData = new FormData(form);
-                ajaxPost(form.action, formData).then(data => {
-                    if (data.success) {
-                        updateCostSummary(data.costData);
-                        const row = form.closest('tr');
-                        const pack = data.packaging.find(p => form.action.includes('/packaging/' + p.id));
-                        if (pack && row) {
-                            row.querySelector('td:nth-last-child(3)').textContent = formatCurrency(pack.calculated_cost);
-                            row.querySelector('td:nth-last-child(2) strong').textContent = formatCurrency(pack.total_cost);
-                        }
-                    }
-                });
-            });
-        }
-    });
-
-    // ==================== OPERATIONS ====================
-    // Add operation form AJAX
-    const addOperationForm = document.querySelector('.add-operation-form');
-    if (addOperationForm) {
-        addOperationForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            ajaxPost(this.action, formData).then(data => {
-                if (data.success) {
-                    updateCostSummary(data.costData);
-                    location.reload();
-                } else {
-                    alert(data.error || 'Error adding operation');
-                }
-            }).catch(err => { console.error(err); alert('Error'); });
-        });
-    }
-
-    // Operation remove
-    document.querySelectorAll('form[action*="/operations/"][action$="/remove"]').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (!confirm('<?= $this->__('confirm_remove_operation') ?>')) return;
-            const formData = new FormData(this);
-            ajaxPost(this.action, formData).then(data => {
-                if (data.success) {
-                    updateCostSummary(data.costData);
-                    this.closest('tr').remove();
-                    updateRowNumbers();
-                    updateReorderButtons();
-                }
-            });
-        });
-    });
-
     // Operation reordering
     function moveOperation(operationId, direction) {
         const url = `/catalog/products/${productId}/operations/${operationId}/move-${direction}`;
         const formData = new FormData();
         formData.append('_csrf_token', csrfToken);
-
         ajaxPost(url, formData).then(data => {
-            if (data.success) {
-                reorderTableRows(operationId, direction);
-            }
-        }).catch(err => console.error('Move error:', err));
-    }
-
-    function reorderTableRows(operationId, direction) {
-        const tbody = document.getElementById('operationsBody');
-        if (!tbody) return;
-        const rows = Array.from(tbody.querySelectorAll('tr[data-operation-id]'));
-        const currentIndex = rows.findIndex(r => r.dataset.operationId === String(operationId));
-        if (currentIndex === -1) return;
-        const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-        if (swapIndex < 0 || swapIndex >= rows.length) return;
-        const currentRow = rows[currentIndex];
-        const swapRow = rows[swapIndex];
-        if (direction === 'up') {
-            tbody.insertBefore(currentRow, swapRow);
-        } else {
-            tbody.insertBefore(swapRow, currentRow);
-        }
-        updateRowNumbers();
-        updateReorderButtons();
-    }
-
-    function updateRowNumbers() {
-        const tbody = document.getElementById('operationsBody');
-        if (!tbody) return;
-        tbody.querySelectorAll('tr[data-operation-id]').forEach((row, index) => {
-            const numCell = row.querySelector('.op-number strong');
-            if (numCell) numCell.textContent = index + 1;
-        });
-    }
-
-    function updateReorderButtons() {
-        const tbody = document.getElementById('operationsBody');
-        if (!tbody) return;
-        const rows = tbody.querySelectorAll('tr[data-operation-id]');
-        const count = rows.length;
-        rows.forEach((row, index) => {
-            const upBtn = row.querySelector('.move-up-btn');
-            const downBtn = row.querySelector('.move-down-btn');
-            if (upBtn) { upBtn.disabled = index === 0; upBtn.style.opacity = index === 0 ? '0.3' : '1'; }
-            if (downBtn) { downBtn.disabled = index === count - 1; downBtn.style.opacity = index === count - 1 ? '0.3' : '1'; }
+            if (data.success) location.reload();
         });
     }
 
@@ -1488,22 +824,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const editModal = document.getElementById('editOperationModal');
     const editForm = document.getElementById('editOperationForm');
 
-    if (editForm) {
-        editForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            ajaxPost(this.action, formData).then(data => {
-                if (data.success) {
-                    updateCostSummary(data.costData);
-                    editModal.style.display = 'none';
-                    location.reload();
-                } else {
-                    alert(data.error || 'Error updating operation');
-                }
-            }).catch(err => { console.error(err); alert('Error'); });
-        });
-    }
-
     document.querySelectorAll('.edit-operation-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const id = this.dataset.id;
@@ -1516,21 +836,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.edit-comp-checkbox').forEach(checkbox => {
                 checkbox.checked = components.includes(checkbox.value);
             });
-            editModal.style.display = 'flex';
+            new bootstrap.Modal(editModal).show();
         });
     });
-
-    document.querySelectorAll('.modal-close').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.closest('.modal').style.display = 'none';
-        });
-    });
-
-    if (editModal) {
-        editModal.addEventListener('click', function(e) {
-            if (e.target === this) this.style.display = 'none';
-        });
-    }
 });
 </script>
 

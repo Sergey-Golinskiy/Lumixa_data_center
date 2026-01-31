@@ -1,134 +1,165 @@
 <?php $this->section('content'); ?>
 
-<div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/warehouse/documents" class="btn btn-secondary">&laquo; <?= $this->__('back_to_documents') ?></a>
+<!-- Action buttons -->
+<div class="mb-3 d-flex justify-content-between flex-wrap gap-2">
+    <a href="/warehouse/documents" class="btn btn-soft-secondary">
+        <i class="ri-arrow-left-line me-1"></i> <?= $this->__('back_to_documents') ?>
+    </a>
 
-    <div class="actions-right">
+    <div class="d-flex gap-2">
         <?php if ($document['status'] === 'draft'): ?>
             <?php if ($this->can('warehouse.documents.edit')): ?>
-            <a href="/warehouse/documents/<?= $document['id'] ?>/edit" class="btn btn-secondary"><?= $this->__('edit') ?></a>
+            <a href="/warehouse/documents/<?= $document['id'] ?>/edit" class="btn btn-soft-secondary">
+                <i class="ri-pencil-line me-1"></i> <?= $this->__('edit') ?>
+            </a>
             <?php endif; ?>
             <?php if ($this->can('warehouse.documents.post')): ?>
-            <form method="POST" action="/warehouse/documents/<?= $document['id'] ?>/post" style="display: inline;">
+            <form method="POST" action="/warehouse/documents/<?= $document['id'] ?>/post" class="d-inline">
                 <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-                <button type="submit" class="btn btn-success" onclick="return confirm('<?= $this->__('confirm_post_document') ?>')"><?= $this->__('post_document') ?></button>
+                <button type="submit" class="btn btn-success" onclick="return confirm('<?= $this->__('confirm_post_document') ?>')">
+                    <i class="ri-check-line me-1"></i> <?= $this->__('post_document') ?>
+                </button>
             </form>
             <?php endif; ?>
         <?php endif; ?>
 
         <?php if ($document['status'] !== 'cancelled' && $this->can('warehouse.documents.cancel')): ?>
-        <button type="button" class="btn btn-danger" onclick="document.getElementById('cancel-modal').style.display='flex'"><?= $this->__('cancel_document') ?></button>
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+            <i class="ri-close-line me-1"></i> <?= $this->__('cancel_document') ?>
+        </button>
         <?php endif; ?>
     </div>
 </div>
 
 <!-- Document Info -->
-<div class="detail-grid">
-    <div class="card">
-        <div class="card-header"><?= $this->__('document_information') ?></div>
-        <div class="card-body">
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('document_number') ?></span>
-                <span class="detail-value"><strong><?= $this->e($document['document_number']) ?></strong></span>
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="ri-file-text-line me-2"></i><?= $this->__('document_information') ?></h5>
             </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('type') ?></span>
-                <span class="detail-value"><?= $this->e(ucfirst($document['type'])) ?></span>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="ps-0 text-muted" style="width: 35%;"><?= $this->__('document_number') ?></th>
+                                <td class="text-primary fw-semibold"><?= $this->e($document['document_number']) ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('type') ?></th>
+                                <td><?= $this->e(ucfirst($document['type'])) ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('date') ?></th>
+                                <td><?= $this->date($document['document_date'], 'Y-m-d') ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('status') ?></th>
+                                <td>
+                                    <?php
+                                    $statusClass = match($document['status']) {
+                                        'draft' => 'warning',
+                                        'posted' => 'success',
+                                        'cancelled' => 'danger',
+                                        default => 'secondary'
+                                    };
+                                    ?>
+                                    <span class="badge bg-<?= $statusClass ?>-subtle text-<?= $statusClass ?>"><?= ucfirst($document['status']) ?></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('partner') ?></th>
+                                <td><?= $this->e($document['partner_name'] ?? '-') ?></td>
+                            </tr>
+                            <?php if (in_array($document['type'], ['issue', 'adjustment', 'stocktake'], true)): ?>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('issue_costing_method') ?></th>
+                                <td><span class="badge bg-info-subtle text-info"><?= $this->e($document['costing_method'] ?? $this->__('costing_method_fifo')) ?></span></td>
+                            </tr>
+                            <?php endif; ?>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('total_amount') ?></th>
+                                <td class="fw-semibold"><?= $this->currency($document['total_amount']) ?></td>
+                            </tr>
+                            <?php if ($document['notes']): ?>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('notes') ?></th>
+                                <td><?= nl2br($this->e($document['notes'])) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('date') ?></span>
-                <span class="detail-value"><?= $this->date($document['document_date'], 'Y-m-d') ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('status') ?></span>
-                <span class="detail-value">
-                    <?php
-                    $statusClass = match($document['status']) {
-                        'draft' => 'warning',
-                        'posted' => 'success',
-                        'cancelled' => 'danger',
-                        default => 'secondary'
-                    };
-                    ?>
-                    <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($document['status']) ?></span>
-                </span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('partner') ?></span>
-                <span class="detail-value"><?= $this->e($document['partner_name'] ?? '-') ?></span>
-            </div>
-            <?php if (in_array($document['type'], ['issue', 'adjustment', 'stocktake'], true)): ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('issue_costing_method') ?></span>
-                <span class="detail-value"><?= $this->e($document['costing_method'] ?? $this->__('costing_method_fifo')) ?></span>
-            </div>
-            <?php endif; ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('total_amount') ?></span>
-                <span class="detail-value"><strong><?= $this->currency($document['total_amount']) ?></strong></span>
-            </div>
-            <?php if ($document['notes']): ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('notes') ?></span>
-                <span class="detail-value"><?= nl2br($this->e($document['notes'])) ?></span>
-            </div>
-            <?php endif; ?>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header"><?= $this->__('audit_information') ?></div>
-        <div class="card-body">
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('created_by') ?></span>
-                <span class="detail-value"><?= $this->e($document['created_by_name'] ?? '-') ?></span>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="ri-history-line me-2"></i><?= $this->__('audit_information') ?></h5>
             </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('created_at') ?></span>
-                <span class="detail-value"><?= $this->date($document['created_at']) ?></span>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="ps-0 text-muted" style="width: 35%;"><?= $this->__('created_by') ?></th>
+                                <td><?= $this->e($document['created_by_name'] ?? '-') ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('created_at') ?></th>
+                                <td><?= $this->date($document['created_at']) ?></td>
+                            </tr>
+                            <?php if ($document['posted_at']): ?>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('posted_by') ?></th>
+                                <td><?= $this->e($document['posted_by_name'] ?? '-') ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('posted_at') ?></th>
+                                <td><?= $this->date($document['posted_at']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                            <?php if ($document['cancelled_at']): ?>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('cancelled_by') ?></th>
+                                <td><?= $this->e($document['cancelled_by_name'] ?? '-') ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('cancelled_at') ?></th>
+                                <td><?= $this->date($document['cancelled_at']) ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('cancel_reason') ?></th>
+                                <td class="text-danger"><?= $this->e($document['cancel_reason']) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <?php if ($document['posted_at']): ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('posted_by') ?></span>
-                <span class="detail-value"><?= $this->e($document['posted_by_name'] ?? '-') ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('posted_at') ?></span>
-                <span class="detail-value"><?= $this->date($document['posted_at']) ?></span>
-            </div>
-            <?php endif; ?>
-            <?php if ($document['cancelled_at']): ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('cancelled_by') ?></span>
-                <span class="detail-value"><?= $this->e($document['cancelled_by_name'] ?? '-') ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('cancelled_at') ?></span>
-                <span class="detail-value"><?= $this->date($document['cancelled_at']) ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('cancel_reason') ?></span>
-                <span class="detail-value text-danger"><?= $this->e($document['cancel_reason']) ?></span>
-            </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <!-- Document Lines -->
-<div class="card" style="margin-top: 20px;">
-    <div class="card-header"><?= $this->__('document_lines') ?></div>
-    <div class="card-body">
-        <div class="table-container">
-            <table>
-                <thead>
+<div class="card mt-3">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="ri-list-check me-2"></i><?= $this->__('document_lines') ?></h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
                     <tr>
-                        <th>#</th>
+                        <th style="width: 50px;">#</th>
                         <th><?= $this->__('sku') ?></th>
                         <th><?= $this->__('item') ?></th>
-                        <th><?= $this->__('quantity') ?></th>
-                        <th><?= $this->__('unit_price') ?></th>
-                        <th><?= $this->__('total') ?></th>
+                        <th class="text-end"><?= $this->__('quantity') ?></th>
+                        <th class="text-end"><?= $this->__('unit_price') ?></th>
+                        <th class="text-end"><?= $this->__('total') ?></th>
                         <th><?= $this->__('notes') ?></th>
                     </tr>
                 </thead>
@@ -137,22 +168,22 @@
                     <tr>
                         <td><?= $line['line_number'] ?></td>
                         <td>
-                            <a href="/warehouse/items/<?= $line['item_id'] ?>">
+                            <a href="/warehouse/items/<?= $line['item_id'] ?>" class="text-primary">
                                 <?= $this->e($line['sku']) ?>
                             </a>
                         </td>
                         <td><?= $this->e($line['item_name']) ?></td>
-                        <td><?= $this->number($line['quantity']) ?> <?= $this->__('unit_' . ($line['unit'] ?? 'pcs')) ?></td>
-                        <td><?= $this->currency($line['unit_price']) ?></td>
-                        <td><?= $this->currency($line['total_price']) ?></td>
+                        <td class="text-end"><?= $this->number($line['quantity']) ?> <?= $this->__('unit_' . ($line['unit'] ?? 'pcs')) ?></td>
+                        <td class="text-end"><?= $this->currency($line['unit_price']) ?></td>
+                        <td class="text-end fw-medium"><?= $this->currency($line['total_price']) ?></td>
                         <td><?= $this->e($line['notes'] ?? '-') ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
-                <tfoot>
+                <tfoot class="table-light">
                     <tr>
-                        <td colspan="5" style="text-align: right;"><strong><?= $this->__('total') ?>:</strong></td>
-                        <td><strong><?= $this->currency($document['total_amount']) ?></strong></td>
+                        <td colspan="5" class="text-end fw-semibold"><?= $this->__('total') ?>:</td>
+                        <td class="text-end fw-semibold"><?= $this->currency($document['total_amount']) ?></td>
                         <td></td>
                     </tr>
                 </tfoot>
@@ -162,30 +193,32 @@
 </div>
 
 <?php if (!empty($batchAllocations)): ?>
-<div class="card" style="margin-top: 20px;">
-    <div class="card-header"><?= $this->__('batch_allocations') ?></div>
-    <div class="card-body">
-        <div class="table-container">
-            <table>
-                <thead>
+<div class="card mt-3">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="ri-stack-line me-2"></i><?= $this->__('batch_allocations') ?></h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
                     <tr>
                         <th><?= $this->__('batch') ?></th>
                         <th><?= $this->__('sku') ?></th>
                         <th><?= $this->__('name') ?></th>
-                        <th><?= $this->__('quantity') ?></th>
-                        <th><?= $this->__('unit_cost') ?></th>
-                        <th><?= $this->__('total') ?></th>
+                        <th class="text-end"><?= $this->__('quantity') ?></th>
+                        <th class="text-end"><?= $this->__('unit_cost') ?></th>
+                        <th class="text-end"><?= $this->__('total') ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($batchAllocations as $allocation): ?>
                     <tr>
-                        <td><?= $this->e($allocation['batch_code']) ?></td>
+                        <td><span class="badge bg-secondary-subtle text-secondary"><?= $this->e($allocation['batch_code']) ?></span></td>
                         <td><?= $this->e($allocation['sku']) ?></td>
                         <td><?= $this->e($allocation['item_name']) ?></td>
-                        <td><?= $this->number($allocation['quantity']) ?></td>
-                        <td><?= $this->currency($allocation['unit_cost']) ?></td>
-                        <td><?= $this->currency($allocation['total_cost']) ?></td>
+                        <td class="text-end"><?= $this->number($allocation['quantity']) ?></td>
+                        <td class="text-end"><?= $this->currency($allocation['unit_cost']) ?></td>
+                        <td class="text-end fw-medium"><?= $this->currency($allocation['total_cost']) ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -196,106 +229,35 @@
 <?php endif; ?>
 
 <!-- Cancel Modal -->
-<div id="cancel-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><?= $this->__('cancel_document') ?></h3>
-            <button type="button" class="modal-close" onclick="document.getElementById('cancel-modal').style.display='none'">&times;</button>
-        </div>
-        <form method="POST" action="/warehouse/documents/<?= $document['id'] ?>/cancel">
-            <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-            <div class="modal-body">
-                <p><?= $this->__('confirm_cancel_document') ?></p>
-                <?php if ($document['status'] === 'posted'): ?>
-                <p class="text-danger"><strong><?= $this->__('warning') ?>:</strong> <?= $this->__('cancel_will_reverse_movements') ?></p>
-                <?php endif; ?>
-                <div class="form-group">
-                    <label for="cancel_reason"><?= $this->__('cancellation_reason') ?> *</label>
-                    <textarea id="cancel_reason" name="cancel_reason" rows="3" required></textarea>
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cancelModalLabel"><i class="ri-close-circle-line me-2"></i><?= $this->__('cancel_document') ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/warehouse/documents/<?= $document['id'] ?>/cancel">
+                <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
+                <div class="modal-body">
+                    <p><?= $this->__('confirm_cancel_document') ?></p>
+                    <?php if ($document['status'] === 'posted'): ?>
+                    <div class="alert alert-danger">
+                        <i class="ri-alert-line me-2"></i>
+                        <strong><?= $this->__('warning') ?>:</strong> <?= $this->__('cancel_will_reverse_movements') ?>
+                    </div>
+                    <?php endif; ?>
+                    <div class="mb-3">
+                        <label for="cancel_reason" class="form-label"><?= $this->__('cancellation_reason') ?> <span class="text-danger">*</span></label>
+                        <textarea id="cancel_reason" name="cancel_reason" class="form-control" rows="3" required></textarea>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="document.getElementById('cancel-modal').style.display='none'"><?= $this->__('close') ?></button>
-                <button type="submit" class="btn btn-danger"><?= $this->__('confirm_cancellation') ?></button>
-            </div>
-        </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-soft-secondary" data-bs-dismiss="modal"><?= $this->__('close') ?></button>
+                    <button type="submit" class="btn btn-danger"><?= $this->__('confirm_cancellation') ?></button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-<style>
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-}
-.detail-row {
-    display: flex;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-}
-.detail-row:last-child {
-    border-bottom: none;
-}
-.detail-label {
-    flex: 0 0 120px;
-    color: var(--text-muted);
-    font-size: 13px;
-}
-.detail-value {
-    flex: 1;
-}
-.page-actions {
-    display: flex;
-    justify-content: space-between;
-}
-.actions-right {
-    display: flex;
-    gap: 10px;
-}
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-.modal-content {
-    background: white;
-    border-radius: var(--radius);
-    max-width: 500px;
-    width: 90%;
-}
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border);
-}
-.modal-header h3 {
-    margin: 0;
-}
-.modal-close {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-}
-.modal-body {
-    padding: 20px;
-}
-.modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-</style>
 
 <?php $this->endSection(); ?>

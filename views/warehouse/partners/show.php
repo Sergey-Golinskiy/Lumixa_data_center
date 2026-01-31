@@ -1,139 +1,206 @@
 <?php $this->section('content'); ?>
 
-<div class="page-actions" style="margin-bottom: 20px;">
-    <a href="/warehouse/partners" class="btn btn-secondary">&laquo; <?= $this->__('back_to', ['name' => $this->__('suppliers')]) ?></a>
+<!-- Action buttons -->
+<div class="mb-3 d-flex gap-2">
+    <a href="/warehouse/partners" class="btn btn-soft-secondary">
+        <i class="ri-arrow-left-line me-1"></i> <?= $this->__('back_to', ['name' => $this->__('suppliers')]) ?>
+    </a>
     <?php if ($this->can('warehouse.partners.edit')): ?>
-    <a href="/warehouse/partners/<?= $partner['id'] ?>/edit" class="btn btn-outline"><?= $this->__('edit') ?></a>
+    <a href="/warehouse/partners/<?= $partner['id'] ?>/edit" class="btn btn-primary">
+        <i class="ri-pencil-line me-1"></i> <?= $this->__('edit') ?>
+    </a>
     <?php endif; ?>
 </div>
 
-<div class="detail-grid">
+<div class="row">
     <!-- Supplier Information -->
-    <div class="card">
-        <div class="card-header"><?= $this->__('supplier_information') ?></div>
-        <div class="card-body">
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('code') ?></span>
-                <span class="detail-value"><strong><?= $this->e($partner['code']) ?></strong></span>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="ri-user-3-line me-2"></i><?= $this->__('supplier_information') ?></h5>
             </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('name') ?></span>
-                <span class="detail-value"><?= $this->e($partner['name']) ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('type') ?></span>
-                <span class="detail-value">
-                    <?php
-                    $typeClass = match($partner['type']) {
-                        'supplier' => 'info',
-                        'customer' => 'success',
-                        'both' => 'warning',
-                        default => 'secondary'
-                    };
-                    ?>
-                    <span class="badge badge-<?= $typeClass ?>"><?= ucfirst($partner['type']) ?></span>
-                </span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('status') ?></span>
-                <span class="detail-value">
-                    <?php if ($partner['is_active']): ?>
-                    <span class="badge badge-success"><?= $this->__('active') ?></span>
-                    <?php else: ?>
-                    <span class="badge badge-secondary"><?= $this->__('inactive') ?></span>
-                    <?php endif; ?>
-                </span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('tax_id') ?></span>
-                <span class="detail-value"><?= $this->e($partner['tax_id'] ?? '-') ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('created') ?></span>
-                <span class="detail-value"><?= $this->datetime($partner['created_at']) ?></span>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="ps-0 text-muted" style="width: 35%;"><?= $this->__('code') ?></th>
+                                <td class="text-primary fw-semibold"><?= $this->e($partner['code']) ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('name') ?></th>
+                                <td><?= $this->e($partner['name']) ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('type') ?></th>
+                                <td>
+                                    <?php
+                                    $typeClass = match($partner['type']) {
+                                        'supplier' => 'info',
+                                        'customer' => 'success',
+                                        'both' => 'warning',
+                                        default => 'secondary'
+                                    };
+                                    ?>
+                                    <span class="badge bg-<?= $typeClass ?>-subtle text-<?= $typeClass ?>"><?= ucfirst($partner['type']) ?></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('status') ?></th>
+                                <td>
+                                    <?php if ($partner['is_active']): ?>
+                                    <span class="badge bg-success-subtle text-success"><?= $this->__('active') ?></span>
+                                    <?php else: ?>
+                                    <span class="badge bg-secondary-subtle text-secondary"><?= $this->__('inactive') ?></span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('tax_id') ?></th>
+                                <td><?= $this->e($partner['tax_id'] ?? '-') ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('created') ?></th>
+                                <td><?= $this->datetime($partner['created_at']) ?></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Contact Information -->
-    <div class="card">
-        <div class="card-header"><?= $this->__('contact_information') ?></div>
-        <div class="card-body">
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('contact_person') ?></span>
-                <span class="detail-value"><?= $this->e($partner['contact_person'] ?? '-') ?></span>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="ri-contacts-line me-2"></i><?= $this->__('contact_information') ?></h5>
             </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('email') ?></span>
-                <span class="detail-value">
-                    <?php if ($partner['email']): ?>
-                    <a href="mailto:<?= $this->e($partner['email']) ?>"><?= $this->e($partner['email']) ?></a>
-                    <?php else: ?>
-                    -
-                    <?php endif; ?>
-                </span>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="ps-0 text-muted" style="width: 35%;"><?= $this->__('contact_person') ?></th>
+                                <td><?= $this->e($partner['contact_person'] ?? '-') ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('email') ?></th>
+                                <td>
+                                    <?php if ($partner['email']): ?>
+                                    <a href="mailto:<?= $this->e($partner['email']) ?>"><?= $this->e($partner['email']) ?></a>
+                                    <?php else: ?>
+                                    -
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('phone') ?></th>
+                                <td><?= $this->e($partner['phone'] ?? '-') ?></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('address') ?></th>
+                                <td><?= nl2br($this->e($partner['address'] ?? '-')) ?></td>
+                            </tr>
+                            <?php if ($partner['notes']): ?>
+                            <tr>
+                                <th class="ps-0 text-muted"><?= $this->__('notes') ?></th>
+                                <td><?= nl2br($this->e($partner['notes'])) ?></td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('phone') ?></span>
-                <span class="detail-value"><?= $this->e($partner['phone'] ?? '-') ?></span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('address') ?></span>
-                <span class="detail-value"><?= nl2br($this->e($partner['address'] ?? '-')) ?></span>
-            </div>
-            <?php if ($partner['notes']): ?>
-            <div class="detail-row">
-                <span class="detail-label"><?= $this->__('notes') ?></span>
-                <span class="detail-value"><?= nl2br($this->e($partner['notes'])) ?></span>
-            </div>
-            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <!-- Statistics -->
-<div class="summary-cards" style="margin: 20px 0;">
-    <div class="summary-card">
-        <div class="summary-value"><?= number_format($stats['total_documents'] ?? 0) ?></div>
-        <div class="summary-label"><?= $this->__('total_documents') ?></div>
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-3">
+                            <i class="ri-file-list-3-line"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-1"><?= $this->__('total_documents') ?></p>
+                        <h4 class="mb-0"><?= number_format($stats['total_documents'] ?? 0) ?></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="summary-card">
-        <div class="summary-value"><?= number_format($stats['total_receipts'] ?? 0, 2) ?></div>
-        <div class="summary-label"><?= $this->__('total_receipts') ?></div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle text-success rounded-circle fs-3">
+                            <i class="ri-arrow-down-line"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-1"><?= $this->__('total_receipts') ?></p>
+                        <h4 class="mb-0"><?= number_format($stats['total_receipts'] ?? 0, 2) ?></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="summary-card">
-        <div class="summary-value"><?= number_format($stats['total_shipments'] ?? 0, 2) ?></div>
-        <div class="summary-label"><?= $this->__('total_shipments') ?></div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle text-info rounded-circle fs-3">
+                            <i class="ri-arrow-up-line"></i>
+                        </span>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <p class="text-muted mb-1"><?= $this->__('total_shipments') ?></p>
+                        <h4 class="mb-0"><?= number_format($stats['total_shipments'] ?? 0, 2) ?></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Recent Documents -->
 <div class="card">
-    <div class="card-header"><?= $this->__('recent_documents') ?></div>
-    <div class="card-body">
-        <div class="table-container">
-            <table>
-                <thead>
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="ri-history-line me-2"></i><?= $this->__('recent_documents') ?></h5>
+    </div>
+    <div class="card-body p-0">
+        <?php if (empty($documents)): ?>
+        <div class="text-center py-5 text-muted">
+            <i class="ri-file-list-3-line fs-1 d-block mb-2"></i>
+            <?= $this->__('no_documents') ?>
+        </div>
+        <?php else: ?>
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle mb-0">
+                <thead class="table-light">
                     <tr>
                         <th><?= $this->__('date') ?></th>
                         <th><?= $this->__('document_number') ?></th>
                         <th><?= $this->__('type') ?></th>
                         <th><?= $this->__('status') ?></th>
-                        <th class="text-right"><?= $this->__('amount') ?></th>
+                        <th class="text-end"><?= $this->__('amount') ?></th>
                         <th><?= $this->__('created_by') ?></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($documents)): ?>
-                    <tr>
-                        <td colspan="6" class="text-center text-muted"><?= $this->__('no_documents') ?></td>
-                    </tr>
-                    <?php else: ?>
                     <?php foreach ($documents as $doc): ?>
                     <tr>
                         <td><?= $this->date($doc['document_date'], 'Y-m-d') ?></td>
                         <td>
-                            <a href="/warehouse/documents/<?= $doc['id'] ?>">
+                            <a href="/warehouse/documents/<?= $doc['id'] ?>" class="text-primary">
                                 <?= $this->e($doc['document_number']) ?>
                             </a>
                         </td>
@@ -147,66 +214,35 @@
                                 default => 'secondary'
                             };
                             ?>
-                            <span class="badge badge-<?= $statusClass ?>"><?= ucfirst($doc['status']) ?></span>
+                            <span class="badge bg-<?= $statusClass ?>-subtle text-<?= $statusClass ?>"><?= ucfirst($doc['status']) ?></span>
                         </td>
-                        <td class="text-right"><?= number_format($doc['total_amount'] ?? 0, 2) ?></td>
+                        <td class="text-end fw-medium"><?= number_format($doc['total_amount'] ?? 0, 2) ?></td>
                         <td><?= $this->e($doc['created_by_name'] ?? '-') ?></td>
                     </tr>
                     <?php endforeach; ?>
-                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
+        <?php endif; ?>
     </div>
 </div>
 
 <?php if ($this->can('warehouse.partners.delete') && ($stats['total_documents'] ?? 0) == 0): ?>
-<div class="card" style="margin-top: 20px; border-color: var(--danger);">
-    <div class="card-header" style="color: var(--danger);"><?= $this->__('danger_zone') ?></div>
+<div class="card mt-3 border-danger">
+    <div class="card-header bg-danger-subtle">
+        <h5 class="card-title mb-0 text-danger"><i class="ri-alert-line me-2"></i><?= $this->__('danger_zone') ?></h5>
+    </div>
     <div class="card-body">
         <form method="POST" action="/warehouse/partners/<?= $partner['id'] ?>/delete"
               onsubmit="return confirm('<?= $this->__('confirm_delete_supplier') ?>');">
             <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
-            <p><?= $this->__('delete_supplier_permanently') ?></p>
-            <button type="submit" class="btn btn-danger"><?= $this->__('delete_supplier') ?></button>
+            <p class="text-muted mb-3"><?= $this->__('delete_supplier_permanently') ?></p>
+            <button type="submit" class="btn btn-danger">
+                <i class="ri-delete-bin-line me-1"></i> <?= $this->__('delete_supplier') ?>
+            </button>
         </form>
     </div>
 </div>
 <?php endif; ?>
-
-<style>
-.detail-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-}
-.detail-row {
-    display: flex;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-}
-.detail-row:last-child { border-bottom: none; }
-.detail-label {
-    flex: 0 0 120px;
-    color: var(--text-muted);
-    font-size: 13px;
-}
-.detail-value { flex: 1; }
-.summary-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-}
-.summary-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 15px;
-    text-align: center;
-}
-.summary-value { font-size: 24px; font-weight: bold; color: var(--primary); }
-.summary-label { color: var(--text-muted); font-size: 13px; margin-top: 5px; }
-.text-right { text-align: right; }
-</style>
 
 <?php $this->endSection(); ?>
