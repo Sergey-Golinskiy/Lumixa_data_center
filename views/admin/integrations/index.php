@@ -162,8 +162,8 @@
                                     <select class="status-mapping-select" data-status-id="<?= $status['id'] ?>">
                                         <option value=""><?= $this->__('no_mapping') ?></option>
                                         <?php foreach ($internalStatuses as $internal): ?>
-                                            <option value="<?= $internal ?>" <?= $status['internal_status'] === $internal ? 'selected' : '' ?>>
-                                                <?= $this->__('order_status_' . $internal) ?>
+                                            <option value="<?= $this->e($internal['code']) ?>" <?= $status['internal_status'] === $internal['code'] ? 'selected' : '' ?>>
+                                                <?= $this->e($internal['name']) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>

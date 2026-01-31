@@ -19,7 +19,7 @@ class IntegrationsController extends Controller
         $woocommerceSettings = $this->getIntegrationSettings('woocommerce');
         $syncLogs = $this->getRecentSyncLogs('woocommerce', 10);
         $woocommerceStatuses = $this->getExternalOrderStatuses('woocommerce');
-        $internalStatuses = ['pending', 'processing', 'on_hold', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
+        $internalStatuses = $this->getInternalOrderStatuses();
 
         $this->view('admin/integrations/index', [
             'title' => $this->app->getTranslator()->get('integrations'),
@@ -348,6 +348,33 @@ class IntegrationsController extends Controller
         } catch (\Exception $e) {
             $this->jsonResponse(['success' => false, 'message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Get internal order statuses from database
+     */
+    private function getInternalOrderStatuses(): array
+    {
+        if (!$this->db()->tableExists('order_statuses')) {
+            // Fallback to hardcoded statuses if table doesn't exist
+            return [
+                ['code' => 'pending', 'name' => 'Pending'],
+                ['code' => 'processing', 'name' => 'Processing'],
+                ['code' => 'on_hold', 'name' => 'On Hold'],
+                ['code' => 'shipped', 'name' => 'Shipped'],
+                ['code' => 'delivered', 'name' => 'Delivered'],
+                ['code' => 'completed', 'name' => 'Completed'],
+                ['code' => 'cancelled', 'name' => 'Cancelled'],
+                ['code' => 'refunded', 'name' => 'Refunded'],
+            ];
+        }
+
+        return $this->db()->fetchAll(
+            "SELECT code, name, color
+             FROM order_statuses
+             WHERE is_active = 1
+             ORDER BY sort_order, name"
+        );
     }
 
     /**

@@ -63,8 +63,8 @@
                 <select name="status" class="live-filter-select">
                     <option value=""><?= $this->__('all_statuses') ?></option>
                     <?php foreach ($statuses as $st): ?>
-                        <option value="<?= $st ?>" <?= $status === $st ? 'selected' : '' ?>>
-                            <?= $this->__('order_status_' . $st) ?>
+                        <option value="<?= $this->e($st['code']) ?>" <?= $status === $st['code'] ? 'selected' : '' ?>>
+                            <?= $this->e($st['name']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

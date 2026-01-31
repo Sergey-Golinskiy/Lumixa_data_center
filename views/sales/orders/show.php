@@ -126,12 +126,10 @@
                     <input type="hidden" name="_csrf_token" value="<?= $this->e($csrfToken) ?>">
                     <div class="form-group">
                         <select name="status" class="status-select">
-                            <?php
-                            $statuses = ['pending', 'processing', 'on_hold', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
-                            foreach ($statuses as $st):
-                            ?>
-                                <option value="<?= $st ?>" <?= $order['status'] === $st ? 'selected' : '' ?>>
-                                    <?= $this->__('order_status_' . $st) ?>
+                            <?php foreach ($statuses as $st): ?>
+                                <option value="<?= $this->e($st['code']) ?>" <?= $order['status'] === $st['code'] ? 'selected' : '' ?>
+                                        data-color="<?= $this->e($st['color']) ?>">
+                                    <?= $this->e($st['name']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

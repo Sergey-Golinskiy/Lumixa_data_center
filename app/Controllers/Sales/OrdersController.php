@@ -80,6 +80,9 @@ class OrdersController extends Controller
         // Get summary stats
         $stats = $this->getOrderStats();
 
+        // Get order statuses from database
+        $orderStatuses = $this->getOrderStatuses();
+
         $this->view('sales/orders/index', [
             'title' => $this->app->getTranslator()->get('sales_orders'),
             'orders' => $orders,
@@ -93,7 +96,7 @@ class OrdersController extends Controller
             'total' => $total,
             'totalPages' => ceil($total / $perPage),
             'sources' => ['woocommerce', 'instagram', 'offline', 'manual'],
-            'statuses' => ['pending', 'processing', 'on_hold', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded']
+            'statuses' => $orderStatuses
         ]);
     }
 
@@ -129,10 +132,14 @@ class OrdersController extends Controller
             [$id]
         );
 
+        // Get order statuses from database
+        $orderStatuses = $this->getOrderStatuses();
+
         $this->view('sales/orders/show', [
             'title' => $this->app->getTranslator()->get('order') . ' ' . $order['order_number'],
             'order' => $order,
-            'items' => $items
+            'items' => $items,
+            'statuses' => $orderStatuses
         ]);
     }
 
@@ -431,7 +438,7 @@ class OrdersController extends Controller
         }
 
         $newStatus = $this->post('status');
-        $validStatuses = ['pending', 'processing', 'on_hold', 'shipped', 'delivered', 'completed', 'cancelled', 'refunded'];
+        $validStatuses = $this->getValidStatusCodes();
 
         if (!in_array($newStatus, $validStatuses)) {
             $this->session->setFlash('error', $translator->get('invalid_status'));
@@ -595,5 +602,41 @@ class OrdersController extends Controller
         $this->session->setFlash('error', $translator->get('sales_orders_table_missing'));
         $this->redirect('/admin/diagnostics');
         return false;
+    }
+
+    /**
+     * Get order statuses from database
+     */
+    private function getOrderStatuses(): array
+    {
+        if (!$this->db()->tableExists('order_statuses')) {
+            // Fallback to hardcoded statuses if table doesn't exist
+            return [
+                ['code' => 'pending', 'name' => 'Pending', 'color' => '#f59e0b'],
+                ['code' => 'processing', 'name' => 'Processing', 'color' => '#3b82f6'],
+                ['code' => 'on_hold', 'name' => 'On Hold', 'color' => '#8b5cf6'],
+                ['code' => 'shipped', 'name' => 'Shipped', 'color' => '#06b6d4'],
+                ['code' => 'delivered', 'name' => 'Delivered', 'color' => '#10b981'],
+                ['code' => 'completed', 'name' => 'Completed', 'color' => '#22c55e'],
+                ['code' => 'cancelled', 'name' => 'Cancelled', 'color' => '#ef4444'],
+                ['code' => 'refunded', 'name' => 'Refunded', 'color' => '#f97316'],
+            ];
+        }
+
+        return $this->db()->fetchAll(
+            "SELECT code, name, color, is_default, is_final
+             FROM order_statuses
+             WHERE is_active = 1
+             ORDER BY sort_order, name"
+        );
+    }
+
+    /**
+     * Get valid status codes
+     */
+    private function getValidStatusCodes(): array
+    {
+        $statuses = $this->getOrderStatuses();
+        return array_column($statuses, 'code');
     }
 }
