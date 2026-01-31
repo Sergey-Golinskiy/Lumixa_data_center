@@ -16,7 +16,7 @@
             <div class="item-totals">
                 <div class="total-box">
                     <div class="total-value"><?= number_format($totals['total_quantity'] ?? 0, 3) ?></div>
-                    <div class="total-label"><?= $this->__('total') ?> <?= $this->e($item['unit']) ?></div>
+                    <div class="total-label"><?= $this->__('total') ?> <?= $this->__('unit_' . $item['unit']) ?></div>
                 </div>
                 <div class="total-box">
                     <div class="total-value"><?= number_format($totals['total_reserved'] ?? 0, 3) ?></div>

@@ -9,7 +9,7 @@
 <div class="page-header">
     <div>
         <h1><?= h($title) ?></h1>
-        <p class="text-muted">SKU: <?= h($item['sku']) ?> | <?= __('Available') ?>: <strong><?= number_format($availableQty, 2) ?> <?= h($item['unit']) ?></strong></p>
+        <p class="text-muted">SKU: <?= h($item['sku']) ?> | <?= __('Available') ?>: <strong><?= number_format($availableQty, 2) ?> <?= __('unit_' . $item['unit']) ?></strong></p>
     </div>
     <div>
         <a href="/warehouse/batches/create?item_id=<?= $item['id'] ?>" class="btn btn-primary">

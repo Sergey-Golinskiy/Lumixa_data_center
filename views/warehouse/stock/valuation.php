@@ -98,10 +98,10 @@
                             </a>
                         </td>
                         <td><?= $this->e($item['name']) ?></td>
-                        <td><?= $this->e(ucfirst($item['type'] ?? '-')) ?></td>
+                        <td><?= $this->__('item_type_' . ($item['type'] ?? 'material')) ?></td>
                         <td class="text-right">
                             <?= number_format($item['quantity'], 3) ?>
-                            <small class="text-muted"><?= $this->e($item['unit']) ?></small>
+                            <small class="text-muted"><?= $this->__('unit_' . ($item['unit'] ?? 'pcs')) ?></small>
                         </td>
                         <td class="text-right"><?= number_format($item['avg_cost'], 4) ?></td>
                         <td class="text-right"><strong><?= number_format($item['total_value'], 2) ?></strong></td>

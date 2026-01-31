@@ -32,11 +32,11 @@
             </div>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('type') ?></span>
-                <span class="detail-value"><?= $this->e(ucfirst($item['type'] ?? '')) ?></span>
+                <span class="detail-value"><?= $this->__('item_type_' . ($item['type'] ?? 'material')) ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('unit') ?></span>
-                <span class="detail-value"><?= $this->e($item['unit'] ?? '') ?></span>
+                <span class="detail-value"><?= $this->__('unit_' . ($item['unit'] ?? 'pcs')) ?></span>
             </div>
             <div class="detail-row">
                 <span class="detail-label"><?= $this->__('status') ?></span>

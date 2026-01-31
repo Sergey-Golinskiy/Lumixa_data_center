@@ -110,7 +110,7 @@
                         <td><?= $this->e($stock['category'] ?? '-') ?></td>
                         <td class="text-right">
                             <?= number_format($stock['total_quantity'], 3) ?>
-                            <small class="text-muted"><?= $this->e($stock['unit']) ?></small>
+                            <small class="text-muted"><?= $this->__('unit_' . ($stock['unit'] ?? 'pcs')) ?></small>
                         </td>
                         <td class="text-right">
                             <?php if ($stock['total_reserved'] > 0): ?>

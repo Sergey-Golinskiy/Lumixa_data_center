@@ -214,8 +214,8 @@
                             <a href="/warehouse/items/<?= $mat['item_id'] ?>"><?= $this->e($mat['sku']) ?></a>
                             <br><small class="text-muted"><?= $this->e($mat['item_name']) ?></small>
                         </td>
-                        <td class="text-right"><?= number_format($mat['planned_quantity'], 4) ?> <?= $this->e($mat['unit']) ?></td>
-                        <td class="text-right"><?= number_format($mat['actual_quantity'], 4) ?> <?= $this->e($mat['unit']) ?></td>
+                        <td class="text-right"><?= number_format($mat['planned_quantity'], 4) ?> <?= $this->__('unit_' . $mat['unit']) ?></td>
+                        <td class="text-right"><?= number_format($mat['actual_quantity'], 4) ?> <?= $this->__('unit_' . $mat['unit']) ?></td>
                         <td class="text-right"><?= number_format($mat['unit_cost'], 4) ?></td>
                         <td class="text-right"><?= number_format($value, 2) ?></td>
                     </tr>

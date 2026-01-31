@@ -374,7 +374,7 @@
                             </a>
                         </td>
                         <td><?= $this->e($item['item_name'] ?? '') ?></td>
-                        <td><?= $this->e($item['unit'] ?? 'pcs') ?></td>
+                        <td><?= $this->__('unit_' . ($item['unit'] ?? 'pcs')) ?></td>
                         <td class="text-right">
                             <?php if ($this->can('catalog.products.packaging')): ?>
                             <form method="POST" action="/catalog/products/<?= $product['id'] ?>/packaging/<?= $item['id'] ?>" style="display:inline;">

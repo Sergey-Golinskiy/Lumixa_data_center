@@ -119,7 +119,7 @@
                             <?php else: ?>
                             <span class="text-danger">-<?= number_format($movement['quantity'], 3) ?></span>
                             <?php endif; ?>
-                            <small class="text-muted"><?= $this->e($movement['unit']) ?></small>
+                            <small class="text-muted"><?= $this->__('unit_' . ($movement['unit'] ?? 'pcs')) ?></small>
                         </td>
                         <td class="text-right"><?= number_format($movement['unit_cost'], 4) ?></td>
                         <td class="text-right"><?= number_format($movement['quantity'] * $movement['unit_cost'], 2) ?></td>

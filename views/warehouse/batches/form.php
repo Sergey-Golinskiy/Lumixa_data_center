@@ -71,7 +71,7 @@ $isEdit = $batch !== null;
                                    min="0.01"
                                    required>
                             <div class="input-group-append">
-                                <span class="input-group-text"><?= h($item['unit']) ?></span>
+                                <span class="input-group-text"><?= __('unit_' . $item['unit']) ?></span>
                             </div>
                         </div>
                     </div>

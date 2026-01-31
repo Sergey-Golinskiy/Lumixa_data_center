@@ -142,7 +142,7 @@
                             </a>
                         </td>
                         <td><?= $this->e($line['item_name']) ?></td>
-                        <td><?= $this->number($line['quantity']) ?> <?= $line['unit'] ?></td>
+                        <td><?= $this->number($line['quantity']) ?> <?= $this->__('unit_' . ($line['unit'] ?? 'pcs')) ?></td>
                         <td><?= $this->currency($line['unit_price']) ?></td>
                         <td><?= $this->currency($line['total_price']) ?></td>
                         <td><?= $this->e($line['notes'] ?? '-') ?></td>

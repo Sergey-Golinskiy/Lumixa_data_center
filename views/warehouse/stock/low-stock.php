@@ -64,7 +64,7 @@
                         </td>
                         <td><?= $this->e($item['name']) ?></td>
                         <td><?= $this->e($item['category'] ?? '-') ?></td>
-                        <td class="text-right"><?= number_format($item['min_stock'], 0) ?> <?= $this->e($item['unit']) ?></td>
+                        <td class="text-right"><?= number_format($item['min_stock'], 0) ?> <?= $this->__('unit_' . $item['unit']) ?></td>
                         <td class="text-right">
                             <?php if ($item['current_stock'] <= 0): ?>
                             <span class="text-danger"><strong>0</strong></span>

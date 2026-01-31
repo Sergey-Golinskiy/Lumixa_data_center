@@ -1021,12 +1021,12 @@ return [
     'item_type_fasteners_desc' => 'Fasteners and hardware (bolts, nuts, screws, washers, rivets, anchors)',
 
     // Units
-    'unit_pcs' => 'pcs (pieces)',
-    'unit_g' => 'g (grams)',
-    'unit_kg' => 'kg (kilograms)',
-    'unit_m' => 'm (meters)',
-    'unit_l' => 'l (liters)',
-    'unit_set' => 'set (sets)',
+    'unit_pcs' => 'pcs',
+    'unit_g' => 'g',
+    'unit_kg' => 'kg',
+    'unit_m' => 'm',
+    'unit_l' => 'l',
+    'unit_set' => 'set',
 
     // Costing methods (for items form)
     'costing_method' => 'Costing Method',

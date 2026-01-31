@@ -54,7 +54,7 @@
                         <td><strong><?= $this->e($item['sku']) ?></strong></td>
                         <td><?= $this->e($item['name']) ?></td>
                         <td><?= $this->e($types[$item['type']] ?? $item['type']) ?></td>
-                        <td><?= $this->e($item['unit']) ?></td>
+                        <td><?= $this->__('unit_' . $item['unit']) ?></td>
                         <td><?= $this->number($item['total_on_hand'] ?? 0) ?></td>
                         <td><?= $this->number($item['total_reserved'] ?? 0) ?></td>
                         <td><?= $this->number(($item['total_on_hand'] ?? 0) - ($item['total_reserved'] ?? 0)) ?></td>
