@@ -130,6 +130,14 @@ return function (Router $router) {
         $router->post('/integrations/woocommerce/sync-statuses', 'Admin\\IntegrationsController@syncWooCommerceStatuses');
         $router->post('/integrations/woocommerce/status', 'Admin\\IntegrationsController@updateWooCommerceStatus');
 
+        // Order Statuses
+        $router->get('/order-statuses', 'Admin\\OrderStatusesController@index', 'admin.order-statuses');
+        $router->get('/order-statuses/create', 'Admin\\OrderStatusesController@create', 'admin.order-statuses.create');
+        $router->post('/order-statuses', 'Admin\\OrderStatusesController@store');
+        $router->get('/order-statuses/{id}/edit', 'Admin\\OrderStatusesController@edit', 'admin.order-statuses.edit');
+        $router->post('/order-statuses/{id}', 'Admin\\OrderStatusesController@update');
+        $router->post('/order-statuses/{id}/delete', 'Admin\\OrderStatusesController@delete');
+
     }, ['AdminMiddleware', 'CSRFMiddleware']);
 
     // ========================================

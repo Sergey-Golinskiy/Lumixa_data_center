@@ -143,6 +143,18 @@
                 </ul>
             </div>
 
+            <!-- Orders Settings -->
+            <div class="admin-menu-card">
+                <div class="admin-menu-card-header">
+                    <span class="admin-menu-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">&#128722;</span>
+                    <h3><?= $this->__('orders_settings') ?></h3>
+                </div>
+                <p class="admin-menu-desc"><?= $this->__('orders_settings_desc') ?></p>
+                <ul class="admin-menu-links">
+                    <li><a href="/admin/order-statuses"><span class="link-icon">&#128203;</span> <?= $this->__('nav_order_statuses') ?></a></li>
+                </ul>
+            </div>
+
             <!-- Item Settings -->
             <div class="admin-menu-card">
                 <div class="admin-menu-card-header">
